@@ -1,4 +1,4 @@
-import React from 'react';
+
 import './Battery.css';
 
 export const Battery = ({children, value}) => {

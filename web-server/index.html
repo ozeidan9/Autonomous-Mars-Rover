@@ -19,7 +19,7 @@
             width: 100%;
             height: 100%;
             position: relative;
-            background-color: rgb(217, 179, 210); <!-- website has orange back ground color -->
+            background-color: rgb(45, 166, 214); /* website has orange back ground color */
         }
 
         .center {
@@ -30,13 +30,20 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: white; <!-- all the text will appear white -->
+            color: white; /* all the text will appear white */
             font-family: "Trebuchet MS", Helvetica, sans-serif;
             text-align: center;
         }
 
+        label {
+            padding-right: 10px;
+            font-size: 2rem;
+            font-family: "Consolas";
+        }
+
+
         h1 {
-            font-size: 144px;
+            font-size: 44px;
         }
 
         p {
@@ -47,17 +54,24 @@
 
 <body>
     <div class="center">
-        <h1>Hello!</h1>
-        <p>DO NOT PRESS ANY BUTTON</p>
-        <form action="" method="post">
-            <label for="command">Type something: </label>
-            <input type="text" id="command" name="command"><br><br>
-        </form>
-        <form action="" method="post">
-            <button name="button" value='1'>button1</button>
-            <button name="button" value='2'>button2</button>
-        </form>
+        <h1>MARS ROVER DEPLOYED!</h1>
+
     </div>
+
+    <label for="fuel">Fuel level:</label>
+
+    <meter id="fuel"
+        min="0" max="100"
+        low="33" high="66" optimum="80"
+        value="50">
+        at 50/100
+    </meter>
+
+
+    
+
+
+    
 </body>
 
 </html>

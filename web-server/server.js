@@ -1,10 +1,12 @@
 // TCP server communicates with the ESP32    
+
+
 var net = require('net');
 var tcpserver = net.createServer();
 var client;
 tcpserver.on('connection', handleConnection);
 const tcphost = '0.0.0.0'; // localhost
-const tcpport = 9000;
+const tcpport = 15000;
 tcpserver.listen(tcpport, tcphost, function() {
     console.log('Server is listening to %j', tcpserver.address());
 });
@@ -71,6 +73,8 @@ const requestListener = function(req, res) {
     res.writeHead(200);
     res.end(indexFile);
 };
+
+
 
 const httpserver = http.createServer(requestListener);
 
