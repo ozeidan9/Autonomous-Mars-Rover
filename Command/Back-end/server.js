@@ -1,6 +1,5 @@
 // TCP server communicates with the ESP32    
 
-
 var net = require('net');
 var tcpserver = net.createServer();
 var client;
