@@ -1,0 +1,14 @@
+
+@font-face {
+    font-family: 'mars_font'; /*a name to be used later*/
+    src: url('comp-resources/Mars.ttf'); /*URL to font*/
+  }
+  
+
+
+h1{
+    color: rgb(255, 255, 255);
+    font-family: 'mars_font';
+    font-size: 60px;
+    text-align: center;
+}

@@ -1,0 +1,41 @@
+.button {
+    width: 200px;
+    height: 50px;
+    background-color: #555555;
+    color: white;
+    border-radius: 12px;
+    width: 80px;
+    height: 80px;
+}
+.forward {
+   
+    align-content: center;
+    position: absolute;
+    top: 0px;
+    left: 80px;
+    justify-content: left;
+}
+.backward {
+    
+    align-content: above;
+    position: absolute;
+    top: 160px;
+    left: 80px;
+    justify-content: left;
+}
+.left {
+   
+    align-content: center;
+    position: absolute;
+    top: 80px;
+    left: 0px;
+    justify-content: left;
+}
+.right {
+    
+    align-content: center;
+    position: absolute;
+    top: 80px;
+    left: 160px;
+    justify-content: left;
+}

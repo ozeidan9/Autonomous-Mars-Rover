@@ -1,27 +1,52 @@
 // client/src/App.js
 
 import "./App.css";
-import React from "react";
-import Home from "./Home";
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-import ReactDOM from 'react-dom';
+import React, { Component } from 'react';
+import Home from "./components/Home";
+import Level from "./components/Level";
+import Map from "./components/Map";
+import MovCtrl from "./components/MovCtrl";
+import Switcher from "./components/Switcher";
+import { Routes ,Route } from 'react-router-dom';
 
 
 
-function App() {
+class App extends React.Component {
 
-  return (
-    <Router>
+  render() {
 
-      <Switch>
-        <div className="App-body">
-          <Route path='/' exact component={Home} />
-        </div>
+    return(
+        <body>
+          
+          <div class="App-header">
+            <Home /> 
+          </div>
 
-      </Switch>
-    </Router>
-      
-  );
+          <div class="App-level">
+            <Level />
+          </div>
+          
+          <div class="App-map">
+            <Map />
+          </div>
+          <div class="App-controller">
+            <div class="App-mov">
+              <MovCtrl />
+            </div>
+            
+            <div class="App-auto-text">AUTO</div>
+            <div class="App-man-text">MANUAL</div>
+
+            <div class="App-auto">
+              <Switcher />
+            </div>
+          </div>
+
+        </body>
+    )
+
+  }
 }
+
 
 export default App;
