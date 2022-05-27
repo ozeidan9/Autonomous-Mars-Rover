@@ -12,6 +12,32 @@ import { Routes ,Route } from 'react-router-dom';
 
 
 class App extends React.Component {
+    
+  constructor(props){
+
+  super(props)
+
+  this.state={apiResponse:""};
+
+  }
+
+
+
+  callAPI(){
+
+    fetch("http://localhost:3001/level")
+
+     .then(res =>res.text())
+
+     .then(res =>this.setState({apiResponse: res}));
+
+  }
+
+  componentWillMount(){
+
+    this.callAPI();
+
+  }
 
   render() {
 
@@ -41,7 +67,7 @@ class App extends React.Component {
               <Switcher />
             </div>
           </div>
-
+          <p>{this.state.apiResponse}</p>
         </body>
     )
 
