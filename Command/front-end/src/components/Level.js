@@ -1,25 +1,45 @@
 import "./Level.css";
 import React, { Component } from 'react';
+import { useEffect, useCallback, useState } from "react";
+
 
 function refreshPage() {
     window.location.reload(false);
   }
 
-  function refresh() {
-    window .location.reload();
-}
+// function mountHandler () {
+//     useEffect(() => {
+//         return refreshPage
+//     },[])
+//     return null
+// }
+
 
 
 class Level extends Component {
+    
 
     constructor(props){
 
-        super(props)
+        super(props);
       
         this.state={apiResponse:""};
-      
+    
     }
-      
+    
+    // componentDidMount() {
+    //     // Call this function so that it fetch first time right after mounting the component
+    
+    //     // set Interval
+    //     this.interval = setInterval(, 7000);
+    // }
+    
+    // componentWillUnmount() {
+    //     // Clear the interval right before component unmount
+    //     clearInterval(this.interval);
+    // }
+
+    
       
     callAPI(){
     
@@ -34,6 +54,7 @@ class Level extends Component {
     componentWillMount(){
     
         this.callAPI();
+
     
     }
 
@@ -44,8 +65,6 @@ class Level extends Component {
             <div>
             
                 
-                refresh()
-
                 <label for="fuel">Battery Level:</label>
 
                 <meter id="fuel"
@@ -54,7 +73,8 @@ class Level extends Component {
                     low="33" high="66" optimum="80"
                     value= {this.state.apiResponse}>
                     
-                    refreshPage();
+
+                    refreshPage()
 
                     
                     

@@ -9,6 +9,7 @@ function Switcher() {
         isOn={value}
         onColor="#FFCC00"
         handleToggle={() => setValue(!value)}
+        
       />
     </div>
   );

@@ -67,7 +67,7 @@ class App extends React.Component {
               <Switcher />
             </div>
           </div>
-          <p>{this.state.apiResponse}</p>
+          {/* <p>{this.state.apiResponse}</p> */}
         </body>
     )
 
