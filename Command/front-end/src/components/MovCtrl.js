@@ -50,32 +50,37 @@ class MovCtrl extends React.Component {
     // value = '0';
 
     
-  
-
     componentDidMount() {
-
-        
-        const controls = {
-            direction: this.state.direction
-        
-        };
-
-
-        Axios.post("http://localhost:3001/mov_ctrl", {...controls})
-            .then(res => {
-            // const direction_data = res.data;
-            // // this.setState({ direction : res.data});
-            // this.value = direction_data;
-            console.log(res);
-            console.log(res.data)
-            })
-        
-        
+        // Simple POST request with a JSON body using axios
+        const controls = { direction: 'UP-special' };
+        Axios.post('http://localhost:3001/mov_ctrl', controls);
+            // .then(response => this.setState({ articleId: response.data.id }));
     }
 
-    upfunc(){
-        this.value = 'UP';
-    }
+    // componentDidMount() {
+
+        
+    //     const controls = {
+    //         direction: this.state.direction
+        
+    //     };
+
+
+    //     Axios.post("http://localhost:3001/mov_ctrl", {...controls})
+    //         .then(res => {
+    //         // const direction_data = res.data;
+    //         // // this.setState({ direction : res.data});
+    //         // this.value = direction_data;
+    //         console.log(res);
+    //         console.log(res.data)
+    //         })
+        
+        
+    // }
+
+    // upfunc(){
+    //     this.value = 'UP';
+    // }
 
     render() {
        
@@ -87,9 +92,9 @@ class MovCtrl extends React.Component {
         // this.state.direction.map (direction =>  {'UP'} );
 
 
-        this.setState({
-            direction: 'UP'
-          })
+        // this.setState({
+        //     direction: 'UP'
+        //   })
 
 
         // this.value = 'UP';

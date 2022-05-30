@@ -37,15 +37,15 @@ const http = require('http');
 // });
 
 
-router.get("", async (req,res)=>{
+router.post("", async (req,res)=>{
     // values coming from the client
-    // const recv_direction = req.params.direction;
+    // const recv_direction = req.query.direction;
     // console.log(recv_direction); // this line return {} empty object
     // get data of that user by his/her mail
     // const buttondata = await myModel.findOne({
     // const buttondata = ({
     //     recv_direction
-    // // }).exec()
+    // // // }).exec()
     // })
 
 
@@ -58,7 +58,8 @@ router.get("", async (req,res)=>{
         data: direction
     })
 
-    console.log(req.body.direction); //omar added
+    console.log(direction); //omar added
+    console.log('hi');
 }) 
 
 
