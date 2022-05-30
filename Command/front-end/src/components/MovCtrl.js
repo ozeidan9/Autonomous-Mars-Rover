@@ -31,21 +31,24 @@ class MovCtrl extends React.Component {
         
     }
 
-    render() {
-
+    upfunc(){
         this.state.direction = 'UP';
+    }
+
+    render() {
+       
         this.state.direction = 'down';
         this.state.direction = 'down';
-
-
+        
 
         return (
             
             <div class = "MovCtrl" id=""> 
-                <button class="button forward" onclick={ Socket.emit('direction', 'UP') }>forward!</button> 
+                <button onClick={this.upfunc()} class="button forward">forward!</button> 
                 <button class="button backward" onClick={ Socket.emit('direction', 'DOWN')}>backward!</button> 
                 <button class="button left" onClick={ Socket.emit('direction','LEFT')}>left!</button> 
                 <button class="button right" onClick={ Socket.emit('direction','RIGHT')}>right!</button> 
+                
             </div>
         )
 
