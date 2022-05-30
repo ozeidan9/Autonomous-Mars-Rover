@@ -8,7 +8,6 @@ const http = require('http');
 // var io = require('socket.io')(http);
 
 
-
 // const express = require("express"),
 //   router = express(),
 //   port = process.env.PORT || 10000,
@@ -36,6 +35,12 @@ const http = require('http');
 //     });
 // });
 
+const bp = require('body-parser');
+
+router.use(bp.json());
+router.use(bp.urlencoded({ extended: true }));
+
+
 
 router.post("", async (req,res)=>{
     // values coming from the client
@@ -51,14 +56,14 @@ router.post("", async (req,res)=>{
 
     const { 
         direction
-       } = req.body.direction;
+       } = req.body;
 
     res.status(200).json({
         status: 200,
         data: direction
     })
 
-    console.log(direction); //omar added
+    console.log(req.body); //omar added
     console.log('hi');
 }) 
 

@@ -52,7 +52,7 @@ class MovCtrl extends React.Component {
     
     componentDidMount() {
         // Simple POST request with a JSON body using axios
-        const controls = { direction: 'UP-special' };
+        const controls = { direction: 'UP' };
         Axios.post('http://localhost:3001/mov_ctrl', controls);
             // .then(response => this.setState({ articleId: response.data.id }));
     }
