@@ -39,19 +39,26 @@ const http = require('http');
 
 router.get("", async (req,res)=>{
     // values coming from the client
-    const recv_direction = req.query.direction;
-    console.log(req.query.direction); // this line return {} empty object
+    // const recv_direction = req.params.direction;
+    // console.log(recv_direction); // this line return {} empty object
     // get data of that user by his/her mail
     // const buttondata = await myModel.findOne({
-    const buttondata = ({
-        direction: recv_direction
-    // }).exec()
-    })
+    // const buttondata = ({
+    //     recv_direction
+    // // }).exec()
+    // })
+
+
+    const { 
+        direction
+       } = req.body.direction;
 
     res.status(200).json({
         status: 200,
-        data: buttondata
+        data: direction
     })
+
+    console.log(req.body.direction); //omar added
 }) 
 
 

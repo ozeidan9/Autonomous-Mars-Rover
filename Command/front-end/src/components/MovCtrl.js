@@ -7,47 +7,108 @@ import Axios from 'axios';
 
 
 
+// const [direction] = useState(null)
+
         
 
 
 class MovCtrl extends React.Component {
 
 
+    // state = {
+    //     direction: []
+    // }
+
+    // constructor(props) {
+    //     super(props);
+    //     this.state =({
+    //       direction: ['']
+    //     })
+    // }
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            direction: ''
+        }
         
-    state = {
-        direction : ''
+
     }
+    
+    
+    
 
+    // constructor(props){
 
+    //     super(props);
+      
+    //     this.value='default';
+    
+    // }
+    // direction = useState(null)
 
+    // value = '0';
+
+    
+  
 
     componentDidMount() {
-        Axios.get("http://localhost:3001/mov_ctrl")
+
+        
+        const controls = {
+            direction: this.state.direction
+        
+        };
+
+
+        Axios.post("http://localhost:3001/mov_ctrl", {...controls})
             .then(res => {
-            const direction = res.data;
-            this.setState({ direction });
+            // const direction_data = res.data;
+            // // this.setState({ direction : res.data});
+            // this.value = direction_data;
+            console.log(res);
+            console.log(res.data)
             })
         
         
     }
 
     upfunc(){
-        this.state.direction = 'UP';
+        this.value = 'UP';
     }
 
     render() {
        
-        this.state.direction = 'down';
-        this.state.direction = 'down';
+        // this.setState({
+        //     direction : [...this.state.direction, 'UP']
+        // })
+
+
+        // this.state.direction.map (direction =>  {'UP'} );
+
+
+        this.setState({
+            direction: 'UP'
+          })
+
+
+        // this.value = 'UP';
+
+        // this.value = 'DOWN';
+
+          
+        // this.state.direction = 'down';
+        // this.state.direction = 'down';
+
         
 
         return (
             
             <div class = "MovCtrl" id=""> 
-                <button onClick={this.upfunc()} class="button forward">forward!</button> 
-                <button class="button backward" onClick={ Socket.emit('direction', 'DOWN')}>backward!</button> 
-                <button class="button left" onClick={ Socket.emit('direction','LEFT')}>left!</button> 
-                <button class="button right" onClick={ Socket.emit('direction','RIGHT')}>right!</button> 
+                <button class="button forward" onClick={()=>alert("up")}>forward!</button> 
+                <button class="button backward" onClick={()=>alert("down")}>backward!</button> 
+                <button class="button left" onClick={()=>alert("left")}>left!</button> 
+                <button class="button right" onClick={()=>alert("right")}>right!</button> 
                 
             </div>
         )
