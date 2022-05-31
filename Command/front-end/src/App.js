@@ -10,39 +10,31 @@ import Switcher from "./components/Switcher";
 import { Routes ,Route } from 'react-router-dom';
 
 
-
-
-
-
-
-
-
-
 class App extends React.Component {
     
   constructor(props){
 
   super(props)
 
-  this.state={apiResponse:""};
+  // this.state={apiResponse:""};
 
   }
 
 
 
-  callAPI(){
+  // callAPI(){
 
-    fetch("http://localhost:3001/level")
+  //   fetch("http://localhost:3001/level")
 
-     .then(res =>res.text())
+  //    .then(res =>res.text())
 
-     .then(res =>this.setState({apiResponse: res}));
+  //    .then(res =>this.setState({apiResponse: res}));
 
-  }
+  // }
 
   componentWillMount(){
 
-    this.callAPI();
+    // this.callAPI();
 
   }
 

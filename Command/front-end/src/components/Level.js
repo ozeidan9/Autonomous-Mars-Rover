@@ -1,90 +1,28 @@
+import React from "react";
 import "./Level.css";
-import React, { Component } from 'react';
-import { useEffect, useCallback, useState } from "react";
 
+let inputval = 60;
+const Level = () => (
 
-function refreshPage() {
-    window.location.reload(false);
-  }
-
-// function mountHandler () {
-//     useEffect(() => {
-//         return refreshPage
-//     },[])
-//     return null
-// }
-
-
-
-class Level extends Component {
-    
-
-    constructor(props){
-
-        super(props);
-      
-        this.state={apiResponse:""};
-    
-    }
-    
-    // componentDidMount() {
-    //     // Call this function so that it fetch first time right after mounting the component
-    
-    //     // set Interval
-    //     this.interval = setInterval(, 7000);
-    // }
-    
-    // componentWillUnmount() {
-    //     // Clear the interval right before component unmount
-    //     clearInterval(this.interval);
-    // }
-
-    
-      
-    callAPI(){
-    
-        fetch("http://localhost:3001/level")
-    
-        .then(res =>res.text())
-    
-        .then(res =>this.setState({apiResponse: res}));
-    
-    }
-    
-    componentWillMount(){
-    
-        this.callAPI();
-
-    
-    }
-
-
-    render() {
-
-        return(
-            <div>
-            
+    <div>
                 
-                <label for="fuel">Battery Level:</label>
+        <label for="fuel">Battery Level:</label>
 
-                <meter id="fuel"
-                    
-                    min="0" max="100"
-                    low="33" high="66" optimum="80"
-                    value= {this.state.apiResponse}>
-                    
+        <meter id="fuel"
+            
+            min="0" max="100"
+            low="33" high="66" optimum="80"
+            // value= {this.state.apiResponse}>
+            value = {inputval} >
+       
+            {/* refreshPage() */}
 
-                    refreshPage()
+            
+            
+        </meter>
+    </div>
 
-                    
-                    
-                </meter>
-            </div>
-        )
-    }
-    
-}
-
+);
 
 
 export default Level;
