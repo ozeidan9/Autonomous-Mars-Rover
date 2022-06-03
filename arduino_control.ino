@@ -34,7 +34,7 @@ bool alreadyconnected = false; //bool which checks whether the ESP32 has already
 
 //Event for when the ESP32 successfully connects as a Wifi Station
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info){
-  Serial.println("Connected to AP successfully!");
+  Serial.println("Connected to Web Backend successfully!");
 }
 
 //Event for when the ESP32 successfully receives it's local IP from the router
@@ -98,7 +98,16 @@ void loop() {
   while (true){
     
     char Energyinit = Serial1.read();       //Omar added: forwards battery level rcvd from Energy to Cmd
-    client.write(Energyinit);
+    Serial.print("Sending Battery message to command: ");
+    for(int i = 0; i < 32; i++){
+      Serial.write(Energyinit[i]);
+      client.write(Energyinit[i]);
+      Energyinit[i] = ' ';
+    }
+    Serial.println();
+    client.write('\n');
+
+    
 
 
     //Attempts to connect to Server using provided Host and Port
