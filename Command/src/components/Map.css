@@ -1,10 +1,12 @@
 h2 {
 
-    font-family: "Arial";
+    font-family: "Lato";
+    font-style: 'bold';
     color:rgb(255, 255, 255);
-    font-size: 30px;
-    position: relative;
-    align-content: center;
+    font-size: 36px;
+    /* position: relative; */
+    /* align-content: center; */
+    justify-content: center;
 
 
 }

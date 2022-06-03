@@ -1,10 +1,11 @@
 label {
     
-    font-family: "Arial";
+    font-family: "Lato";
+    font-style: 'bold';
     color:rgb(255, 255, 255);
     top: 37px;
     left: 130px;
-    font-size: 30px;
+    font-size: 36px;
     position: relative;
 
 }
