@@ -1,12 +1,25 @@
+
+
+@font-face {
+    font-family: 'inter'; /*a name to be used later*/
+    src: url('comp-resources/basicsanssf.ttf'); /*URL to font*/
+  }
+
+
 h2 {
 
-    font-family: "Lato";
-    font-style: 'bold';
+    font-family: "inter";
     color:rgb(255, 255, 255);
     font-size: 36px;
-    /* position: relative; */
-    /* align-content: center; */
     justify-content: center;
+
+
+}
+
+
+img {
+    background-color:rgb(255, 255, 255);
+   
 
 
 }
