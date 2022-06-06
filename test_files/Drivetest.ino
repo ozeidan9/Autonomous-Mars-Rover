@@ -100,23 +100,27 @@ void loop() {
       driveready = true;
       drivemsgready = true;  //check
 
-      char DriveMap = Serial2.read();
-      DriveMap = 'MAP' + DriveMap;   //check if it concatenates
+      String DriveMap = Serial2.readString();
+      DriveMap = "MAP" + DriveMap;   //check if it concatenates
       Serial.print("Sending Drive MAP to command: ");
-      for(int i = 0; i < 32; i++){
-        Serial.write(DriveMap[i]);
-        client.write(DriveMap[i]);
-        DriveMap[i] = ' ';
-      }
+      // for(int i = 0; i < 32; i++){
+      //   Serial.write(DriveMap[i]);
+      //   client.write(DriveMap[i]);
+      //   DriveMap[i] = ' ';
+      // }
+      Serial.println(DriveMap);
+      client.write(DriveMap);
       Serial.println();
-      client.write('\n');
+      DriveMap = '';
+      // client.write('\n');
       }
 
     if(client.available()  && !commandready ){
       while(client.available()){
         char Commandchar = client.read(); //client.read() reads one character at a time
+        // String Commandstr = client.readString();
         if(Commandchar != 'M' || Commandchar != 'O' || Commandchar != 'V'){
-          Command[i] = Commandchar;
+          Command[i] = Commandstr;
           i++;
         }else{
           Serial.println("The Command has been recorded");
@@ -129,11 +133,14 @@ void loop() {
       //Checks if drive and command are ready for moving the rover
       if(drivemsgready && commandready){
         Serial.print("Sending command to drive: ");
-        for(int i = 0; i < 32; i++){
-          Serial.write(Command[i]);
-          Serial2.write(Command[i]);
-          Command[i] = ' ';
-        }
+        // for(int i = 0; i < 32; i++){
+        //   Serial.write(Command[i]);
+        //   Serial2.write(Command[i]);
+        //   Command[i] = ' ';
+        // }
+        Serial.println(Command);
+        Serial2.println(Command);
+        Command = '';
         Serial.println();
         Serial2.write('\n');
         drivemsgready = false;
