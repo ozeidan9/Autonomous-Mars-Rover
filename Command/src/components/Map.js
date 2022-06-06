@@ -1,14 +1,26 @@
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import "./Map.css";
+import Image from "./comp-resources/Mapped_Unknown.jpg"
 
+// function Map(e){
+//     e.preventDefault();
+
+//     return(
+//         <div class = "map" id=""> 
+//             <h2>Arena Map</h2>
+//             <img src = {Image}/> 
+//         </div>
+//     );
+// }
 
 const Map = () => (
 
-    <div class = "map" id=""> 
-        <h2>Arena Map</h2>
-        <img src="./comp-resources/arena-map.jpg" alt="" width="1000" height="700" /> 
-    </div>
-
+    // <meta http-equiv="refresh" content="5" >
+        <div class = "map" id=""> 
+            <h2>Arena Map</h2>
+            <img src={Image} /> 
+        </div>
+    // </meta>
 );
 
 export default Map;

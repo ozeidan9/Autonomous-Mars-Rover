@@ -1,7 +1,11 @@
 import socket
 import sys
+import yap
 
-
+Longitina =[]
+Latina =[]
+Alien =[]
+n=1
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -20,9 +24,7 @@ while True:
     # Wait for a connection
     print ('waiting for a connection')
     
-    connection_contr, client_address_contr = sock.accept() #connect controller first
-
-    connection_mobapp, client_address_mobapp = sock.accept() #then! connect mobile app
+    connection, client_address = sock.accept() #connect controller first
 
 #try cinvertuing above into try and except statements?
 
@@ -31,18 +33,48 @@ while True:
 
         while True:
 
-            contr_data = connection_contr.recv(20)
-            mobapp_data = connection_mobapp.recv(20)
+            contr_data = connection.recv(48)
 
             contr_data = contr_data.decode()
             print('contr data: ' + contr_data)
 
-            app_data = app_data.decode()
-            print('mobile app data: ' + app_data)
 
             opcodecontr = contr_data[0:3]
 
-    
+
+            if opcodecontr == 'POS':
+                x=int(contr_data[3:6])
+                # print(x)
+                y=int(contr_data[6:9])
+                #print(y)
+                Rangle=int(contr_data[9:12])
+                #print(Aangle)
+                yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien,n)
+
+
+            if opcodecontr == 'IDA':
+                #level="IDA"+"010"+"024"+"045"+"fF00ff"+"001"+"28"+"28"+"1"
+                x=int(contr_data[3:6])
+                # print(x)
+                y=int(contr_data[6:9])
+                #print(y)
+                Aangle=int(contr_data[9:12])
+                #print(Aangle)
+                colour='#'+contr_data[12:18]
+                #print(colour)
+                Rangle=int(contr_data[18:21])
+                #print(Rangle)
+                dist=int(contr_data[21:25])
+                dist=float(dist/100)
+                #print(dist)
+                yap.alien(x,y,Rangle,colour,Aangle,dist,Longitina,Latina,Alien,n)
+                #yap.draw(Longitina, Latina, Alien)
+                #print(Longitina[0])
+                # f = open("Command/src/components/Map.js", "a")
+                # f.close()
+                # f.close()
+
+
 
             if opcodecontr == 'BAT':
                 
@@ -63,22 +95,12 @@ while True:
 
             
                 # connection.sendall('data')
-            
-            if app_data:
-
-                instr = app_data[3:4]
-                print('recieved DIRECTION / MODE')
-
-                msg=instr.encode()
-                connection_mobapp.send(msg)
 
 
-            else:
-                print('no more data')
-                # break
+            # else:
+            #    #print('no more data')
+            #      break
             
     finally:
         # Clean up the connection
-        connection_contr.close()
-        connection_mobapp.close()
-
+        connection.close()
