@@ -1,18 +1,23 @@
-
 from re import X
 import socket
 # First import time module.
 import time
 
+
 level = 100
 x=1
 target_host = "localhost"
-target_port = 16000
+target_port = 15000
 # create a socket connection
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # let the client connect
 client.connect((target_host, target_port))
 # send some data
+
+# Nickname
+msg = "test_client".encode('ascii')
+client.send(msg)
+
 
 level="IDA010024000ff00ff0452828"
 print(len(level))    

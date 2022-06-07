@@ -1,5 +1,4 @@
 import socket
-import sys
 import yap
 
 Longitina =[]
@@ -17,7 +16,7 @@ sock.bind(server_address)
 
 
 # Listen for incoming connections
-sock.listen(1)
+sock.listen()
 
 
 while True:
@@ -26,7 +25,7 @@ while True:
     
     connection, client_address = sock.accept() #connect controller first
 
-#try cinvertuing above into try and except statements?
+#try converting above into try and except statements?
 
     try:
         print('connection ')
