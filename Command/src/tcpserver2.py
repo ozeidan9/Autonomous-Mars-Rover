@@ -6,7 +6,6 @@ import yap
 # Create a TCP/IP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-
 # Bind the socket to the port
 server_address = ('localhost', 15000)
 # print('starting up on port ' + server_address[0] + server_address[1])
@@ -32,10 +31,13 @@ def broadcast(message):
 def handle(client):
     while True:
         try:
+            print("in handle")
             message = client.recv(1024)
+            message = message.decode("ascii")
             opcode = message[0:3]
             if opcode == "MOV" or "MOD":
-                broadcast(message)
+                # broadcast(message)
+                print(message)
 
             if opcode == "POS":
                 x=int(message[3:6])
@@ -91,23 +93,23 @@ def handle(client):
             clients.remove(client)
             client.close()
             nickname = nicknames[index]
-            broadcast((nickname + "left the chat!").encode('ascii'))
+            # broadcast((nickname + "left the chat!").encode('ascii'))
             nicknames.remove(nickname)
             break
 
 def receive():
     while True:
         client, address = server.accept()
-        print("connected to {str(address)}")
+        print("connected to " + str(address))
 
         client.send('Nick'.encode('ascii'))
         nickname  = client.recv(1024).decode('ascii')
         nicknames.append(nickname)
         clients.append(client)
 
-        print("Nickname of client is " +nickname)
-        broadcast((nickname +  "joined the chat!").encode('ascii'))
-        client.send("connected to server!".encode('ascii'))
+        print("Nickname of client is " + nickname)
+        # broadcast((nickname +  "joined the chat!").encode('ascii'))
+        # client.send("connected to server!".encode('ascii'))
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
