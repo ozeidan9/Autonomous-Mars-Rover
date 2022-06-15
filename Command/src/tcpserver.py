@@ -1,5 +1,6 @@
 import socket
 import yap
+import RadicalProc
 
 Longitina =[]
 Latina =[]
@@ -72,6 +73,11 @@ while True:
                 # f = open("Command/src/components/Map.js", "a")
                 # f.close()
                 # f.close()
+
+            if opcodecontr == 'RAD':
+                print( "test signal")
+                signal=input()
+                RadicalProc.Radarloc(Longitina, Latina, Alien,signal)
 
 
 
