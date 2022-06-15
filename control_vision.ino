@@ -1,21 +1,3 @@
-// comms:
-// ball detected ->  1 -> rover needs to stop
-// when ball detected -> r_ball_distance -> send this to command
-// when too far left -> 9
-// when too far right -> 10
-// when too close -> 8
-// when too far -> 9
-// just right (don't move) -> 0
-// when done -> 2
-
-    // //run this to receive data (l can be any input)
-    // SPI.beginTransaction(settings);
-    // digitalWrite(VSPI_SS, LOW);
-    // spi_val = SPI.transfer16(l); // spi_val is the message you revceive
-    // spi_returnval = 0;
-    // digitalWrite(VSPI_SS, HIGH);
-    // SPI.endTransaction();
-    // //run block
 
 #include "SPI.h"
 
@@ -69,7 +51,7 @@
 
 #define ADNS3080_PRODUCT_ID_VAL        0x17
 
-
+SPISettings settings(100000, MSBFIRST, SPI_MODE0);
 WiFiClient client;
 // TehCehPeh
 #define RXP2 3
@@ -89,6 +71,15 @@ const int CCW = 2; // do not change
 const int CW  = 1; // do not change
 #define motor1 1 // do not change
 #define motor2 2 // do not change
+#define HSPI_MISO 4
+#define HSPI_MOSI 22
+#define HSPI_SCLK 14
+#define HSPI_CS   15
+uint8_t spi_counter[6]; // [0] = c20, [1] = c21, [2] = c22, [3] = c23, [4] = c24, [5] = c25
+uint8_t spi_reg;
+uint16_t spi_returnval;
+void resetCounter();
+int l;
 // for two motors without debug information // Watch video instruciton for this line: https://youtu.be/2JTMqURJTwg
 Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA,  IN3, IN4, ENB, CHB);
 // for two motors with debug information
@@ -97,7 +88,7 @@ char DriveMap[32]; //storage for drive's message
 char Command[32]; //storage for the actual command
 char Commandchar;
 char spi_command;
-char spi_val;
+int spi_val;
 const char* ssid = "AndroidAP5c48";//Wifi Name
 const char* password = "janq9636";//Wifi password
 const uint16_t port = 16000; //port number to connect to
@@ -106,7 +97,6 @@ bool drivemsgready = false; //bool which checks whether drive's message is ready
 bool alreadyconnected = false; //bool which checks whether the ESP32 has already connected with the server
 bool Commandready = false; //bool which checks whether command is ready for sending command
 bool SPIready = false;//vision message receieved
-int l;
 
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.println("Connected to Web Backend successfully!");
@@ -418,8 +408,10 @@ int mousecam_frame_capture(byte *pdata)
 void setup()
 {
   l = 1;
-  pinMode(HSPI_SS, OUTPUT);
+  pinMode(HSPI_CS, OUTPUT);
   SPI.begin();
+  SPIClass hspi(HSPI);
+  hspi.begin(HSPI_SCLK, HSPI_MISO, HSPI_MOSI, HSPI_CS); //SCLK, MISO, MOSI, SS
   resetCounter();
   spi_returnval = 0;
 
@@ -556,15 +548,15 @@ void loop()
 
     //run this to receive data (l can be any input)
     SPI.beginTransaction(settings);
-    digitalWrite(VSPI_SS, LOW);
+    digitalWrite(HSPI_CS, LOW);
     spi_val = SPI.transfer16(l); // spi_val is the message you revceive
     spi_returnval = 0;
-    digitalWrite(VSPI_SS, HIGH);
+    digitalWrite(HSPI_CS, HIGH);
     SPI.endTransaction();
     //run block
 
     if (spi_val == 0){
-      SPI_ready = false;
+      SPIready = false;
     }
 
     if (spi_val == 5 || 8 || 9 || 10) {
@@ -602,12 +594,13 @@ void loop()
 
   //Checks if drive and command are rea
 
-  if (drivemsgready && Commandready) {
+  if (drivemsgready && Commandready && !SPIready) {
    Serial.println("Sending command to drive: ");
     int Command = Commandchar;
-    
+    Drivle(Command);
     Serial.println("sent command");
-
+    
+    drivemsgready = false;
     Commandready = false;
 
   }
@@ -615,19 +608,16 @@ void loop()
   if (drivemsgready && SPIready) {
    Serial.println("Sending command to drive: ");
     int Command = spi_command;
-    
+    Drivle(Command);
+
     Serial.println("sent command");
 
+    drivemsgready = false;
     SPIready = false;
 
   }
 
-  if (drivemsgready){
-    Drivle(Command);
-    drivemsgready = false;
-
-  }
-
+ 
   delay(500);
 
 
