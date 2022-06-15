@@ -1,3 +1,6 @@
+
+
+
 #include "SPI.h"
 
 #include <Robojax_L298N_DC_motor.h>
@@ -119,20 +122,12 @@ void initWiFi() {
     delay(1000);
   }
 }
-// void setup() {
-//   Serial.begin(115200);
-//   robot.begin();
-//   //L298N DC Motor by Robojax.com
-//   Serial.setTimeout(10);
-//   // SPI.begin(); // init SPI bus
-// }
+
 void Drivle(int i) {
   Serial.println("In drivle fn, i is: ");
   Serial.println(i);
 
-  // int i;
-  // while (Serial.available() == 0) {} //if it breaks, do >= 0 in conditions as per Hepple
-  // i = Serial.parseInt();
+ 
   switch (i) {
     case 49:
       // move straight for 3 sec
@@ -421,20 +416,13 @@ void setup()
     while (1);
   }
 
-  //Serial.begin(9600);
   robot.begin();
-  //L298N DC Motor by Robojax.com
-  // Serial.setTimeout(10);
+  
   SPI.begin(); // init SPI bus
 
   WiFi.disconnect(true);
   delay(1000);
 
-  //  //Initialising events so that they run when the corresponding events occur
-  //  //WiFi.onEvent(WiFiConnected, SYSTEM_EVENT_STA_CONNECTED);
-  //  // WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
-  //  // WiFi.onEvent(WiFiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
-  //  //Running the initialisation of Wifi
   initWiFi();
 }
 
@@ -517,19 +505,12 @@ void loop()
   total_x1 = total_x1 + distance_x;
   total_y1 = total_y1 + distance_y;
 
-  total_x = total_x1 ;   //157;
+  total_x = total_x1 ;   //to be callibrated;
   total_y = total_y1 * 0.0224;  //callibrated;
 
 
   Serial.print('\n');
 
-//  int x;
-//  x= total_x;
-////  Serial.println(total_x);
-//  int y;
-////  Serial.println(total_x);
-//  y = total_y;
-//  
   client.write("POS");
   delay(1000);
   client.write(total_x);
@@ -545,14 +526,12 @@ void loop()
   delay(250);
 
 #endif
-  //  client.write("hi");
   Serial.println("hi sent");
 
   Serial.println("checking for data from the client");
   if (client.available())
   {
     Serial.println("received data from client: ");
-    // Serial.println(Commandchar);
 
     while (client.available()) {
       Commandchar = client.read(); //client.read() reads one character at a time
@@ -564,36 +543,18 @@ void loop()
         drivemsgready = true; //added for now here
         break;
       }
-      // String Commandstr = client.readString();
-      // if(Commandchar != 'M' || Commandchar != 'O' || Commandchar != 'V'){
-      // Command[j] = Commandchar;
-      // Serial.println(Commandchar);
-      // j++;
-      // }else{
-      //        Serial.println("The Command has been recorded");
-      //      commandready = true;
-      //      drivemsgready = true; //added for now here
-
+    
     }
   }
 
   //Checks if drive and command are rea
 
   if (drivemsgready && commandready) {
-    //    char Commandchar = Serial.read();
-    //
-    Serial.println("Sending command to drive: ");
-    //          Serial.println(Commandchar);
+]   Serial.println("Sending command to drive: ");
     int Command = Commandchar;
-    //      Serial.println(Command);
     Drivle(Command);
     Serial.println("sent command");
 
-//    delay(4000);
-    //    char msg = "POS x:" + String(total_x) + ", y: " + String(total_y);
-    //    client.write("POS");
-    //    client.write(total_x);
-    //    client.write(total_y);
 
     commandready = false;
     drivemsgready = false;

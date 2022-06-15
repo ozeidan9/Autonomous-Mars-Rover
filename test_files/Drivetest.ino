@@ -60,9 +60,9 @@ WiFiClient client;
 #define CHA 0
 #define ENA 2 // this pin must be PWM enabled pin if Arduino board is used D13 -> was 2
 #define IN1 4 //D11
-#define IN2 15 //D12
+#define IN2 22 //D3 - was 15 (D12)
 // motor 2 settings
-#define IN3 14 //D10
+#define IN3 21 //D4 //was 14  (D10)
 #define IN4 16 //D9
 #define ENB 17// this pin must be PWM enabled pin if Arduino board is used D8
 #define CHB 1
