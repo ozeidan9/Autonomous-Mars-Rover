@@ -1,5 +1,21 @@
+// comms:
+// ball detected ->  1 -> rover needs to stop
+// when ball detected -> r_ball_distance -> send this to command
+// when too far left -> 9
+// when too far right -> 10
+// when too close -> 8
+// when too far -> 9
+// just right (don't move) -> 0
+// when done -> 2
 
-
+    // //run this to receive data (l can be any input)
+    // SPI.beginTransaction(settings);
+    // digitalWrite(VSPI_SS, LOW);
+    // spi_val = SPI.transfer16(l); // spi_val is the message you revceive
+    // spi_returnval = 0;
+    // digitalWrite(VSPI_SS, HIGH);
+    // SPI.endTransaction();
+    // //run block
 
 #include "SPI.h"
 
@@ -62,8 +78,8 @@ WiFiClient client;
 // motor 1 settings
 #define CHA 0
 #define ENA 2 // this pin must be PWM enabled pin if Arduino board is used D13 -> was 2
-#define IN1 4 //D11
-#define IN2 22 //D3 - was 15 (D12)
+#define IN1 27 //now A0 //4 //D11
+#define IN2 26 // now A1 //22 D3 - was 15 (D12)
 // motor 2 settings
 #define IN3 21 //D4 //was 14  (D10)
 #define IN4 16 //D9
@@ -80,14 +96,18 @@ Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA,  IN3, IN4, ENB, CHB);
 char DriveMap[32]; //storage for drive's message
 char Command[32]; //storage for the actual command
 char Commandchar;
+char spi_command;
+char spi_val;
 const char* ssid = "AndroidAP5c48";//Wifi Name
 const char* password = "janq9636";//Wifi password
 const uint16_t port = 16000; //port number to connect to
 const char * host = "192.168.43.192"; //IP to connect to (can be private or public)
 bool drivemsgready = false; //bool which checks whether drive's message is ready for sending
 bool alreadyconnected = false; //bool which checks whether the ESP32 has already connected with the server
-bool commandready = false; //bool which checks whether command is ready for sending command
-//Event for when the ESP32 successfully connects as a Wifi Station
+bool Commandready = false; //bool which checks whether command is ready for sending command
+bool SPIready = false;//vision message receieved
+int l;
+
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.println("Connected to Web Backend successfully!");
 }
@@ -397,6 +417,12 @@ int mousecam_frame_capture(byte *pdata)
 
 void setup()
 {
+  l = 1;
+  pinMode(HSPI_SS, OUTPUT);
+  SPI.begin();
+  resetCounter();
+  spi_returnval = 0;
+
   pinMode(PIN_SS, OUTPUT);
   pinMode(PIN_MISO, INPUT);
   pinMode(PIN_MOSI, OUTPUT);
@@ -526,7 +552,34 @@ void loop()
   delay(250);
 
 #endif
-  Serial.println("hi sent");
+
+
+    //run this to receive data (l can be any input)
+    SPI.beginTransaction(settings);
+    digitalWrite(VSPI_SS, LOW);
+    spi_val = SPI.transfer16(l); // spi_val is the message you revceive
+    spi_returnval = 0;
+    digitalWrite(VSPI_SS, HIGH);
+    SPI.endTransaction();
+    //run block
+
+    if (spi_val == 0){
+      SPI_ready = false;
+    }
+
+    if (spi_val == 5 || 8 || 9 || 10) {
+      spi_command = spi_val;
+      SPIready = true;
+    }
+    else{
+      Serial.println(spi_val);
+      SPIready = true;
+      spi_command = 0;
+    }
+    l=(l-1)*-1;
+
+
+
 
   Serial.println("checking for data from the client");
   if (client.available())
@@ -539,7 +592,7 @@ void loop()
 
       if (Commandchar) {
         Serial.println("The Command has been recorded");
-        commandready = true;
+        Commandready = true;
         drivemsgready = true; //added for now here
         break;
       }
@@ -549,14 +602,28 @@ void loop()
 
   //Checks if drive and command are rea
 
-  if (drivemsgready && commandready) {
-]   Serial.println("Sending command to drive: ");
+  if (drivemsgready && Commandready) {
+   Serial.println("Sending command to drive: ");
     int Command = Commandchar;
-    Drivle(Command);
+    
     Serial.println("sent command");
 
+    Commandready = false;
 
-    commandready = false;
+  }
+
+  if (drivemsgready && SPIready) {
+   Serial.println("Sending command to drive: ");
+    int Command = spi_command;
+    
+    Serial.println("sent command");
+
+    SPIready = false;
+
+  }
+
+  if (drivemsgready){
+    Drivle(Command);
     drivemsgready = false;
 
   }
