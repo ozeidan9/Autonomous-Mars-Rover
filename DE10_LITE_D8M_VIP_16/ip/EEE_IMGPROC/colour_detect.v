@@ -47,8 +47,18 @@ assign red_detect = 		((9'd345 < hue) & (hue <= 8'd360) | (8'd0 <= hue) & (hue <
 assign green_detect =  		((9'd101 < hue) & (hue < 9'd153)) & 
 							((8'd109 < sat) & (sat < 8'd169)) & (val < 8'd159);
 
+assign yellow_detect = ((9'd40 < hue) & (hue < 9'd63)) &
+					   (8'd170 < sat) & (val < 8'd120);
+
+assign darkblue_detect = ((9'd170 < hue) & (hue < 9'd270)) &
+						 (8'd160 < val);
+
 assign pink_detect = 		(((9'd308 < hue) & (hue <= 8'd360)) | ((8'd0 <= hue) & (hue < 8'd22))) & 
 							(((8'd56 < sat) & (sat < 8'd155)) & (8'd137 < val));
+
+assign lightgreen_detect = ((9'd79 < hue) & (hue < 9'd161)) &
+						   (8'd170 < sat) & (8'd98 < val);
+
 
 
 

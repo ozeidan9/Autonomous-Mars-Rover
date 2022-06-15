@@ -290,9 +290,9 @@ always @(posedge clk) begin
     frame_3_stripes <= frame_2_stripes;
     frame_2_stripes <= frame_1_stripes;
     frame_1_stripes <= prev_frame_number_of_stripes;
-    max_number_of_stripes <= (frame_3_stripes > frame_2_stripes) ? frame_3_stripes : 
-                                (frame_2_stripes > frame_1_stripes) ? frame_2_stripes : 
-                                (frame_1_stripes > prev_frame_number_of_stripes) ? frame_1_stripes : prev_frame_number_of_stripes;
+    max_number_of_stripes <= (frame_3_stripes > frame_2_stripes) ? ((frame_3_stripes > frame_1_stripes) ? frame_3_stripes : frame_1_stripes) : 
+                             (frame_2_stripes > frame_1_stripes) ? ((frame_2_stripes > prev_frame_number_of_stripes) ? frame_2_stripes : prev_frame_number_of_stripes) : 
+                             (frame_1_stripes > prev_frame_number_of_stripes) ? frame_1_stripes : prev_frame_number_of_stripes;
 end
 
 
@@ -382,17 +382,35 @@ always@(posedge clk) begin
         b_y_max <= y;
     end
     else if (white_detect & prev_w1 & prev_w2 & prev_w3 & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & in_valid) begin    //Update bounds when the pixel is WHITE
-        if (x < w_x_min) w_x_min <= x;
-        if (x > w_x_max) w_x_max <= x;
-        if (y < w_y_min) w_y_min <= y;
+        if (x < w_x_min) begin
+            w_x_min <= x;
+            if(building_detect) begin
+                build_x_min <= x;
+            end
+        end
+        if (x > w_x_max) begin
+             w_x_max <= x;
+            if(building_detect)begin
+                build_x_max <= x;
+            end
+        end
+        if (y < w_y_min) begin
+            w_y_min <= y;
+            if(building_detect) begin
+              build_y_min <= y;
+            end
+        end
         w_y_max <= y;
+        if (building_detect) begin
+            build_y_max <= y;
+        end 
     end
-    if (building_detect & in_valid) begin    //Update bounds for BUILDING (need to add more logic for black on the side...)
-        if (x < w_x_min) build_x_min <= x;
-        if (x > w_x_max) build_x_max <= x;
-        if (y < w_y_min) build_y_min <= y;
-        build_y_max <= y;
-    end
+    // else if (building_detect & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & in_valid) begin    //Update bounds for BUILDING (need to add more logic for black on the side...)
+    //     if (x < w_x_min) build_x_min <= x;
+    //     if (x > w_x_max) build_x_max <= x;
+    //     if (y < w_y_min) build_y_min <= y;
+    //     build_y_max <= y;
+    // end
 
     if (sop & in_valid) begin   //Reset bounds on start of packet
         r_x_min <= IMAGE_W-11'h1;
@@ -429,10 +447,12 @@ always@(posedge clk) begin
         b_x_max <= 0;
         b_y_min <= IMAGE_H-11'h1;
         b_y_max <= 0;
+
         w_x_min <= IMAGE_W-11'h1;
         w_x_max <= 0;
         w_y_min <= IMAGE_H-11'h1;
         w_y_max <= 0;
+
         build_x_min <= IMAGE_W-11'h1;
         build_x_max <= 0;
         build_y_min <= IMAGE_H-11'h1;
@@ -497,7 +517,7 @@ always@(posedge clk) begin
         lg_top <= lg_y_min;
         lg_bottom <= lg_y_max;
 
-        // //FOR BUILDINGS
+        // FOR BUILDINGS
         //black
         b_left <= b_x_min;
         b_right <= b_x_max;
