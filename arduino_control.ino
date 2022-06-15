@@ -1,56 +1,106 @@
+#include "SPI.h"
+
+#include <Robojax_L298N_DC_motor.h>
 #include "WiFi.h"
-#include <SPI.h>
-#define RXP1 16 //Defining UART With Vision (Pins 8 and 9 on Arduino Adaptor)
-#define TXP1 17
-#define RXP2 18 //Defining UART With Drive (Pins 6 and 7 on Arduino Adaptor)
-#define TXP2 5
-#define VSPI_MISO 15 //Defining SPI with Camera on Vision (Pins 10, 11, 12 and 13 on Arduino Adaptor)
-#define VSPI_MOSI 4
-#define VSPI_SCLK 2
-#define VSPI_SS 14
 
-// ---> Define UART port with Energy
+// these pins may be different on different boards
+
+#define PIN_SS        5
+#define PIN_MISO      19
+#define PIN_MOSI      23
+#define PIN_SCK       18
+
+#define PIN_MOUSECAM_RESET     35
+#define PIN_MOUSECAM_CS        5
+
+#define ADNS3080_PIXELS_X                 30
+#define ADNS3080_PIXELS_Y                 30
+
+#define ADNS3080_PRODUCT_ID            0x00
+#define ADNS3080_REVISION_ID           0x01
+#define ADNS3080_MOTION                0x02
+#define ADNS3080_DELTA_X               0x03
+#define ADNS3080_DELTA_Y               0x04
+#define ADNS3080_SQUAL                 0x05
+#define ADNS3080_PIXEL_SUM             0x06
+#define ADNS3080_MAXIMUM_PIXEL         0x07
+#define ADNS3080_CONFIGURATION_BITS    0x0a
+#define ADNS3080_EXTENDED_CONFIG       0x0b
+#define ADNS3080_DATA_OUT_LOWER        0x0c
+#define ADNS3080_DATA_OUT_UPPER        0x0d
+#define ADNS3080_SHUTTER_LOWER         0x0e
+#define ADNS3080_SHUTTER_UPPER         0x0f
+#define ADNS3080_FRAME_PERIOD_LOWER    0x10
+#define ADNS3080_FRAME_PERIOD_UPPER    0x11
+#define ADNS3080_MOTION_CLEAR          0x12
+#define ADNS3080_FRAME_CAPTURE         0x13
+#define ADNS3080_SROM_ENABLE           0x14
+#define ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER      0x19
+#define ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER      0x1a
+#define ADNS3080_FRAME_PERIOD_MIN_BOUND_LOWER      0x1b
+#define ADNS3080_FRAME_PERIOD_MIN_BOUND_UPPER      0x1c
+#define ADNS3080_SHUTTER_MAX_BOUND_LOWER           0x1e
+#define ADNS3080_SHUTTER_MAX_BOUND_UPPER           0x1e
+#define ADNS3080_SROM_ID               0x1f
+#define ADNS3080_OBSERVATION           0x3d
+#define ADNS3080_INVERSE_PRODUCT_ID    0x3f
+#define ADNS3080_PIXEL_BURST           0x40
+#define ADNS3080_MOTION_BURST          0x50
+#define ADNS3080_SROM_LOAD             0x60
+
+#define ADNS3080_PRODUCT_ID_VAL        0x17
 
 
-
-SPIClass * vspi = NULL; //Container for VSPI connection
-
-const char* ssid = "ENTER_NAME_HERE"; //Wifi Name
-const char* password = "ENTER_PASSWORD_HERE"; //Wifi password
-
-const uint16_t port = 1800; //port number to connect to
-const char * host = "ENTER_IP_HERE"; //IP to connect to (can be private or public)
-
+WiFiClient client;
+// TehCehPeh
+#define RXP2 3
+#define TXP2 1
+// DRIVE
+// motor 1 settings
+#define CHA 0
+#define ENA 2 // this pin must be PWM enabled pin if Arduino board is used D13 -> was 2
+#define IN1 4 //D11
+#define IN2 15 //D12
+// motor 2 settings
+#define IN3 14 //D10
+#define IN4 16 //D9
+#define ENB 17// this pin must be PWM enabled pin if Arduino board is used D8
+#define CHB 1
+const int CCW = 2; // do not change
+const int CW  = 1; // do not change
+#define motor1 1 // do not change
+#define motor2 2 // do not change
+// for two motors without debug information // Watch video instruciton for this line: https://youtu.be/2JTMqURJTwg
+Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA,  IN3, IN4, ENB, CHB);
+// for two motors with debug information
+//Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA, IN3, IN4, ENB, CHB, true);
+char DriveMap[32]; //storage for drive's message
 char Command[32]; //storage for the actual command
-char DriveMsg[32]; //storage for drive's message
-char VisionMsg[64]; //storage for vision's message
-char EnergyMsg[32]; //storage for energy's message    -> Omar added
-
-bool driveready = true; //bool which checks whether drive is ready for receiving command
+char Commandchar;
+const char* ssid = "AndroidAP5c48";//Wifi Name
+const char* password = "janq9636";//Wifi password
+const uint16_t port = 16000; //port number to connect to
+const char * host = "192.168.43.192"; //IP to connect to (can be private or public)
 bool drivemsgready = false; //bool which checks whether drive's message is ready for sending
-bool visionmsgready = false; //bool which checks whether vision's message is ready for sending
-bool commandready = false; //bool which checks whether command is ready for sending command
 bool alreadyconnected = false; //bool which checks whether the ESP32 has already connected with the server
-
+bool commandready = false; //bool which checks whether command is ready for sending command
 //Event for when the ESP32 successfully connects as a Wifi Station
-void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info){
+void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.println("Connected to Web Backend successfully!");
 }
-
 //Event for when the ESP32 successfully receives it's local IP from the router
-void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info){
+void WiFiGotIP(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.println("WiFi connected");
   Serial.print("RRSI: ");
   Serial.println(WiFi.RSSI());
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 }
-
 //Event for when the ESP32 disconnects from the Wifi (tries to reconnect)
-void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
+void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.println("Disconnected from WiFi access point");
   Serial.print("WiFi lost connection. Reason: ");
-  Serial.println(info.disconnected.reason);
+  //Serial.println(info.disconnected.reason);
   Serial.println("Trying to Reconnect");
   WiFi.begin(ssid, password);
   Serial.print("Reconnecting to WiFi ..");
@@ -59,7 +109,6 @@ void WiFiDisconnected(WiFiEvent_t event, WiFiEventInfo_t info){
     delay(1000);
   }
 }
-
 //Function for initialising connection to the WIFI
 void initWiFi() {
   WiFi.mode(WIFI_STA);
@@ -70,185 +119,492 @@ void initWiFi() {
     delay(1000);
   }
 }
+// void setup() {
+//   Serial.begin(115200);
+//   robot.begin();
+//   //L298N DC Motor by Robojax.com
+//   Serial.setTimeout(10);
+//   // SPI.begin(); // init SPI bus
+// }
+void Drivle(int i) {
+  Serial.println("In drivle fn, i is: ");
+  Serial.println(i);
 
-void setup() {
-  Serial.begin(115200); //Debugging Line
-  Serial1.begin(115200, SERIAL_8N1, RXP1, TXP1); //Uart with Vision
-  Serial2.begin(115200, SERIAL_8N1, RXP2, TXP2); //Uart with Drive
-  Serial3.begin(115200, SERIAL_8N1, RXP2, TXP2); //Uart with Energy -> Omar added
+  // int i;
+  // while (Serial.available() == 0) {} //if it breaks, do >= 0 in conditions as per Hepple
+  // i = Serial.parseInt();
+  switch (i) {
+    case 49:
+      // move straight for 3 sec
+      robot.rotate(motor1, 80, CW);//run motor1 at 60% speed in CW direction
+      robot.rotate(motor2, 80, CCW);//run motor1 at 60% speed in CW direction
+      Serial.println("rotated 1");
+      delay(1000);
+      robot.brake(1);
+      robot.brake(2);
+      delay(50);
+      break;
+    case 50:
+      // rotate left for 3 sec
+      robot.rotate(motor1, 80, CCW);//run motor1 at 60% speed in CW direction
+      robot.rotate(motor2, 80, CCW);//run motor1 at 60% speed in CW direction
+      Serial.println("rotated 2");
 
-  vspi = new SPIClass(VSPI); //Initialising VSPI connection
-  vspi->begin(VSPI_SCLK, VSPI_MISO, VSPI_MOSI, VSPI_SS);
-  pinMode(VSPI_SS, OUTPUT);
-  vspi->setClockDivider(SPI_CLOCK_DIV8);
+      delay(1000);
+      robot.brake(1);
+      robot.brake(2);
+      delay(50);
+      break;
+    case 51:
+      // rotate right for 3 sec
+      robot.rotate(motor1, 80, CW);//run motor1 at 60% speed in CW direction
+      robot.rotate(motor2, 80, CW);//run motor1 at 60% speed in CW direction
+      Serial.println("rotated 3");
+
+      delay(1000);
+      robot.brake(1);
+      robot.brake(2);
+      delay(50);
+      break;
+    case 52:
+      // move back for 3 sec
+      robot.rotate(motor1, 85, CCW);//run motor1 at 60% speed in CW direction
+      robot.rotate(motor2, 77, CW);//run motor1 at 60% speed in CW direction
+      Serial.println("rotated 4");
+
+      delay(2000);
+      robot.brake(1);
+      robot.brake(2);
+      delay(50);
+      break;
+    case 53:
+      while (i == 53) {
+        //continuous case forward
+        robot.rotate(motor1, 80, CW);//run motor1 at 60% speed in CW direction
+        robot.rotate(motor2, 80, CCW);//run motor1 at 60% speed in CW direction
+        Serial.println("rotated 5");
+
+        delay(10);
+        //Serial.println("We are a go");
+        i = Serial.parseInt();
+      }
+      break;
+    case 54:
+      while (i == 54) {
+        //continuous case left
+        robot.rotate(motor1, 80, CCW);//run motor1 at 60% speed in CW direction
+        robot.rotate(motor2, 80, CCW);//run motor1 at 60% speed in CW direction
+        Serial.println("rotated 6");
+
+        delay(10);
+        i = Serial.parseInt();
+      }
+      break;
+    case 55:
+      while (i == 55) {
+        //continuous case right
+        robot.rotate(motor1, 80, CW);//run motor1 at 60% speed in CW direction
+        robot.rotate(motor2, 80, CW);//run motor1 at 60% speed in CW direction
+        Serial.println("rotated 7");
+
+        delay(10);
+        i = Serial.parseInt();
+      }
+      break;
+    case 56:
+      while (i == 56) {
+        //continuous case back
+        robot.rotate(motor1, 90, CCW);//run motor1 at 60% speed in CW direction .  //was 80
+        robot.rotate(motor2, 75, CW);//run motor1 at 60% speed in CW direction
+        Serial.println("rotated 8");
+
+        delay(10);
+        i = Serial.parseInt();
+      }
+      break;
+    case 57:
+      while (i == 57) {
+        //adjust to the left
+        robot.rotate(motor1, 75, CCW);//run motor1 at 60% speed in CCW direction
+        robot.rotate(motor2, 80, CW);//run motor1 at 60% speed in CW direction
+        Serial.println("rotated 9");
+
+        delay(10);
+        i = Serial.parseInt();
+      }
+      break;
+    case 58:
+      while (i == 58) {
+        //adjust to the right
+        robot.rotate(motor1, 80, CCW);//run motor1 at 60% speed in CCW direction
+        robot.rotate(motor2, 75, CW);//run motor1 at 60% speed in CW direction
+        delay(10);
+        i = Serial.parseInt();
+      }
+      break;
+    default:
+      // brake
+      robot.brake(1);
+      robot.brake(2);
+      delay(10);
+      //Serial.println("We are a go0");
+      break;
+  }
+}
+
+int total_x = 0;
+int total_y = 0;
+
+
+int total_x1 = 0;
+int total_y1 = 0;
+
+
+int x = 0;
+int y = 0;
+
+int a = 0;
+int b = 0;
+
+int distance_x = 0;
+int distance_y = 0;
+
+volatile byte movementflag = 0;
+volatile int xydat[2];
+
+
+int convTwosComp(int b) {
+  //Convert from 2's complement
+  if (b & 0x80) {
+    b = -1 * ((b ^ 0xff) + 1);
+  }
+  return b;
+}
+
+
+int tdistance = 0;
+
+
+void mousecam_reset()
+{
+  digitalWrite(PIN_MOUSECAM_RESET, HIGH);
+  delay(1); // reset pulse >10us
+  digitalWrite(PIN_MOUSECAM_RESET, LOW);
+  delay(35); // 35ms from reset to functional
+}
+
+
+int mousecam_init()
+{
+  pinMode(PIN_MOUSECAM_RESET, OUTPUT);
+  pinMode(PIN_MOUSECAM_CS, OUTPUT);
+
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+
+  mousecam_reset();
+
+
+
+  return 1;
+}
+
+void mousecam_write_reg(int reg, int val)
+{
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+  SPI.transfer(reg | 0x80);
+  SPI.transfer(val);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(50);
+}
+
+int mousecam_read_reg(int reg)
+{
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+  SPI.transfer(reg);
+  delayMicroseconds(75);
+  int ret = SPI.transfer(0xff);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(1);
+  return ret;
+}
+
+struct MD
+{
+  byte motion;
+  char dx, dy;
+  byte squal;
+  word shutter;
+  byte max_pix;
+};
+
+
+void mousecam_read_motion(struct MD *p)
+{
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+  SPI.transfer(ADNS3080_MOTION_BURST);
+  delayMicroseconds(75);
+  p->motion =  SPI.transfer(0xff);
+  p->dx =  SPI.transfer(0xff);
+  p->dy =  SPI.transfer(0xff);
+  p->squal =  SPI.transfer(0xff);
+  p->shutter =  SPI.transfer(0xff) << 8;
+  p->shutter |=  SPI.transfer(0xff);
+  p->max_pix =  SPI.transfer(0xff);
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(5);
+}
+
+// pdata must point to an array of size ADNS3080_PIXELS_X x ADNS3080_PIXELS_Y
+// you must call mousecam_reset() after this if you want to go back to normal operation
+int mousecam_frame_capture(byte *pdata)
+{
+  mousecam_write_reg(ADNS3080_FRAME_CAPTURE, 0x83);
+
+  digitalWrite(PIN_MOUSECAM_CS, LOW);
+
+  SPI.transfer(ADNS3080_PIXEL_BURST);
+  delayMicroseconds(50);
+
+  int pix;
+  byte started = 0;
+  int count;
+  int timeout = 0;
+  int ret = 0;
+  for (count = 0; count < ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y; )
+  {
+    pix = SPI.transfer(0xff);
+    delayMicroseconds(10);
+    if (started == 0)
+    {
+      if (pix & 0x40)
+        started = 1;
+      else
+      {
+        timeout++;
+        if (timeout == 100)
+        {
+          ret = -1;
+          break;
+        }
+      }
+    }
+    if (started == 1)
+    {
+      pdata[count++] = (pix & 0x3f) << 2; // scale to normal grayscale byte range
+    }
+  }
+
+  digitalWrite(PIN_MOUSECAM_CS, HIGH);
+  delayMicroseconds(14);
+
+  return ret;
+}
+
+void setup()
+{
+  pinMode(PIN_SS, OUTPUT);
+  pinMode(PIN_MISO, INPUT);
+  pinMode(PIN_MOSI, OUTPUT);
+  pinMode(PIN_SCK, OUTPUT);
+
+  SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV32);
+  SPI.setDataMode(SPI_MODE3);
+  SPI.setBitOrder(MSBFIRST);
+
+  Serial.begin(9600);
+
+
+  if (mousecam_init() == -1)
+  {
+    Serial.println("Mouse cam failed to init");
+    while (1);
+  }
+
+  //Serial.begin(9600);
+  robot.begin();
+  //L298N DC Motor by Robojax.com
+  // Serial.setTimeout(10);
+  SPI.begin(); // init SPI bus
 
   WiFi.disconnect(true);
   delay(1000);
-  //Initialising events so that they run when the corresponding events occur
-  WiFi.onEvent(WiFiConnected, SYSTEM_EVENT_STA_CONNECTED);
-  WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
-  WiFi.onEvent(WiFiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
 
-  //Running the initialisation of Wifi
+  //  //Initialising events so that they run when the corresponding events occur
+  //  //WiFi.onEvent(WiFiConnected, SYSTEM_EVENT_STA_CONNECTED);
+  //  // WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
+  //  // WiFi.onEvent(WiFiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
+  //  //Running the initialisation of Wifi
   initWiFi();
 }
 
-void loop() {
-  WiFiClient client; //Initialising ESP32 as a client
-  while (true){
-    
-    char Energyinit = Serial1.read();       //Omar added: forwards battery level rcvd from Energy to Cmd
-    Serial.print("Sending Battery message to command: ");
-    for(int i = 0; i < 32; i++){
-      Serial.write(Energyinit[i]);
-      client.write(Energyinit[i]);
-      Energyinit[i] = ' ';
+char asciiart(int k)
+{
+  static char foo[] = "WX86*3I>!;~:,`. ";
+  return foo[k >> 4];
+}
+
+byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
+
+void loop()
+{
+
+  if (!alreadyconnected) {  //Attempts to connect to Server using provided Host and Port
+    if (!client.connect(host, port)) {
+      Serial.println("Connection to host failed");
+      delay(100);
+      return;
     }
-    Serial.println();
-    client.write('\n');
+    Serial.println("Connected to server!");
+    client.print("Hello from Control!");
+    alreadyconnected = true;
+  }
 
-    
 
+#if 0
+  /*
+      if(movementflag){
 
-    //Attempts to connect to Server using provided Host and Port
-    if(!alreadyconnected){
-      if (!client.connect(host, port)) {
-        Serial.println("Connection to host failed");
-        delay(100);
-        return;
+      tdistance = tdistance + convTwosComp(xydat[0]);
+      Serial.println("Distance = " + String(tdistance));
+      movementflag=0;
+      delay(3);
       }
-      Serial.println("Connected to server!");
-      client.print("Hello from Control!");
-      alreadyconnected = true;
-    }
-    //Checks if there is any data on the UART Vision datastream
-    if(Serial1.available()) {
-      // read the bytes incoming from the UART Port:
-      for(int i = 0; i < 64; i++){
-        VisionMsg[i] = ' ';
-      }
-      char Visioninit = Serial1.read();
-      if(!visionmsgready){ // so that it constantly checks for terminal input when receives ready signal from driving
-        VisionMsg[0] = '[';
-        VisionMsg[1] = Visioninit;
-        int i = 2;
-        while(Serial1.available()){
-          char Visionchar = Serial1.read();
-          if(Visionchar != '\n'){
-            VisionMsg[i] = Visionchar;
-            i++;
-          }else{
-            Serial.println("The message from Vision has been recorded");
-            VisionMsg[i] = ']';
-            break;
-          }
-        }
-      }
-    }
 
-    //Checks if there is any data on the UART Drive datastream
-    if(Serial2.available()) {
-      // read the bytes incoming from the UART Port:
-      char Driveinit = Serial2.read();
-      if(Driveinit == '@' && !driveready){ // so that it constantly checks for terminal input when receives ready signal from driving
-        Serial.println("Drive is ready to receive a command");
-        driveready = true;
-        visionmsgready = true;
-      }else if(Driveinit == 'D' && !drivemsgready){
-        int i = 0;
-        while(Serial2.available()){
-          char Drivechar = Serial2.read();
-          if(Drivechar != '@' || Drivechar != 'Q'){
-            DriveMsg[i] = Drivechar;
-            i++;
-          }else{
-            Serial.println("The message from Drive has been recorded");
-            drivemsgready = true;
-            break;
-          }
-        }
-      }else if(Driveinit == 'Q' && !drivemsgready){
-        int i = 0;
-        while(Serial2.available()){
-          char Drivechar = Serial2.read();
-          if(Drivechar != '@'){
-            DriveMsg[i] = Drivechar;
-            i++;
-          }else{
-            Serial.println("The message from Drive has been recorded");
-            drivemsgready = true;
-            break;
-          }
-        }
-      }
-    }
+  */
+  // if enabled this section grabs frames and outputs them as ascii art
 
-    //Checks if there is any data on the TCP datastream and if so, reads it and echoes it back to the server
-    if(client.available() && !commandready){
-      // read the bytes incoming from the server:
-      char Commandinit = client.read();
-      if(Commandinit == '['){
-        Command[0] = Commandinit;
-        int i = 1;
-        while(client.available()){
-          char Commandchar = client.read();
-          if(Commandchar != ']'){
-            Command[i] = Commandchar;
-            i++;
-          }else{
-            Command[i] = ']';
-            Serial.println("The Command has been recorded");
-            commandready = true;
-            break;
-          }
-        }
-      }else if(Commandinit == 'S'){
-        Command[0] = Commandinit;
-        Serial.println("The Stop signal has been recorded");
-        Serial.print("Sending Stop signal to drive: ");
-        Serial.write(Command[0]);
-        Serial2.write(Command[0]);
-        Command[0] = ' ';
-      }
-    }
-
-    //Checks if drive and command are ready for moving the rover
-    if(driveready && commandready){
-      Serial.print("Sending command to drive: ");
-      for(int i = 0; i < 32; i++){
-        Serial.write(Command[i]);
-        Serial2.write(Command[i]);
-        Command[i] = ' ';
+  if (mousecam_frame_capture(frame) == 0)
+  {
+    int i, j, k;
+    for (i = 0, k = 0; i < ADNS3080_PIXELS_Y; i++)
+    {
+      for (j = 0; j < ADNS3080_PIXELS_X; j++, k++)
+      {
+        Serial.print(asciiart(frame[k]));
+        Serial.print(' ');
       }
       Serial.println();
-      Serial2.write('\n');
-      driveready = false;
-      commandready = false;
-    }
-
-    //Checks if drive has a message for command
-    if(drivemsgready){
-      Serial.print("Sending message to command: ");
-      for(int i = 0; i < 32; i++){
-        Serial.write(DriveMsg[i]);
-        client.write(DriveMsg[i]);
-        DriveMsg[i] = ' ';
-      }
-      Serial.println();
-      client.write('\n');
-      drivemsgready = false;
-    }
-
-    //Checks if vision has a message for command
-    if(visionmsgready){
-      Serial.print("Sending message to command: ");
-      for(int i = 0; i < 64; i++){
-        Serial.write(VisionMsg[i]);
-        client.write(VisionMsg[i]);
-        VisionMsg[i] = ' ';
-      }
-      Serial.println();
-      visionmsgready = false;
     }
   }
+  Serial.println();
+  delay(250);
+
+#else
+
+  // if enabled this section produces a bar graph of the surface quality that can be used to focus the camera
+  // also drawn is the average pixel value 0-63 and the shutter speed and the motion dx,dy.
+
+  int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
+  MD md;
+  mousecam_read_motion(&md);
+  for (int i = 0; i < md.squal / 4; i++)
+    Serial.print('*');
+  Serial.print(' ');
+  Serial.print((val * 100) / 351);
+  Serial.print(' ');
+  Serial.print(md.shutter); Serial.print(" (");
+  Serial.print((int)md.dx); Serial.print(',');
+  Serial.print((int)md.dy); Serial.println(')');
+
+  // Serial.println(md.max_pix);
+  delay(100);
+
+
+  distance_x = convTwosComp(md.dx);
+  distance_y = convTwosComp(md.dy);
+
+  total_x1 = total_x1 + distance_x;
+  total_y1 = total_y1 + distance_y;
+
+  total_x = total_x1 ;   //157;
+  total_y = total_y1 * 0.0224;  //callibrated;
+
+
+  Serial.print('\n');
+
+//  int x;
+//  x= total_x;
+////  Serial.println(total_x);
+//  int y;
+////  Serial.println(total_x);
+//  y = total_y;
+//  
+  client.write("POS");
+  delay(1000);
+  client.write(total_x);
+  delay(1000);
+  client.write(total_y);
+
+
+  Serial.println("Distance_x = " + String(total_x));
+
+  Serial.println("Distance_y = " + String(total_y));
+  Serial.print('\n');
+
+  delay(250);
+
+#endif
+  //  client.write("hi");
+  Serial.println("hi sent");
+
+  Serial.println("checking for data from the client");
+  if (client.available())
+  {
+    Serial.println("received data from client: ");
+    // Serial.println(Commandchar);
+
+    while (client.available()) {
+      Commandchar = client.read(); //client.read() reads one character at a time
+      Serial.println(Commandchar);
+
+      if (Commandchar) {
+        Serial.println("The Command has been recorded");
+        commandready = true;
+        drivemsgready = true; //added for now here
+        break;
+      }
+      // String Commandstr = client.readString();
+      // if(Commandchar != 'M' || Commandchar != 'O' || Commandchar != 'V'){
+      // Command[j] = Commandchar;
+      // Serial.println(Commandchar);
+      // j++;
+      // }else{
+      //        Serial.println("The Command has been recorded");
+      //      commandready = true;
+      //      drivemsgready = true; //added for now here
+
+    }
+  }
+
+  //Checks if drive and command are rea
+
+  if (drivemsgready && commandready) {
+    //    char Commandchar = Serial.read();
+    //
+    Serial.println("Sending command to drive: ");
+    //          Serial.println(Commandchar);
+    int Command = Commandchar;
+    //      Serial.println(Command);
+    Drivle(Command);
+    Serial.println("sent command");
+
+//    delay(4000);
+    //    char msg = "POS x:" + String(total_x) + ", y: " + String(total_y);
+    //    client.write("POS");
+    //    client.write(total_x);
+    //    client.write(total_y);
+
+    commandready = false;
+    drivemsgready = false;
+
+  }
+
+  delay(500);
+
+
+
+
+
+
 }
