@@ -1,14 +1,16 @@
 from http import server
+from re import I
 import socket
 import threading
 import yap
-import RadicalProc
+import time
+
 
 # Create a TCP/IP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.43.192', 15000)
+server_address = ('192.168.43.192', 16000)
 # print('starting up on port ' + server_address[0] + server_address[1])
 server.bind(server_address)
 # Listen for incoming connections
@@ -21,9 +23,11 @@ nicknames = []
 Longitina =[]
 Latina =[]
 Alien =[]
-n=1
-
-
+sav_dist=0
+x=0
+y=0
+sav_loc =[x,y]
+sav_Rangle=0
 
 def broadcast(message):
     for client in clients:
@@ -31,12 +35,15 @@ def broadcast(message):
         client.send(message)
 
 def handle(client):
+    i = 0
     while True:
         try:
-            print("in handle")
+            #print("in handle")
             message = client.recv(1024)
+            
             message = message.decode("ascii")
             print(message)
+            message=str(message)
             opcode = message[0:3]
             # if opcode == "MOV" or "MOD":
             #     # broadcast(message)
@@ -44,25 +51,41 @@ def handle(client):
             #     client = clients[1]
             #     client.send(message)
 
-            if opcode == "POS":
+            if message == "POS":
+                print("in pos")
+                time.sleep(1)
                 message1 = client.recv(1024)
-                message1 = message1.decode("ascii")
-                print('x is '+message1)
+                message1=int.from_bytes(message1, "big", signed="true")
+                message1=str(message1)
+                print('x is '+ message1)
+                Rangle=message1
+                time.sleep(1)
                 message2 = client.recv(1024)
-                message2 = message2.decode("ascii")
+                message2=int.from_bytes(message2, "big", signed="true")
+                message2=str(message2)
                 print('y is '+message2)
-            if opcode == "IDA":
-                message3 = client.recv(1024)
-                message3=int.from_bytes(message3, "big", signed="true")
-                message3=str(message3)
-                print('dist: '+ message3)
+                upd_dist=message2-sav_dist
+                
+                loc=yap.calc_loc(Rangle,sav_dist,upd_dist,sav_loc,x,y)
+                x=loc[0]
+                y=loc[1]
+                if (Rangle!=sav_Rangle):
+                    sav_loc=loc
+                    sav_Rangle=Rangle
+                    sav_dist=upd_dist
+                    yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien)
+
+                
+                    
+
+                time.sleep(1)
             #     # x=int(message[3:6])
             #     # # print(x)
             #     # y=int(message[6:9])
             #     # #print(y)
             #     # Rangle=int(message[9:12])
             #     # #print(Aangle)
-            #     # yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien,n)
+            #     # yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien)
            
             # if opcode == "IDA":
             #    #level="IDA"+"010"+"024"+"045"+"ff00ff"+"001"+"28"+"28"+"1"
@@ -79,7 +102,7 @@ def handle(client):
             #     dist=int(message[21:25])
             #     dist=float(dist/100)
             #     #print(dist)
-            #     yap.alien(x,y,Rangle,colour,Aangle,dist,Longitina,Latina,Alien,n)
+            #     yap.alien(x,y,Rangle,colour,Aangle,dist,Longitina,Latina,Alien)
             #     #yap.draw(Longitina, Latina, Alien)
             #     #print(Longitina[0])
             #     # f = open("Command/src/components/Map.js", "a")
@@ -102,23 +125,19 @@ def handle(client):
             #     for item in content: #rewrites file content from list 
             #         infile.write("%s" % item)
             #     infile.close()
-
-            if opcode == 'RAD':
-                print( "test signal")
-                signal=input()
-                RadicalProc.Radarloc(Longitina, Latina, Alien,signal,x,y)
             # else:
-
-            
             exit (1)
             
 
 
         except:
-            print('forward?')
-            msg = str(input())
-            print('forward!')
-            broadcast(msg)
+            if i %4==0:
+                msg = str("4")
+                broadcast(msg)
+            else:
+                broadcast("0")
+            i = i+1
+
             
 
             # print('your mom')

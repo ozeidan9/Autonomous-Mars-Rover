@@ -31,6 +31,8 @@ class App extends React.Component {
           <div class="App-map">
             <Map />
           </div>
+    
+
             </body>
     )
 
