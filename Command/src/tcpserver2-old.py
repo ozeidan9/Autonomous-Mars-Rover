@@ -23,7 +23,7 @@ Latina =[]
 Alien =[]
 n=1
 
-
+manual = False
 
 def broadcast(message):
     for client in clients:
@@ -38,11 +38,22 @@ def handle(client):
             message = message.decode("ascii")
             print(message)
             opcode = message[0:3]
+
             # if opcode == "MOV" or "MOD":
             #     # broadcast(message)
             #     print(message)
             #     client = clients[1]
             #     client.send(message)
+
+            if opcode == "MODM":
+                # broadcast(message)
+                manual = True;
+                print(message)
+              
+            if opcode == "MODA":
+                # broadcast(message)
+                manual = False;
+                print(message)
 
             if opcode == "POS":
                 message1 = client.recv(1024)
