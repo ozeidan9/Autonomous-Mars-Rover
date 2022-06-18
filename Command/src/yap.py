@@ -16,8 +16,8 @@ def draw(Longitina, Latina, Alien,x,y,Rangle,n):
     fig, ax = plt.subplots(figsize = (8,7))
     ax.scatter(Longitina, Latina, zorder=1, c=Alien, s=10)
     # ax.set_title('Mapped Unknown')
-    ax.set_xlim(-50,50)
-    ax.set_ylim(-50,50)
+    ax.set_xlim(0,360)
+    ax.set_ylim(0,240)
    
    #draw rover position/angle
     tangle=30

@@ -2,6 +2,7 @@ from http import server
 from re import I
 import socket
 import threading
+from Command.src.automate import dead_zone
 import yap
 import time
 import automate 
@@ -118,6 +119,9 @@ def handle(client):
                 print("dist:" + message1)
                 colour='#FF0000'
                 yap.alien(x,y,Rangle,colour,dist,Longitina,Latina,Alien)
+
+
+                # dead_zone(map, [0,0])
 
             if opcode=="RAD":
                 message4 = client.recv(1024)
