@@ -39,26 +39,19 @@ module colour_detect(
 // assign pink_detect = 		(((9'd308 < hue) & (hue <= 8'd360)) | ((8'd0 <= hue) & (hue < 8'd22))) & 
 // 							(((8'd56 < sat) & (sat < 8'd155)) & (8'd137 < val));
 
-assign red_detect = 		((9'd345 < hue) & (hue <= 8'd360) | (8'd0 <= hue) & (hue < 8'd15)) & 
-							((8'd155 < sat) & (8'd100 < val));
+assign red_detect = 		((9'd345 < hue) & (hue <= 9'd360) | (8'd0 <= hue) & (hue < 8'd15) & 
+							((8'd155 < sat) & (8'd100 < val)));
 							
+assign pink_detect = ((hue > 9'd0) & (hue < 9'd25) & (sat > 8'd10) & (sat < 8'd135) & (val > 8'd234));
 							
 
-assign green_detect =  		((9'd101 < hue) & (hue < 9'd153)) & 
-							((8'd109 < sat) & (sat < 8'd169)) & (val < 8'd159);
+assign green_detect =  		((9'd70 < hue) & (hue < 9'd175) & (8'd70 < sat) & (val < 8'd140)&(val > 8'd35));
 
-assign yellow_detect = ((9'd40 < hue) & (hue < 9'd63)) &
-					   (8'd170 < sat) & (val < 8'd120);
+assign yellow_detect = ((9'd35 < hue) & (hue < 9'd70) & (8'd50 < sat) & (sat < 8'd255) & (val <= 8'd255) & (val > 8'd228));
 
-assign darkblue_detect = ((9'd170 < hue) & (hue < 9'd270)) &
-						 (8'd160 < val);
+assign darkblue_detect = ((9'd190 < hue) & (hue < 9'd290) & (sat < 8'd76) & (val < 8'd255) & (8'd40 < val));
 
-assign pink_detect = 		(((9'd308 < hue) & (hue <= 8'd360)) | ((8'd0 <= hue) & (hue < 8'd22))) & 
-							(((8'd56 < sat) & (sat < 8'd155)) & (8'd137 < val));
-
-assign lightgreen_detect = ((9'd79 < hue) & (hue < 9'd161)) &
-						   (8'd170 < sat) & (8'd98 < val);
-
+assign lightgreen_detect = ((hue > 9'd79) & (hue < 9'd160) & (sat > 204) & (sat < 255) & (val > 125) & (val <= 255));
 
 
 
