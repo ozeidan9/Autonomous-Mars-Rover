@@ -124,7 +124,7 @@ def handle(client):
                 yap.alien(x,y,Rangle,colour,dist,Longitina,Latina,Alien)
 
 
-                # dead_zone(map, [0,0])
+                # dead_zone(map, [0,0]) # add coordinate of alien to dead zone on map
 
             if opcode=="RAD":
                 message4 = client.recv(1024)
