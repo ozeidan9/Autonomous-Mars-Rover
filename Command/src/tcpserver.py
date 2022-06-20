@@ -2,25 +2,30 @@ from http import server
 from re import I
 import socket
 import threading
-from Command.src.automate import Rover
-from Command.src.yap import update
+from automate import Rover
+from yap import update
 import yap
 import time
 import automate
 import numpy as np
 
 map = np.zeros((240,360))
-
+# autogen = True
+z=0
 count = 0
+global autogen, restart, sav_dist
 
-restart =False
+autogen = True
+restart = False
+sav_dist=0
+# restart = False
 Commandlist = []
 Commands = []
 # Create a TCP/IP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.43.192', 15000)
+server_address = ('192.168.43.50', 16000)
 # print('starting up on port ' + server_address[0] + server_address[1])
 server.bind(server_address)
 # Listen for incoming connections
@@ -31,12 +36,12 @@ rover = Rover
 
 clients = []
 nicknames = []
-
+point=0
 
 Longitina =[]
 Latina =[]
 Alien =[]
-sav_dist=0
+# sav_dist=0
 x=0
 y=0
 sav_loc =[x,y]
@@ -208,7 +213,7 @@ def handle(client):
 
 
         except:
-            if autogen == True:
+            if autogen is True:
                 list_size =len(Commandlist)
                 if restart == False:
                     msg = Commandlist[0]
@@ -227,17 +232,24 @@ def handle(client):
 
                         if s==1: #investgate
                             Commands=automate.exe()
-                            Commandlist.append(Commands)
+                            while z <len(Commands):
+                                Commandlist.append(Commands[z])
+                            z=0
+                            
                             
                         if s==0:#move to point
                             count = count + 1
                             index = (point+count)%8
                             next_path = automate.automate_route(map, [rover.x, rover.y], automate.poi[index])
-                            # send to drive
+                            while z <len(next_path):
+                                Commandlist.append(next_path[z])
+                            z=0
+                                
                 if restart==True:
                     Commandlist.clear()
             if autogen == False:
                 print(input)
+
                 #for manual ctrl
 
         
@@ -262,6 +274,8 @@ def receive():
         nickname  = client.recv(1024).decode('ascii')
         nicknames.append(nickname)
         clients.append(client)
+        
+
 
         print("Nickname of client is " + nickname)
         # broadcast((nickname +  "joined the chat!").encode('ascii'))

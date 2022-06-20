@@ -250,44 +250,28 @@ def nextpoint(state, poi,map):
 def command(point,state):
     line_path = automate_route(map ,poi[point], poi[point+1]) 
     if (point == 1 or point == 4):
-        investigation = True
-        command = "rotate -155 slow"
-        print(command)
-             
-        command = "rotate 155 slow"
-        print(command)
-        print(next)
-        #return a commandlist.append command
+        command.clear()
+        command.append("6155") # left 155
+        command.append("7155") #right 155
+        
 
     if (point == 6 or point == 7):
-        command = "rotate 180 slow"
-        print(command)
-        line_path = automate_route(map ,poi[point], poi[point+1])
-        command = "rotate 180 slow"
-        print(command)
-        print(next)
+        command.append("6180") # left 180
+        command.append("6180") # left 180 
         
     else:
-        command = "turn on radar"
+        command.append("9000") #radar on
+        command.append("6065") # left 65
+        command.append("7065") #right 65
+        command.append("9100") #radar off
         print(command)
-        command = "rotate -65 slow"
-        print(command)
-        line_path = automate_route(map ,poi[point], poi[point+1])
-        command = "rotate 65 slow"
-        print(command)
-        command = "turn off radar"
-        print(command)
+        return command
 
 def exe(x,y,angle,state,serverstate):
     if serverstate == 1 :
         state=update_start(x,y)
     if serverstate==0:
         commandlist = command(point,state)
-    else:
-        #needs to head to the point it was previously heading too.
-        print(":0")
-        start=[x,y]
-        automate_route(map,)
     
     return commandlist
     
