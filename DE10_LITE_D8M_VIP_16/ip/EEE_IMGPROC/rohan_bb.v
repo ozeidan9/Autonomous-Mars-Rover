@@ -692,7 +692,7 @@ always@(posedge clk) begin
             red_ball_x_max <= r_x_max;
             red_ball_y_min <= r_y_min;
             red_ball_y_max <= r_y_max;
-        end
+        end 
     end
     else if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4 & in_valid & y > 160) begin   //Update bounds when the pixel is GREEN
         if (x < g_x_min) g_x_min <= x;

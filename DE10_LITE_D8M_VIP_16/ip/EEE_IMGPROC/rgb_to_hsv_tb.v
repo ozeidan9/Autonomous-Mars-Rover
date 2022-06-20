@@ -11,9 +11,9 @@ initial begin
   $dumpvars(0,rgb_to_hsv_tb);
   $display("running");
   clk = 0;
-  r = 200;
-  g = 50;
-  b = 10;
+  r = 22;
+  g = 48;
+  b = 65;
   #10; 
   clk = ~clk;
   #10;
@@ -33,9 +33,9 @@ initial begin
   clk = ~clk;
   #10;
   clk = ~clk;
+  
   #10; 
   clk = ~clk;
-  #10;
   $display("h is %d, s is %d, v is %d", h,s,v);
   clk = 0;
   r = 235;
@@ -43,6 +43,7 @@ initial begin
   b = 238;
   #10; 
   clk = ~clk;
+  reset = 1;
   #10;
   clk = ~clk;
   #10; 
@@ -113,14 +114,14 @@ end
 
 
   rgb_to_hsv dut(
-      .clock(clk),
-      .reset(reset),
-      .red(r),
-      .green(g),
-      .blue(b),
-      .hue(h),
-      .sat(s),
-      .val(v)
+      .clk(clk),
+      .rst(reset),
+      .rgb_r(r),
+      .rgb_g(g),
+      .rgb_b(b),
+      .hsv_h(h),
+      .hsv_s(s),
+      .hsv_v(v)
   );
 
 endmodule

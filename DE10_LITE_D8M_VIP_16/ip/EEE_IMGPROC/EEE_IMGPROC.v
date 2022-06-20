@@ -85,13 +85,21 @@ reg[10:0] r_width1, y_width1, g_width1, p_width1, db_width1, lg_width1;
 reg[10:0] r_width2, y_width2, g_width2, p_width2, db_width2, lg_width2;
 reg[10:0] r_width3, y_width3, g_width3, p_width3, db_width3, lg_width3;
 
-reg [10:0] r_width_check, r_height_check;
-reg [10:0] g_width_check, g_height_check;
-reg [10:0] lg_width_check, lg_height_check;
 reg[2:0] no_red_ball_counter;
+reg[2:0] no_green_ball_counter;
+reg[2:0] no_yellow_ball_counter;
+reg[2:0] no_pink_ball_counter;
+reg[2:0] no_darkblue_ball_counter;
+reg[2:0] no_lightgreen_ball_counter;
 
 initial begin
     no_red_ball_counter = 0;
+    no_green_ball_counter = 0;
+    no_yellow_ball_counter = 0;
+    no_pink_ball_counter = 0;
+    no_darkblue_ball_counter = 0;
+    no_lightgreen_ball_counter = 0;
+
     red_found = 0;
     green_found = 0;
     yellow_found = 0;
@@ -170,19 +178,28 @@ initial begin
     lg_width3 = 0;
     
     r_height = 0;
-
-    r_width_check = 0;
-    r_height_check = 0;
-    g_width_check = 0;
-    g_height_check = 0;
-    lg_width_check = 0;
-    lg_height_check = 0;
 end 
 
 
 always @(posedge clk) begin
-    if(byte_data_received == 1)begin
-        r_ball_registered <= 1;
+    // if(byte_data_received == 1)begin
+    //     r_ball_registered <= 1;
+    // end
+    r_ball_registered <= 0;
+    if(byte_data_received == 2)begin
+        g_ball_registered <= 1;
+    end
+    else if(byte_data_received == 3)begin
+        y_ball_registered <= 1;
+     end
+    else if(byte_data_received == 4)begin
+        p_ball_registered <= 1;
+    end
+    else if(byte_data_received == 5)begin
+        db_ball_registered <= 1;
+    end
+    else if(byte_data_received == 6)begin
+        lg_ball_registered <= 1;
     end
     if (y > 476)begin
         r_prev_frame3 <=  r_prev_frame2 & (r_width3 < r_width2 + 10) & (r_width3 > r_width2 - 10) & (r_height > 25);
@@ -193,36 +210,43 @@ always @(posedge clk) begin
         g_prev_frame2 <=  g_prev_frame1 & ((g_width2 < g_width1 + 10) & (g_width2 > g_width1 - 10));
         g_prev_frame1 <=  green_found & ((g_width1 < g_width + 10) & (g_width1 > g_width - 10));
     
-        y_prev_frame3 <=  y_prev_frame2; //& ((y_width3 < y_width2 + 10) & (y_width3 > y_width2 - 10));
-        y_prev_frame2 <=  y_prev_frame1; //& ((y_width2 < y_width1 + 10) & (y_width2 > y_width1 - 10));
-        y_prev_frame1 <=  (y_width > 0); //& ((y_width1 < y_width + 10) & (y_width1 > y_width - 10));
+        y_prev_frame3 <=  y_prev_frame2 & ((y_width3 < y_width2 + 10) & (y_width3 > y_width2 - 10));
+        y_prev_frame2 <=  y_prev_frame1 & ((y_width2 < y_width1 + 10) & (y_width2 > y_width1 - 10));
+        y_prev_frame1 <=  yellow_found & ((y_width1 < y_width + 10) & (y_width1 > y_width - 10));
 
-        p_prev_frame3 <=  p_prev_frame2; //& ((p_width3 < p_width2 + 10) & (p_width3 > p_width2 - 10));
-        p_prev_frame2 <=  p_prev_frame1; //& ((p_width2 < p_width1 + 10) & (p_width2 > p_width1 - 10));
-        p_prev_frame1 <=  (p_width > 0); //& ((p_width1 < p_width + 10) & (p_width1 > p_width - 10));
+        p_prev_frame3 <=  p_prev_frame2 & ((p_width3 < p_width2 + 10) & (p_width3 > p_width2 - 10));
+        p_prev_frame2 <=  p_prev_frame1 & ((p_width2 < p_width1 + 10) & (p_width2 > p_width1 - 10));
+        p_prev_frame1 <=  pink_found & ((p_width1 < p_width + 10) & (p_width1 > p_width - 10));
 
-        db_prev_frame3 <=  db_prev_frame2; //& ((db_width3 < db_width2 + 10) & (db_width3 > db_width2 - 10));
-        db_prev_frame2 <=  db_prev_frame1; //& ((db_width2 < db_width1 + 10) & (db_width2 > db_width1 - 10));
-        db_prev_frame1 <=  (db_width > 0); //& ((db_width1 < db_width + 10) & (db_width1 > db_width - 10));
+        db_prev_frame3 <=  db_prev_frame2 & ((db_width3 < db_width2 + 10) & (db_width3 > db_width2 - 10));
+        db_prev_frame2 <=  db_prev_frame1 & ((db_width2 < db_width1 + 10) & (db_width2 > db_width1 - 10));
+        db_prev_frame1 <=  darkblue_found & ((db_width1 < db_width + 10) & (db_width1 > db_width - 10));
 
-        lg_prev_frame3 <=  lg_prev_frame2; //& ((lg_width3 < lg_width2 + 10) & (lg_width3 > lg_width2 - 10));
-        lg_prev_frame2 <=  lg_prev_frame1; //& ((lg_width2 < lg_width1 + 10) & (lg_width2 > lg_width1 - 10));
-        lg_prev_frame1 <=  (lg_width > 0); //& ((lg_width1 < lg_width + 10) & (r_width1 > lg_width - 10));
-        r_height <= r_y_max - r_y_min;
-        if (r_in_frame)begin
-            if (r_x_max - r_x_min < r_width + 10 & r_x_max-r_x_min > r_width - 10)begin
-                r_width <= r_x_max - r_x_min;
-            end
-        end
-        else begin
-            r_width <= r_x_max - r_x_min;
-        end
-        
+        lg_prev_frame3 <=  lg_prev_frame2 & ((lg_width3 < lg_width2 + 10) & (lg_width3 > lg_width2 - 10));
+        lg_prev_frame2 <=  lg_prev_frame1 & ((lg_width2 < lg_width1 + 10) & (lg_width2 > lg_width1 - 10));
+        lg_prev_frame1 <=  lightgreen_found & ((lg_width1 < lg_width + 10) & (r_width1 > lg_width - 10));
+        // if (r_in_frame)begin
+        //     if (r_x_max - r_x_min < r_width + 10 & r_x_max-r_x_min > r_width - 10)begin
+        //         r_width <= r_x_max - r_x_min;
+        //     end
+        // end
+        // else begin
+        //     r_width <= r_x_max - r_x_min;
+        // end
         r_width <= r_x_max - r_x_min;
+        r_height <= r_y_max - r_y_min;
+        // if (g_in_frame)begin
+        //     if (g_x_max - g_x_min < g_width + 10 & g_x_max-g_x_min > g_width - 10)begin
+        //         g_width <= g_x_max - g_x_min;
+        //     end
+        // end
+        // else begin
+        //     g_width <= g_x_max - g_x_min;
+        // end
+        g_width <= g_x_max - g_x_min;        
         r_width3 <= r_width2;
         r_width2 <= r_width1;
         r_width1 <= r_width; 
-        g_width <= g_x_max - g_x_min;
         g_width3 <= g_width2;
         g_width2 <= g_width1;
         g_width1 <= g_width; 
@@ -251,12 +275,6 @@ always @(posedge clk) begin
         lg_in_frame <= lg_prev_frame1 & lg_prev_frame2 & lg_prev_frame3;    
 
     end
-    r_width_check <= r_x_max - r_x_min;
-    r_height_check <= r_y_max - r_y_min;
-    g_width_check <= g_x_max - g_x_min;
-    g_height_check <= g_y_max - g_y_min;
-    lg_width_check <= lg_x_max - lg_x_min;
-    lg_height_check <= lg_y_max - lg_y_min;
 end
 
 
@@ -265,35 +283,46 @@ end
 always @(*)begin
     if(distance_measure_active == 0)begin
         no_red_ball_counter = 0;
+        no_green_ball_counter = 0;
+        no_yellow_ball_counter = 0;
+        no_pink_ball_counter = 0;
+        no_darkblue_ball_counter = 0;
+        no_lightgreen_ball_counter = 0;
         outbuffer = 0;
         max_width = 11'd5;
-        if (r_in_frame & (r_width > max_width) & (r_ball_registered == 0))begin
-            r_ball_watching = 1;
+        //& r_width is in the right range
+        if (r_in_frame & (r_width > max_width) & (r_ball_registered == 0) & (r_width < 160) & (r_width > 50))begin
             max_width = r_width;
+            lg_ball_watching = 0;
+            g_ball_watching = 0;
+            y_ball_watching = 0;
+            p_ball_watching = 0;
+            db_ball_watching = 0;
+            r_ball_watching = 1;
             distance_measure_active = 1;
         end
-        if (g_in_frame & (g_width > max_width)  & ~g_ball_registered)begin
+        if (g_in_frame & (g_width > max_width)  & (g_ball_registered==0) & (g_width < 160) & (g_width > 50))begin
             g_ball_watching = 1;
             max_width = g_width;
-            distance_measure_active = 1;
             r_ball_watching = 0;
-        end
-        if (y_in_frame & y_width > max_width  & ~y_ball_registered)begin
-            y_ball_watching = 1;
-            max_width = y_width;
             distance_measure_active = 1;
+        end
+        if (y_in_frame & (y_width > max_width)  & (y_ball_registered==0) & & (y_width < 160) & (y_width > 50))begin
+            max_width = y_width;
             r_ball_watching = 0;
             g_ball_watching = 0;
-        end
-        if (p_in_frame & p_width > max_width  & ~p_ball_registered)begin
-            p_ball_watching = 1;
-            max_width = p_width;
+            y_ball_watching = 1;
             distance_measure_active = 1;
+        end
+        if (p_in_frame & (p_width > max_width)  & (p_ball_registered==0) & (p_width < 160) & (p_width > 50))begin
+            max_width = p_width;
             r_ball_watching = 0;
             g_ball_watching = 0;
             y_ball_watching = 0;
+            p_ball_watching = 1;
+            distance_measure_active = 1;
         end
-        if (db_in_frame & db_width > max_width  & ~db_ball_registered)begin
+        if (db_in_frame & (db_width > max_width)  & (db_ball_registered==0) & (db_width < 160) & (db_width > 50))begin
             db_ball_watching = 1;
             max_width = db_width;
             distance_measure_active = 1;
@@ -303,7 +332,7 @@ always @(*)begin
             p_ball_watching = 0;
         end
 
-        if (lg_in_frame & lg_width > max_width  & ~lg_ball_registered)begin
+        if (lg_in_frame & (lg_width > max_width)  & (lg_ball_registered==0) & (lg_width < 160) & (lg_width > 50))begin
             lg_ball_watching = 1;
             max_width = lg_width;
             distance_measure_active = 1;
@@ -317,6 +346,11 @@ always @(*)begin
     
     else if(distance_measure_active == 1)begin
         if(r_ball_watching == 1)begin //identifier for red: 1
+            g_ball_watching = 0;
+            y_ball_watching = 0;
+            p_ball_watching = 0;
+            db_ball_watching = 0;
+            lg_ball_watching = 0;
             if(r_ball_registered == 1)begin //if we have already found a red ball
                 outbuffer = 0;
                 r_ball_watching = 0;
@@ -332,70 +366,78 @@ always @(*)begin
             end
             else begin //otherwise there is a ball and we send r_ball_distance
                 no_red_ball_counter = 0;
-                outbuffer = (y == 476) ? r_ball_distance : outbuffer;
+                outbuffer = (y > 470) ? r_ball_distance : outbuffer;
             end
             
         end
         
         else if(g_ball_watching == 1)begin //identifier for green: 2
-            if(byte_data_received == 2)begin
+            if(g_ball_registered == 1)begin //if we have already found a red ball
                 outbuffer = 0;
-                g_ball_registered = 1;
                 g_ball_watching = 0;
                 distance_measure_active = 0;
             end
+            else if (no_green_ball_counter > 3)begin //if there is not actually a ball in sight
+                outbuffer = 0;
+                g_ball_watching = 0;
+                distance_measure_active = 0;
+            end
+            else if (g_left == 0 & g_right == 0 & g_top == 0 & g_bottom == 0)begin
+                no_green_ball_counter = no_green_ball_counter + 1;
+            end
             else begin
-                outbuffer = ((y > IMAGE_H-11'h8))  ? g_ball_distance : outbuffer;
+                no_green_ball_counter = 0;
+                outbuffer = (y == 476) ? g_ball_distance : outbuffer;
             end
         end
 
-        else if(y_ball_watching == 1)begin //identifier for yellow: 3
-            if(byte_data_received >=3)begin
-                outbuffer = 0;
-                y_ball_registered = 1;
-                y_ball_watching = 0;
-                distance_measure_active = 0;
-            end
-            else begin
-                outbuffer = ((y > IMAGE_H-11'h8))  ? y_ball_distance : outbuffer;
-            end
-        end
+        // else if(y_ball_watching == 1)begin //identifier for yellow: 3
+        //     if(byte_data_received >=3)begin
+        //         outbuffer = 0;
+        //         y_ball_registered = 1;
+        //         y_ball_watching = 0;
+        //         distance_measure_active = 0;
+        //     end
+        //     else begin
+        //         outbuffer = ((y > IMAGE_H-11'h8))  ? y_ball_distance : outbuffer;
+        //     end
+        // end
 
-        else if(p_ball_watching == 1)begin //identifier for pink: 4
-            if(byte_data_received == 4)begin
-                outbuffer = 0;
-                p_ball_registered = 1;
-                p_ball_watching = 0;
-                distance_measure_active = 0;
-            end
-            else begin
-                outbuffer = ((y > IMAGE_H-11'h8))  ? p_ball_distance : outbuffer;
-            end
-        end
+        // else if(p_ball_watching == 1)begin //identifier for pink: 4
+        //     if(byte_data_received == 4)begin
+        //         outbuffer = 0;
+        //         p_ball_registered = 1;
+        //         p_ball_watching = 0;
+        //         distance_measure_active = 0;
+        //     end
+        //     else begin
+        //         outbuffer = ((y > IMAGE_H-11'h8))  ? p_ball_distance : outbuffer;
+        //     end
+        // end
 
-        else if(db_ball_watching == 1)begin //identifier for dark blue: 5
-            if(byte_data_received == 5)begin
-                outbuffer = 0;
-                db_ball_registered = 1;
-                db_ball_watching = 0;
-                distance_measure_active = 0;
-            end
-            else begin
-                outbuffer = ((y > IMAGE_H-11'h8))  ? db_ball_distance : outbuffer;
-            end
-        end
+        // else if(db_ball_watching == 1)begin //identifier for dark blue: 5
+        //     if(byte_data_received == 5)begin
+        //         outbuffer = 0;
+        //         db_ball_registered = 1;
+        //         db_ball_watching = 0;
+        //         distance_measure_active = 0;
+        //     end
+        //     else begin
+        //         outbuffer = ((y > IMAGE_H-11'h8))  ? db_ball_distance : outbuffer;
+        //     end
+        // end
 
-        else if(lg_ball_watching == 1)begin //identifier for light green: 6
-            if(byte_data_received == 1)begin
-                outbuffer = 0;
-                lg_ball_registered = 1;
-                lg_ball_watching = 0;
-                distance_measure_active = 0;
-            end
-            else begin
-                outbuffer = ((y > IMAGE_H-11'h8))  ? lg_ball_distance : outbuffer;
-            end
-        end
+        // else if(lg_ball_watching == 1)begin //identifier for light green: 6
+        //     if(byte_data_received == 1)begin
+        //         outbuffer = 0;
+        //         lg_ball_registered = 1;
+        //         lg_ball_watching = 0;
+        //         distance_measure_active = 0;
+        //     end
+        //     else begin
+        //         outbuffer = ((y > IMAGE_H-11'h8))  ? lg_ball_distance : outbuffer;
+        //     end
+        // end
     end
 
 end
@@ -428,16 +470,19 @@ reg prev_lg1, prev_lg2, prev_lg3, prev_lg4;
 reg prev_b1, prev_b2, prev_b3, prev_b4;
 reg prev_w1, prev_w2, prev_w3, prev_w4;
 
+
+reg [15:0] build_ball_distance;
 wire [7:0] sat, val, min;
 wire [8:0] hue;
 rgb_to_hsv conv(
-    .green(green),
-    .red(red),
-    .blue(blue),
-    .hue(hue),
-    .min(min),
-    .sat(sat),
-    .value(val)
+      .clk(clk),
+      .rst(reset_n),
+      .rgb_r(red),
+      .rgb_g(green),
+      .rgb_b(blue),
+      .hsv_h(hue),
+      .hsv_s(sat),
+      .hsv_v(val)
 );
 initial begin
     prev_r1 <= 0;
@@ -512,13 +557,13 @@ wire [23:0] detected_area;
 assign grey = green[7:1] + red[7:2] + blue[7:2]; //Grey = green/2 + red/4 + blue/4
 
 
-assign detected_area  =  //(black_detect & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & prev_b1 & prev_b2 & prev_b3) ? {8'hd2, 8'h85, 8'h0} : 
-                        // (white_detect & prev_w1 & prev_w2 & prev_w3) ? {8'h0, 8'h00, 8'hff} : 
+assign detected_area  =  //(black_detect) ? {8'h54, 8'h07, 8'h49} : 
+                         (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4) ? {8'h54, 8'h07, 8'h49} : 
                          (red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4) ? {8'hff, 8'h0, 8'h0} : 
                           (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4) ? {8'h0, 8'hB1, 8'h0} :
-                        //   (yellow_detect & prev_y1 & prev_y2 & prev_y3) ? {8'h00, 8'h63, 8'hA1} :
-                        //  (darkblue_detect & prev_db1 & prev_db2 & prev_db3) ? {8'h00, 8'h63, 8'hA1} :
-                        //   (pink_detect & prev_p1 & prev_p2 & prev_p3) ? {8'hFF, 8'h00, 8'hEF} :
+                           (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4) ? {8'hFF, 8'hDA, 8'h00} :
+                          (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4) ? {8'h00, 8'h63, 8'hA1} :
+                          (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_db4) ? {8'hFF, 8'h00, 8'hEF} :
                            (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4) ? {8'h9A, 8'hE6, 8'h00} :
                          {grey, grey, grey};
                          
@@ -538,16 +583,16 @@ assign lightgreen_bb_active = (((x == lg_left & lg_left != IMAGE_W-11'h1) | (x =
 //BUILDING BOUNDING BOXES   
 assign black_bb_active = (((x == b_left & b_left != IMAGE_W-11'h1) | (x == b_right & b_right != 0)) & (b_bottom >= y & y >= b_top)) | (((y == b_top) | (y == b_bottom)) & (b_left <= x & x <= b_right));
 assign white_bb_active = (((x == w_left & w_left != IMAGE_W-11'h1) | (x == w_right & w_right != 0)) & (w_bottom >= y & y >= w_top)) | (((y == w_top) | (y == w_bottom)) & (w_left <= x & x <= w_right));
-assign build_bb_active = (x == build_left) | (x == build_right) | (y == build_top) | (y == build_bottom);
+assign build_bb_active = (x == build_left) | (x == build_right);
 
 //--> ADD FOR THE OTHER BOUNDING BOXES
 assign new_image =	red_bb_active ? {8'hdf,8'h16,8'h0} : 
                     green_bb_active ? {8'h0D, 8'h94, 8'h22} :
-					//yellow_bb_active ? {8'hE9, 8'hB6, 8'h00} :
-					//darkblue_bb_active ? {8'h00, 8'h4D, 8'hC0} :
-					//pink_bb_active ? {8'hF7, 8'h00, 8'hFF} :
+					yellow_bb_active ? {8'hE9, 8'hB6, 8'h00} :
+					darkblue_bb_active ? {8'h00, 8'hC0, 8'hBD} :
+					pink_bb_active ? {8'hF7, 8'h00, 8'hFF} :
 					lightgreen_bb_active ? {8'h22, 8'hFF, 8'h05} :
-                    //build_bb_active ? {8'hff, 8'h0, 8'h00} : 
+                    build_bb_active ? {8'hff, 8'h0, 8'h00} : 
                     //white_bb_active ? {8'h00, 8'h52, 8'hdf} :
                     detected_area;
 
@@ -558,11 +603,19 @@ assign new_image =	red_bb_active ? {8'hdf,8'h16,8'h0} :
 assign {red_out, green_out, blue_out} = (mode & ~sop & packet_video) ? new_image : {red,green,blue};
 //Count valid pixels to tget the image coordinates. Reset and detect packet type on Start of Packet.
 reg [10:0] x, y;
-
 reg [2:0] white_or_black_search; // 2 if searching for white, 1 if for black, 0 if for none yet
-reg[3:0] current_number_of_stripes;
-reg[3:0] prev_frame_number_of_stripes, frame_1_stripes, frame_2_stripes, frame_3_stripes, max_number_of_stripes;
+reg[5:0] current_number_of_stripes;
+reg[5:0] prev_frame_number_of_stripes, frame_1_stripes, frame_2_stripes, frame_3_stripes, max_number_of_stripes;
 reg[3:0] non_white_counter;
+reg[10:0] current_min_stripe;
+reg[10:0] current_max_stripe;
+reg[10:0] frame_min_stripe;
+reg[10:0] frame_max_stripe;
+reg[10:0] current_stripe;
+reg[10:0] current_stripe_width;
+reg[10:0] max_min_stripe; 
+reg[10:0] max_max_stripe;
+reg stripe_size_increasing; // 1 if increasing, 0 if decreasing
 
 initial begin
     white_or_black_search = 2;
@@ -573,47 +626,97 @@ initial begin
     frame_2_stripes = 0;
     frame_3_stripes = 0;
     non_white_counter = 0;
+    frame_min_stripe = 0;
+    frame_max_stripe = 0;
+    current_stripe = 0;
+    current_stripe_width = 0;
+    stripe_size_increasing = 1;
 end
 always @(posedge clk)begin
     if((x==10)&(y==10)&in_valid)begin
-        prev_frame_number_of_stripes <= current_number_of_stripes;
+        prev_frame_number_of_stripes <= max_number_of_stripes;
         white_or_black_search <= 2;
         current_number_of_stripes <= 0;
+        frame_min_stripe <= max_min_stripe;
+        frame_max_stripe <= max_max_stripe;
+        current_min_stripe <= 0;
+        current_stripe <= 0;
+        current_stripe_width <= 0;
+        stripe_size_increasing <= 1;
+        max_number_of_stripes <= 0;
+        max_min_stripe <= 0;
+        max_max_stripe <= 0;
     end
-    else if((y==230) & (x>=w_x_min) & (x<=w_x_max) & in_valid)begin
-        //DO WE NEED BLACK DETECT???/ BOUNDING BOX MADE FROM THE FIRST STRIPE??
-        if((white_or_black_search == 2) & white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4)begin
+    
+    else if((y==230) & (x>=10) & (x<=IMAGE_W-10) & in_valid & (y > 160) & (y % 5 == 0) & (y < 475))begin
+        if (x == IMAGE_W-10)begin
+            if (current_number_of_stripes > max_number_of_stripes)begin
+                max_number_of_stripes <= current_number_of_stripes;
+                max_min_stripe <= current_min_stripe;
+                max_max_stripe <= current_max_stripe;
+            end
+            current_number_of_stripes <= 0;
+            current_min_stripe <= 0;
+            current_max_stripe <= 0;
+            white_or_black_search <= 2;
+            stripe_size_increasing <= 1;
+        
+        end
+        else begin
+            if((white_or_black_search == 2) & white_detect & prev_w1 & prev_w2)begin
             current_number_of_stripes <= current_number_of_stripes + 1;
             white_or_black_search <= 1;
             non_white_counter <= 0;
-        end
-        else if((white_or_black_search == 1))begin
-            if(~white_detect & ~prev_w1 & ~prev_w2 & ~prev_w3 & ~prev_w4)begin
-                if (non_white_counter >= 2)begin
-                    current_number_of_stripes <= current_number_of_stripes + 1;
-                    white_or_black_search <= 2;
+            if(current_number_of_stripes == 0)begin
+                current_min_stripe <= x;
+            end
+            current_max_stripe = x;
+            if(current_number_of_stripes > 0)begin
+                if ((x - current_stripe < current_stripe_width) & stripe_size_increasing == 1)begin
+                    stripe_size_increasing <= 0;
                 end
-                else begin
-                    non_white_counter <= non_white_counter + 1;
-                    white_or_black_search <= 1;
-                end    
+                current_stripe_width <= x - current_stripe;
+            end
+            current_stripe <= x;
+            end
+    
+            else if((white_or_black_search == 1))begin
+            if(!white_detect & !prev_w1 & !prev_w2)begin
+                current_number_of_stripes <= current_number_of_stripes + 1;
+                white_or_black_search <= 2;
+                current_max_stripe <= x;
+                current_stripe <= x;
+                if(current_number_of_stripes > 0)begin
+                    if(current_number_of_stripes > 1)begin
+                        if ((x - current_stripe < current_stripe_width) & stripe_size_increasing == 1)begin
+                            stripe_size_increasing <= 0;
+                        end
+                        current_stripe_width <= x - current_stripe;
+                    end  
+                end
             end
         end
+
+
+        
+
+        end
+        
     end
 end
 
-always @(posedge clk) begin
-    frame_3_stripes <= frame_2_stripes;
-    frame_2_stripes <= frame_1_stripes;
-    frame_1_stripes <= prev_frame_number_of_stripes;
-    max_number_of_stripes <= (frame_3_stripes > frame_2_stripes) ? ((frame_3_stripes > frame_1_stripes) ? frame_3_stripes : frame_1_stripes) : 
-                             (frame_2_stripes > frame_1_stripes) ? ((frame_2_stripes > prev_frame_number_of_stripes) ? frame_2_stripes : prev_frame_number_of_stripes) : 
-                             (frame_1_stripes > prev_frame_number_of_stripes) ? frame_1_stripes : prev_frame_number_of_stripes;
-end
+// always @(posedge clk) begin
+//     frame_3_stripes <= frame_2_stripes;
+//     frame_2_stripes <= frame_1_stripes;
+//     frame_1_stripes <= prev_frame_number_of_stripes;
+//     prev_frame_number_of_stripes <= (frame_3_stripes > frame_2_stripes) ? ((frame_3_stripes > frame_1_stripes) ? frame_3_stripes : frame_1_stripes) : 
+//                              (frame_2_stripes > frame_1_stripes) ? ((frame_2_stripes > prev_frame_number_of_stripes) ? frame_2_stripes : prev_frame_number_of_stripes) : 
+//                              (frame_1_stripes > prev_frame_number_of_stripes) ? frame_1_stripes : prev_frame_number_of_stripes;
+// end
 
 
 
-assign building_detect = (max_number_of_stripes > 3) ? 1 : 0;
+assign building_detect = (prev_frame_number_of_stripes > 3) ? 1 : 0;
 
 reg packet_video;
 always@(posedge clk) begin
@@ -678,53 +781,50 @@ reg [10:0] b_x_min, b_y_min, b_x_max, b_y_max;
 reg [10:0] w_x_min, w_y_min, w_x_max, w_y_max;
 //build
 reg [10:0] build_x_min, build_y_min, build_x_max, build_y_max;
-reg red_ball;
-reg [10:0] red_ball_x_min, red_ball_x_max, red_ball_y_min, red_ball_y_max;
 always@(posedge clk) begin
-    if(red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4 & in_valid & y > 160) begin
-          //Update bounds when the pixel is RED
+    if(red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4 & in_valid & y > 160) begin //Update bounds when the pixel is RED
         if (x < r_x_min) r_x_min <= x;
         if (x > r_x_max) r_x_max <= x;
         if (y < r_y_min) r_y_min <= y;
         r_y_max <= y;
     end
-    else if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4 & in_valid & y > 160) begin   //Update bounds when the pixel is GREEN
+    if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4 & in_valid & y > 160) begin   //Update bounds when the pixel is GREEN
         if (x < g_x_min) g_x_min <= x;
         if (x > g_x_max) g_x_max <= x;
         if (y < g_y_min) g_y_min <= y;
         g_y_max <= y;
     end
-    else if (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4 & in_valid & y > 160) begin    //Update bounds when the pixel is YELLOW
+    if (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4 & in_valid & y > 160) begin    //Update bounds when the pixel is YELLOW
         if (x < y_x_min) y_x_min <= x;
         if (x > y_x_max) y_x_max <= x;
         if (y < y_y_min) y_y_min <= y;
         y_y_max <= y;
     end
-    else if (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4 & in_valid & y > 160) begin    //Update bounds when the pixel is DARKBLUE
+    if (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4 & in_valid & y > 160) begin    //Update bounds when the pixel is DARKBLUE
         if (x < y_x_min) y_x_min <= x;
         if (x > y_x_max) y_x_max <= x; 
         if (y < y_y_min) y_y_min <= y;
         y_y_max <= y;
     end
-    else if (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4 & in_valid & y > 160) begin    //Update bounds when the pixel is PINK
+    if (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4 & in_valid & y > 160) begin    //Update bounds when the pixel is PINK
         if (x < y_x_min) y_x_min <= x;
         if (x > y_x_max) y_x_max <= x;
         if (y < y_y_min) y_y_min <= y;
         y_y_max <= y;
     end
-    else if (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4 & in_valid & y > 160) begin    //Update bounds when the pixel is LIGHT GREEN
+    if (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4 & in_valid & y > 160) begin    //Update bounds when the pixel is LIGHT GREEN
         if (x < y_x_min) y_x_min <= x;
         if (x > y_x_max) y_x_max <= x;
         if (y < y_y_min) y_y_min <= y;
         y_y_max <= y;
     end
-    else if (black_detect & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & prev_b1 & prev_b2 & prev_b3 & prev_b4 & in_valid & y > 160) begin    //Update bounds when the pixel is BLACK
+    if (black_detect & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & prev_b1 & prev_b2 & prev_b3 & prev_b4 & in_valid & y > 160) begin    //Update bounds when the pixel is BLACK
         if (x < b_x_min) b_x_min <= x;
         if (x > b_x_max) b_x_max <= x;
         if (y < b_y_min) b_y_min <= y;
         b_y_max <= y;
     end
-    else if (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4 & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & in_valid & y > 160) begin    //Update bounds when the pixel is WHITE
+    if (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4 & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & in_valid & y > 160) begin    //Update bounds when the pixel is WHITE
         if (x < w_x_min) begin
             w_x_min <= x;
             if(building_detect) begin
@@ -830,7 +930,7 @@ always@(posedge clk) begin
     if (eop & in_valid & packet_video) begin  //Ignore non-video packets
         //Latch edges for display overlay on next frame for each BOUNDING BOXES
         //red
-        if(red_found & (r_width_check < r_height_check + 30) & (r_width_check > r_height_check - 30))begin
+        if(red_found)begin
             r_left <= r_x_min;
             r_right <= r_x_max;
             r_top <= r_y_min;
@@ -843,47 +943,72 @@ always@(posedge clk) begin
             r_bottom <= 0;
         end
         //green
-        if(green_found & (g_width_check < g_height_check + 30) & (g_width_check > g_height_check - 30))begin
+        // if(green_found & (g_x_max - g_x_min < g_y_max - g_y_min + 30) & (g_x_max - g_x_min > g_y_max - g_y_min - 30))begin
+        if(green_found)begin
             g_left <= g_x_min;
             g_right <= g_x_max;
             g_top <= g_y_min;
             g_bottom <= g_y_max;
         end
-        // else begin
-        //     g_left <= 0;
-        //     g_right <= 0;
-        //     g_top <= 0;
-        //     g_bottom <= 0;
-        // end
+        else begin
+            g_left <= 0;
+            g_right <= 0;
+            g_top <= 0;
+            g_bottom <= 0;
+        end
         
         //yellow
-        y_left <= y_x_min;
-        y_right <= y_x_max;
-        y_top <= y_y_min;
-        y_bottom <= y_y_max;
+        if(yellow_found)begin
+            y_left <= y_x_min;
+            y_right <= y_x_max;
+            y_top <= y_y_min;
+            y_bottom <= y_y_max;
+        end
+        else begin
+            y_left <= 0;
+            y_right <= 0;
+            y_top <= 0;
+            y_bottom <= 0;
+        end
         //darkblue
-        db_left <= db_x_min;
-        db_right <= db_x_max;
-        db_top <= db_y_min;
-        db_bottom <= db_y_max;
+        if(darkblue_found)begin
+            db_left <= db_x_min;
+            db_right <= db_x_max;
+            db_top <= db_y_min;
+            db_bottom <= db_y_max;
+        end
+        else begin
+            db_left <= 0;
+            db_right <= 0;
+            db_top <= 0;
+            db_bottom <= 0;
+        end
         //pink
-        p_left <= p_x_min;
-        p_right <= p_x_max;
-        p_top <= p_y_min;
-        p_bottom <= p_y_max;
+        if(pink_found)begin
+            p_left <= p_x_min;
+            p_right <= p_x_max;
+            p_top <= p_y_min;
+            p_bottom <= p_y_max;
+        end
+        else begin
+            p_left <= 0;
+            p_right <= 0;
+            p_top <= 0;
+            p_bottom <= 0;
+        end
         //lightgreen
-        if(lightgreen_found & (lg_width_check < lg_height_check + 30) & (lg_width_check > lg_height_check - 30))begin
+        if(lightgreen_found)begin
             lg_left <= lg_x_min;
             lg_right <= lg_x_max;
             lg_top <= lg_y_min;
             lg_bottom <= lg_y_max;
         end
-        // else begin
-        //     lg_left <= 0;
-        //     lg_right <= 0;
-        //     lg_top <= 0;
-        //     lg_bottom <= 0;
-        // end
+        else begin
+            lg_left <= 0;
+            lg_right <= 0;
+            lg_top <= 0;
+            lg_bottom <= 0;
+        end
         // FOR BUILDINGS
         //black
         b_left <= b_x_min;
@@ -897,10 +1022,12 @@ always@(posedge clk) begin
         w_bottom <= w_y_max;
 
         //BUILDINGS
-        build_left <= build_x_min;
-        build_right <= build_x_max;
-        build_top <= build_y_min;
-        build_bottom <= build_y_max;
+    
+        build_left <= frame_min_stripe;
+        build_right <= frame_max_stripe;
+        
+        // build_top <= build_y_min;
+        // build_bottom <= build_y_max;
         //Start message writer FSM once every MSG_INTERVAL frames, if there is room in the FIFO
         frame_count <= frame_count - 1;
         if (frame_count == 0 && msg_buf_size < MESSAGE_BUF_MAX - 3) begin
@@ -964,19 +1091,19 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b0;
 		end
 		3'b001: begin
-			msg_buf_in = {31'h1000000, distance_measure_active};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {28'h10000,3'h000, distance_measure_active};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b010: begin
-			msg_buf_in = {31'h2000000, r_ball_watching};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'h2000, r_ball_distance};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b011: begin
-			msg_buf_in = {31'h3000000, r_ball_registered};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {28'h30000,3'h0, r_ball_registered};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b100: begin
-			msg_buf_in = {16'hFFFF, r_ball_distance};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {11'h0,y_ball_watching,3'h0,lg_ball_watching,3'h0,p_ball_watching,3'h0,db_ball_watching,3'h0,g_ball_watching,3'h0, r_ball_watching};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b101: begin
@@ -984,11 +1111,11 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
 		3'b110: begin
-			msg_buf_in = {21'h40000, r_width_check};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hCCCC, byte_data_received};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
         3'b111: begin
-			msg_buf_in = {21'h60000, r_height_check};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {11'h0,y_in_frame,3'h0,lg_in_frame,3'h0,p_in_frame,3'h0,db_in_frame,3'h0,g_in_frame,3'h0, r_in_frame};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
     endcase
@@ -1066,12 +1193,17 @@ distance_calc duttt(
     .lightgreen_detect(lightgreen_detect),
     .lg_x_max(lg_x_max),
     .lg_x_min(lg_x_min),
+    .building_detect(building_detect),
+    .build_left(build_left),
+    .build_right(build_right),
+    .number_of_stripes(prev_frame_number_of_stripes),
     .r_ball_distance(r_ball_distance),
     .g_ball_distance(g_ball_distance),
     .y_ball_distance(y_ball_distance),
     .p_ball_distance(p_ball_distance),
     .db_ball_distance(db_ball_distance),
     .lg_ball_distance(lg_ball_distance),
+    .build_ball_distance(build_ball_distance),
 );
 
 
