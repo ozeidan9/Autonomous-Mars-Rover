@@ -38,68 +38,7 @@ class Rover(): #node class for A* pathfinding -> f = g + h
 
         self.y = 0
         self.angle = 0
-
-   
-
-
-def driveto(x,y):
-    return(1)
-    
-def update_start(x,y):
-    if x == 20:
-        if y==20:
-            driveto(26,26)
-            stateinner= 0
-        if y==220:
-            driveto(26,214)
-            stateinner= 5
-    if x == 340:
-        if y==20:
-            driveto(334,26)
-            stateinner= 2
-        if y==220:
-            driveto(324,214)
-            stateinner= 3
-    return (stateinner)
-    
-def nextpoint(state, poi,map):
-    if state ==0:
-        state=state+1
-        point=(6%state)
-        line_path = automate_route(map ,poi[point-1], poi[point])  # line_path = [angle1, d1, angle2, d2]
-        return (line_path)
-        #send to drive
-        #sendtodrive
-    
-        
-
-
-def command(point):
-    if (point == 1 or point == 4):
-        nextpoint(state, poi, map)
-        command = "rotate -180 slow"
-        print(command)
-        command = "rotate 180 slow"
-        print(command)
-        
-    else:
-        command = "turn on radar"
-        print(command)
-        command = "rotate -90 slow"
-        print(command)
-        command = "rotate 90 slow"
-        print(command)
-        command = "turn on radar"
-        print(command)
-
-            
-        
-            
-def pathto(point):
-    
-    return(1)
-            
-
+      
 # def drive( x, y ):      #takes in current position of rover, don't we also need angle? 
     
      
@@ -269,12 +208,69 @@ def sendtodrive(path_output):
 
 
 #adv def CurvatiousBundaliciousBattyBunds():
+def update_start(x,y):
+    if x == 20:
+        if y==20:
+            #driveto(26,26)
+            stateinner= 0
+        if y==220:
+            #driveto(26,214)
+            stateinner= 5
+    if x == 340:
+        if y==20:
+            #driveto(334,26)
+            stateinner= 2
+        if y==220:
+            #driveto(324,214)
+            stateinner= 3
+    return (stateinner)
+    
+def nextpoint(state, poi,map):
+    state=state+1
+    line_path = automate_route(map ,poi[point-1], poi[point])  # line_path = [angle1, d1, angle2, d2]
+    return (line_path)
+    #send to drive
+    #sendtodrive
 
+def command(point,state):
+    if (point == 1 or point == 4):
+        command = "rotate -155 slow"
+        print(command)
+        line_path = automate_route(map ,poi[point], poi[point+1])      
+        command = "rotate 155 slow"
+        print(command)
+        print(next)
+        #return a commandlist.append command
 
+    if (point == 6 or point == 7):
+        command = "rotate 180 slow"
+        print(command)
+        line_path = automate_route(map ,poi[point], poi[point+1])
+        command = "rotate 180 slow"
+        print(command)
+        print(next)
+        
+    else:
+        command = "turn on radar"
+        print(command)
+        command = "rotate -65 slow"
+        print(command)
+        line_path = automate_route(map ,poi[point], poi[point+1])
+        command = "rotate 65 slow"
+        print(command)
+        command = "turn off radar"
+        print(command)
 
-def exe(x,y,angle,stateinner,firsttime):
-    if firsttime == 1 :
-        stateinner=update_start(x,y)
-        stateouter=0 
-    nextpoint(stateinner, stateouter,poi,map)
+def exe(x,y,angle,state,serverstate):
+    if serverstate == 1 :
+        state=update_start(x,y)
+    if serverstate==0:
+        commandlist = command(point,state)
+    else:
+        #needs to head to the point it was previously heading too.
+        print(":0")
+        start=[x,y]
+        automate_route(map,)
+    
+    return commandlist
     

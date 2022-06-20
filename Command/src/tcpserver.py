@@ -2,11 +2,13 @@ from http import server
 from re import I
 import socket
 import threading
-from Command.src.automate import Rover, dead_zone
+from Command.src.automate import Rover
 import yap
 import time
-import automate 
 
+
+autogen =False
+Commandlist = []
 
 # Create a TCP/IP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,10 +20,12 @@ server.bind(server_address)
 # Listen for incoming connections
 server.listen(1)
 
+rover = Rover  
+
+
 clients = []
 nicknames = []
 
-rover = Rover  
 
 Longitina =[]
 Latina =[]
@@ -56,34 +60,27 @@ def broadcast(message):
 def handle(client):
     i = 0
     while True:
+        if 
         try:
             #print("in handle")
             message = client.recv(1024)
-
+            
             message = message.decode("ascii")
             print(message)
             message=str(message)
             opcode = message[0:3]
 
-            if opcode == "MOV" or "MOD":
-                # broadcast(message)
-                print(message)
-                client = clients[1]
-                client.send(message)
+            if opcode == "MOVU":
+                Commandlist.append("1")
+                
+            if opcode == "MOVL":
+                Commandlist.append("2")
 
+            if opcode == "MOVR":
+                Commandlist.append("3")
 
-            if opcode == "vof" or "rof":  #if vision or radar is toggled OFF from app
-                # broadcast(message)
-                print(message)
-                client = clients[1]
-                client.send(message)
-
-            if opcode == "von" or "ron":  #if vision or radar is toggled ON from app
-                # broadcast(message)
-                print(message)
-                client = clients[1]
-                client.send(message)
-
+            if opcode == "MOVD":
+                Commandlist.append("4")
 
             if message == "POS":
                 print("in pos")
@@ -92,14 +89,15 @@ def handle(client):
                 message1=int.from_bytes(message1, "big", signed="true")
                 message1=str(message1)
                 print('traveled: '+ message1)
+                rover.y = message1
                 Rangle=message1
-                rover.y = message1 # updates current y position
                 time.sleep(1)
                 message2 = client.recv(1024)
                 message2=int.from_bytes(message2, "big", signed="true")
                 message2=str(message2)
                 print('angle:'+message2)
-                rover.angle = message2 # updates current angle position
+                rover.angle = message2
+
                 dist=message2-sav_dist
                 # loc=yap.calc_loc(Rangle,sav_dist,dist,sav_loc)
                 # x=loc[0]
@@ -114,6 +112,7 @@ def handle(client):
                 message4 = client.recv(1024)
                 message4=int.from_bytes(message4, "big", signed="true")
                 message4=str(message4)
+                
             if opcode== "IDA":
                 print ("ida")
                 message1 = client.recv(1024)
@@ -122,9 +121,6 @@ def handle(client):
                 print("dist:" + message1)
                 colour='#FF0000'
                 yap.alien(x,y,Rangle,colour,dist,Longitina,Latina,Alien)
-
-
-                # dead_zone(map, [0,0]) # add coordinate of alien to dead zone on map
 
             if opcode=="RAD":
                 message4 = client.recv(1024)
@@ -135,7 +131,16 @@ def handle(client):
             
 
             yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien)
-                
+            
+
+            if opcode=="MODA":
+                Commandlist.clear()
+                autogen = True
+
+
+            if opcode=="MODM":
+                Commandlist.clear()
+                autogen = False
 
                 
             #19, 16, 13 circ, 22 degree from center
@@ -193,21 +198,10 @@ def handle(client):
 
 
         except:
-            if i %5==1:
-                msg = str("4")
+            if autogen == True:
+                msg = Commandlist[0]
                 broadcast(msg)
-            if i %5==2:
-                msg = str("1")
-                broadcast(msg)
-            if i %5==3:
-                msg = str("2")
-                broadcast(msg)
-            if i %5==4:
-                msg = str("3")
-                broadcast(msg)
-            else:
-                broadcast("0")
-            i = i+1
+                Commandlist.pop(0)
 
             
 
