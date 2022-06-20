@@ -2,7 +2,7 @@ from http import server
 from re import I
 import socket
 import threading
-from Command.src.automate import dead_zone
+from Command.src.automate import Rover, dead_zone
 import yap
 import time
 import automate 
@@ -21,6 +21,7 @@ server.listen(1)
 clients = []
 nicknames = []
 
+rover = Rover  
 
 Longitina =[]
 Latina =[]
@@ -92,11 +93,13 @@ def handle(client):
                 message1=str(message1)
                 print('traveled: '+ message1)
                 Rangle=message1
+                rover.y = message1 # updates current y position
                 time.sleep(1)
                 message2 = client.recv(1024)
                 message2=int.from_bytes(message2, "big", signed="true")
                 message2=str(message2)
                 print('angle:'+message2)
+                rover.angle = message2 # updates current angle position
                 dist=message2-sav_dist
                 # loc=yap.calc_loc(Rangle,sav_dist,dist,sav_loc)
                 # x=loc[0]

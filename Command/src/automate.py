@@ -18,6 +18,30 @@ poi.append([240,120])#7
 poi.append([26,26])#0
 
 
+class Node(): #node class for A* pathfinding -> f = g + h
+
+    def __init__(self, parent=None, position=None):
+        self.parent = parent
+        self.position = position
+
+        self.g = 0
+        self.h = 0
+        self.f = 0
+
+    def __eq__(self, other):
+        return self.position == other.position
+
+
+class Rover(): #node class for A* pathfinding -> f = g + h
+
+    def __init__(self=None):
+
+        self.y = 0
+        self.angle = 0
+
+   
+
+
 def driveto(x,y):
     return(1)
     
@@ -107,18 +131,6 @@ def automate_route(map, start, end): # higher level function calls a star and ot
 
 
 
-class Node(): #node class for A* pathfinding -> f = g + h
-
-    def __init__(self, parent=None, position=None):
-        self.parent = parent
-        self.position = position
-
-        self.g = 0
-        self.h = 0
-        self.f = 0
-
-    def __eq__(self, other):
-        return self.position == other.position
 
 
 def a_star(map, start, end): # closed box dead zone of 10x10 cm  -> Returns a list of tuples as a path from the given start to the given end in the given map
@@ -235,6 +247,13 @@ def smoothbrudha(path_array): #outputs array of [angle1, distance1, angle2, dist
     # for pos in path_array:
         
         
+def send_angle(angle):
+    target_angle = rover.angle + angle
+    return target_angle
+
+def send_distance(distance):
+    target_distance = rover.distance + distance
+    return target_distance
 
 
 def sendtodrive(path_output):
