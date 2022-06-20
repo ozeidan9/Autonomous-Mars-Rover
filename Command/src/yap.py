@@ -11,6 +11,17 @@ import time
 # Alien =[]
 n=1
 
+def calc_loc(Rangle,dist,sav_loc):
+    angle=(math.pi*(Rangle))/180
+    dx=dist*math.sin(angle)
+    #print(dx)
+    dy=dist*math.cos(angle)
+    #print(dy)
+    x=sav_loc[0]+dx
+    #print(long)
+    y=sav_loc[1]+dy
+    return([x,y])
+
 def draw(Longitina, Latina, Alien,x,y,Rangle,n):
     #displays POI's
     fig, ax = plt.subplots(figsize = (8,7))

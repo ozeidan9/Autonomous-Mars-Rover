@@ -3,13 +3,19 @@ from re import I
 import socket
 import threading
 from Command.src.automate import Rover
+from Command.src.yap import update
 import yap
 import time
+import automate
+import numpy as np
 
+map = np.zeros((240,360))
 
-autogen =False
+count = 0
+
+restart =False
 Commandlist = []
-
+Commands = []
 # Create a TCP/IP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -60,7 +66,6 @@ def broadcast(message):
 def handle(client):
     i = 0
     while True:
-        if 
         try:
             #print("in handle")
             message = client.recv(1024)
@@ -89,21 +94,22 @@ def handle(client):
                 message1=int.from_bytes(message1, "big", signed="true")
                 message1=str(message1)
                 print('traveled: '+ message1)
-                rover.y = message1
-                Rangle=message1
+                rover.distance = message1
+                
                 time.sleep(1)
                 message2 = client.recv(1024)
                 message2=int.from_bytes(message2, "big", signed="true")
                 message2=str(message2)
                 print('angle:'+message2)
                 rover.angle = message2
-
+                Rangle=message2
                 dist=message2-sav_dist
-                # loc=yap.calc_loc(Rangle,sav_dist,dist,sav_loc)
-                # x=loc[0]
-                # y=loc[1]
-                # print('x:'+x)
-                # print('y:'+y)
+                loc=yap.calc_loc(Rangle,sav_dist,dist,sav_loc)
+                rover.x=loc[0]
+                rover.y=loc[1]
+                print('x:'+rover.x)
+                print('y:'+rover.y)
+                
                 if (Rangle!=sav_Rangle):
                     sav_loc=loc
                     sav_Rangle=Rangle
@@ -130,7 +136,7 @@ def handle(client):
                 yap.alien(x,y,Rangle,'#000000',dist,Longitina,Latina,Alien)
             
 
-            yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien)
+            # yap.alien(x,y,Rangle,'#ffffff',0,0,Longitina,Latina,Alien)
             
 
             if opcode=="MODA":
@@ -141,6 +147,10 @@ def handle(client):
             if opcode=="MODM":
                 Commandlist.clear()
                 autogen = False
+
+
+            if opcode[0:3]=="START":
+                point = automate.update_start(opcode[3:6], opcode[6:9], opcode[9:12]) # x,y,angle
 
                 
             #19, 16, 13 circ, 22 degree from center
@@ -199,9 +209,38 @@ def handle(client):
 
         except:
             if autogen == True:
-                msg = Commandlist[0]
-                broadcast(msg)
-                Commandlist.pop(0)
+                list_size =len(Commandlist)
+                if restart == False:
+                    msg = Commandlist[0]
+                    broadcast(msg)
+                    Commandlist.pop(0)
+                    if list_size != 0:
+                        switch = False
+                        
+                    if list_size == 0:
+                        s=(s-1)*-1
+                        if s==2: #start state
+                            index = point%8
+                            next_path = automate.automate_route(map, [rover.x, rover.y], automate.poi[index])
+                            # send to drive
+                            s=0
+
+                        if s==1: #investgate
+                            Commands=automate.exe()
+                            Commandlist.append(Commands)
+                            
+                        if s==0:#move to point
+                            count = count + 1
+                            index = (point+count)%8
+                            next_path = automate.automate_route(map, [rover.x, rover.y], automate.poi[index])
+                            # send to drive
+                if restart==True:
+                    Commandlist.clear()
+            if autogen == False:
+                print(input)
+                #for manual ctrl
+
+        
 
             
 
@@ -230,6 +269,8 @@ def receive():
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+
+
 
 
 print("Server is listening...")

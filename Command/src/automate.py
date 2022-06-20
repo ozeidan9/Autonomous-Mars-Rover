@@ -2,7 +2,7 @@ from enum import auto
 from operator import indexOf
 import numpy as np
 
-map = np.zeros((240,360)) 
+# map = np.zeros((240,360)) 
 point=[]
 
 poi = [ [] ]  # Points of interest
@@ -15,7 +15,6 @@ poi.append([180,214])#4
 poi.append([26,214])#5
 poi.append([120,120])#6
 poi.append([240,120])#7
-poi.append([26,26])#0
 
 
 class Node(): #node class for A* pathfinding -> f = g + h
@@ -36,9 +35,13 @@ class Rover(): #node class for A* pathfinding -> f = g + h
 
     def __init__(self=None):
 
-        self.y = 0
+        self.distance = 0
         self.angle = 0
+
+        self.x = 0
+        self.y = 0
       
+
 # def drive( x, y ):      #takes in current position of rover, don't we also need angle? 
     
      
@@ -208,35 +211,49 @@ def sendtodrive(path_output):
 
 
 #adv def CurvatiousBundaliciousBattyBunds():
-def update_start(x,y):
+def update_start(x,y,angle):
     if x == 20:
         if y==20:
-            #driveto(26,26)
+            #driveto(26,26,90)
             stateinner= 0
         if y==220:
-            #driveto(26,214)
+            #driveto(26,214,180)
             stateinner= 5
     if x == 340:
         if y==20:
-            #driveto(334,26)
+            #driveto(334,26,-90)
             stateinner= 2
         if y==220:
-            #driveto(324,214)
+            #driveto(324,214,0)
             stateinner= 3
     return (stateinner)
     
+
+# def driveto(x,y,angle):
+
+#     init_x = rover.x
+#     init_y = rover.y
+#     curr_loc = [init_x, init_y]
+
+#     new_loc = calc_loc(angle,  ,curr_loc)
+#     rover.x = new_loc[0]
+#     rover.y = new_loc[1]
+
+
+
 def nextpoint(state, poi,map):
-    state=state+1
     line_path = automate_route(map ,poi[point-1], poi[point])  # line_path = [angle1, d1, angle2, d2]
     return (line_path)
     #send to drive
     #sendtodrive
 
 def command(point,state):
+    line_path = automate_route(map ,poi[point], poi[point+1]) 
     if (point == 1 or point == 4):
+        investigation = True
         command = "rotate -155 slow"
         print(command)
-        line_path = automate_route(map ,poi[point], poi[point+1])      
+             
         command = "rotate 155 slow"
         print(command)
         print(next)
