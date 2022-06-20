@@ -25,7 +25,7 @@ Commands = []
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.43.50', 16000)
+server_address = ('192.168.43.50', 15000)
 # print('starting up on port ' + server_address[0] + server_address[1])
 server.bind(server_address)
 # Listen for incoming connections
