@@ -188,7 +188,30 @@ def smoothbrudha(path_array): #outputs array of [angle1, distance1, angle2, dist
     
     # for pos in path_array:
         
-        
+
+def smooth(path, weight_data = 0.5, weight_smooth = 0.1, tolerance = 0.00001):
+    
+    # Make a deep copy of path into newpath
+    newpath = [[0 for col in range(len(path[0]))] for row in range(len(path))]
+    for i in range(len(path)):
+        for j in range(len(path[0])):
+            newpath[i][j] = path[i][j]
+
+    #### ENTER CODE BELOW THIS LINE ###
+    change = 1
+    while change > tolerance:
+        change = 0
+        for i in range(1,len(path)-1):
+            for j in range(len(path[0])):
+                ori = newpath[i][j]
+                newpath[i][j] = newpath[i][j] + weight_data*(path[i][j]-newpath[i][j])
+                newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i+1][j]+newpath[i-1][j]-2*newpath[i][j])
+                change += abs(ori - newpath[i][j])
+    
+    return newpath # Leave this line for the grader!
+
+
+    
 def send_angle(angle):
     target_angle = rover.angle + angle
     return target_angle

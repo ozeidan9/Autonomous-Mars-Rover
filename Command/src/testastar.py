@@ -1,4 +1,6 @@
 
+import numpy as np
+
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -98,25 +100,99 @@ def astar(maze, start, end):
             open_list.append(child)
 
 
+
+
+
+# def smooth(path, weight_data = 0.5, weight_smooth = 0.2, tolerance = 0.00001):
+    
+#     # Make a deep copy of path into newpath
+#     newpath = [[0 for col in range(len(path[0]))] for row in range(len(path))]
+#     for i in range(len(path)):
+#         for j in range(len(path[0])):
+#             newpath[i][j] = path[i][j]
+
+#     change = 1
+#     while change > tolerance:
+#         change = 0
+#         for i in range(1,len(path)-1):
+#             for j in range(len(path[0])):
+#                 ori = newpath[i][j]
+#                 newpath[i][j] = newpath[i][j] + weight_data*(path[i][j]-newpath[i][j])
+#                 newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i+1][j]+newpath[i-1][j]-2*newpath[i][j])
+#                 change += abs(ori - newpath[i][j])
+    
+#     return newpath 
+
+
+def straight(path):
+    new_path = []
+    x = []
+    y = []
+    new_path.append((path[0][0], path[0][1]))
+    count = 0
+    m = 0
+    m_prev = -1
+
+
+    # for j in range(1,len(path)):
+    #     x.append(path[j][0])
+    #     y.append(path[0][1])
+
+
+    for i in range(1,len(path)):
+        # slope, intercept = np.polyfit(x,y,1)
+        # m = (path[i][0] - path[i-1][0]) / (path[i][1] - path[i-1][1])
+        # print(m)
+        # if m == m_prev:
+        #     print("yo")
+        #     # count+=1
+        #     # if count==1:
+        #     new_path.append([path[i][0], path[i][1]])
+
+        #     count = 0
+
+        # m_prev = m
+
+        if (path[i][0]==path[i-1][0]) or (path[i][1]==path[i-1][1]):
+            count+=1
+            if (count==2):
+                new_path.append((path[i-2][0], path[i-2][1]))
+                count = 0
+
+    # print(new_path[len(new_path)-1])
+    # print(path[len(path)-1])
+    if new_path[len(new_path)-1]!=path[len(path)-1]:
+        new_path.append(path[len(path)-1])
+
+    return new_path
+
+
+
+
 def main():
 
-    maze = [[0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    maze = [[0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    start = (3, 2)
-    end = (7, 6)
+    start = (0, 3)
+    end = (5, 0)
 
     path = astar(maze, start, end)
     print(path)
 
+    # smooth_path = smooth(path)
+    # print(smooth_path)
+
+    critical_points = straight(path)
+    print(critical_points)
 
 if __name__ == '__main__':
     main()
