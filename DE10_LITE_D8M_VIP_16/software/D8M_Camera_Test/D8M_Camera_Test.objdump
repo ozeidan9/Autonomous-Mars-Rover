@@ -3326,7 +3326,7 @@ int main()
     	int boundingBoxColour = 0;
    21854:	e03ffa15 	stw	zero,-24(fp)
     	alt_u32 exposureTime = EXPOSURE_INIT;
-   21858:	0088c004 	movi	r2,8960
+   21858:	00858004 	movi	r2,5632
    2185c:	e0bffb15 	stw	r2,-20(fp)
     	alt_u16 gain = GAIN_INIT;
    21860:	00840004 	movi	r2,4096

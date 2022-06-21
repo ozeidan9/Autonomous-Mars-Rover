@@ -21,8 +21,9 @@ module distance_calc(
     input[10:0] lg_x_max,
     input[10:0] lg_x_min,
     input building_detect,
-    input[10:0] build_left,
-    input[10:0] build_right,
+    input[10:0] frame_biggest_stripe_right,
+    input[10:0] frame_biggest_stripe_left,
+    input[10:0] build_left, build_right,
     input[10:0] number_of_stripes,
     output reg [15:0]  r_ball_distance,
     output reg[15:0]  g_ball_distance,
@@ -78,8 +79,8 @@ assign db_ball_center = (db_x_max + db_x_min)/2;
 assign lg_ball_width = lg_x_max - lg_x_min;
 assign lg_ball_center = (lg_x_max + lg_x_min)/2;
 
-assign building_constant = 2839 * number_of_stripes + 1255;
-assign build_ball_width = build_right - build_left;
+assign building_constant = 0;
+assign build_ball_width = frame_biggest_stripe_right - frame_biggest_stripe_left;
 assign build_ball_center = (build_right + build_left)/2;
 //RED
 always @(posedge clk)begin 
@@ -210,15 +211,14 @@ end
 
 
 always @(posedge clk)begin
-    if((build_right > 320) & (build_left < 320) & ( build_ball_center < 330) & (build_ball_center > 310))begin
-        build_ball_distance[10:0] <= building_constant / build_ball_width;
-        build_ball_distance[15:11] <= 7;
+    if(build_ball_center > 400)begin
+    build_ball_distance <= 10;
     end
-    else if(build_ball_center > 330)begin
-        build_ball_distance <= 10; //too far right
+    else if (build_ball_center < 300)begin
+    build_ball_distance <= 9;
     end
     else begin
-        build_ball_distance <= 9; //too far left
+        build_ball_distance <= 1300 / build_ball_width;
     end
 end
 

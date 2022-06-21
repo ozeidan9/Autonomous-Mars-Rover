@@ -18,9 +18,9 @@
 #define EEE_IMGPROC_ID 2
 #define EEE_IMGPROC_BBCOL 3
 
-#define EXPOSURE_INIT 0x2300 //(was 2300) (900 in lab)
+#define EXPOSURE_INIT 0x1600 // (975 in ARENA)
 #define EXPOSURE_STEP 0x100
-#define GAIN_INIT 0x1000// 250 pretty decent usually (was 2080)
+#define GAIN_INIT 0x1000// // (1000 IN ARNEA)
 #define GAIN_STEP 0x040
 #define DEFAULT_LEVEL 3
 
