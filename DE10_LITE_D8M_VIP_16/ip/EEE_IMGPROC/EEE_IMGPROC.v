@@ -67,12 +67,12 @@ wire [7:0]   red, green, blue, grey;
 wire [7:0]   red_out, green_out, blue_out;
 wire         sop, eop, in_valid, out_ready;
 
-reg red_found, green_found, yellow_found, darkblue_found, pink_found, lightgreen_found; // need to do for others...
+reg red_found, green_found, yellow_found, darkblue_found, pink_found, lightgreen_found, building_found; // need to do for others...
 reg[10:0] max_width;
 reg distance_measure_active;
 reg r_ball_registered, g_ball_registered, y_ball_registered, p_ball_registered, db_ball_registered, lg_ball_registered;
 
-reg r_ball_watching, g_ball_watching, y_ball_watching, p_ball_watching, db_ball_watching, lg_ball_watching;
+reg r_ball_watching, g_ball_watching, y_ball_watching, p_ball_watching, db_ball_watching, lg_ball_watching, building_watching;
 
 reg r_in_frame, r_prev_frame1, r_prev_frame2, r_prev_frame3;
 reg g_in_frame, g_prev_frame1, g_prev_frame2, g_prev_frame3;
@@ -80,10 +80,13 @@ reg y_in_frame, y_prev_frame1, y_prev_frame2, y_prev_frame3;
 reg p_in_frame, p_prev_frame1, p_prev_frame2,p_prev_frame3 ;
 reg db_in_frame, db_prev_frame1, db_prev_frame2, db_prev_frame3;
 reg lg_in_frame, lg_prev_frame1, lg_prev_frame2, lg_prev_frame3;
+reg building_in_frame, building_prev_frame1, building_prev_frame2, building_prev_frame3;
+
 reg[10:0] r_width, y_width, g_width, p_width, db_width, lg_width, r_height;
 reg[10:0] r_width1, y_width1, g_width1, p_width1, db_width1, lg_width1;
 reg[10:0] r_width2, y_width2, g_width2, p_width2, db_width2, lg_width2;
 reg[10:0] r_width3, y_width3, g_width3, p_width3, db_width3, lg_width3;
+reg[10:0] building_width, building_width1, building_width2, building_width3;
 
 reg[2:0] no_red_ball_counter;
 reg[2:0] no_green_ball_counter;
@@ -91,6 +94,7 @@ reg[2:0] no_yellow_ball_counter;
 reg[2:0] no_pink_ball_counter;
 reg[2:0] no_darkblue_ball_counter;
 reg[2:0] no_lightgreen_ball_counter;
+reg[2:0] no_building_counter;
 
 initial begin
     no_red_ball_counter = 0;
@@ -99,6 +103,7 @@ initial begin
     no_pink_ball_counter = 0;
     no_darkblue_ball_counter = 0;
     no_lightgreen_ball_counter = 0;
+    no_building_counter = 0;
 
     red_found = 0;
     green_found = 0;
@@ -106,6 +111,7 @@ initial begin
     pink_found = 0;
     darkblue_found = 0;
     lightgreen_found = 0;
+    building_found= 0;
 
     outbuffer = 0;
     r_ball_registered = 0;
@@ -114,6 +120,7 @@ initial begin
     p_ball_registered = 0;
     db_ball_registered = 0;
     lg_ball_registered = 0;
+    
 
     r_ball_watching = 0;
     g_ball_watching = 0;
@@ -121,6 +128,7 @@ initial begin
     p_ball_watching = 0;
     db_ball_watching = 0;
     lg_ball_watching = 0;
+    building_watching = 0;
 
     r_in_frame = 0;
     r_prev_frame1 = 0;
@@ -146,6 +154,10 @@ initial begin
     lg_prev_frame1 = 0;
     lg_prev_frame2 = 0;
     lg_prev_frame3 = 0;
+    building_in_frame = 0;
+    building_prev_frame1 = 0;
+    building_prev_frame2 = 0;
+    building_prev_frame3 = 0;
 
     distance_measure_active = 0;
 
@@ -155,6 +167,7 @@ initial begin
     p_width = 0;
     db_width = 0;
     lg_width = 0;
+    building_width = 0;
         
     r_width1 = 0;
     y_width1 = 0;
@@ -162,6 +175,7 @@ initial begin
     p_width1 = 0;
     db_width1 = 0;
     lg_width1 = 0;
+    building_width1 = 0;
     
     r_width2 = 0;
     y_width2 = 0;
@@ -169,6 +183,7 @@ initial begin
     p_width2 = 0;
     db_width2 = 0;
     lg_width2 = 0;
+    building_width2 = 0;
     
     r_width3 = 0;
     y_width3 = 0;
@@ -176,6 +191,7 @@ initial begin
     p_width3 = 0;
     db_width3 = 0;
     lg_width3 = 0;
+    building_width3 = 0;
     
     r_height = 0;
 end 
@@ -185,22 +201,22 @@ always @(posedge clk) begin
     // if(byte_data_received == 1)begin
     //     r_ball_registered <= 1;
     // end
-    r_ball_registered <= 0;
-    if(byte_data_received == 2)begin
-        g_ball_registered <= 1;
-    end
-    else if(byte_data_received == 3)begin
-        y_ball_registered <= 1;
-     end
-    else if(byte_data_received == 4)begin
-        p_ball_registered <= 1;
-    end
-    else if(byte_data_received == 5)begin
-        db_ball_registered <= 1;
-    end
-    else if(byte_data_received == 6)begin
-        lg_ball_registered <= 1;
-    end
+
+    // if(byte_data_received == 2)begin
+    //     g_ball_registered <= 1;
+    // end
+    // else if(byte_data_received == 3)begin
+    //     y_ball_registered <= 1;
+    //  end
+    // else if(byte_data_received == 4)begin
+    //     p_ball_registered <= 1;
+    // end
+    // else if(byte_data_received == 5)begin
+    //     db_ball_registered <= 1;
+    // end
+    // else if(byte_data_received == 6)begin
+    //     lg_ball_registered <= 1;
+    // end
     if (y > 476)begin
         r_prev_frame3 <=  r_prev_frame2 & (r_width3 < r_width2 + 10) & (r_width3 > r_width2 - 10) & (r_height > 25);
         r_prev_frame2 <=  r_prev_frame1 & (r_width2 < r_width1 + 10) & (r_width2 > r_width1 - 10) & (r_height > 25);
@@ -224,7 +240,13 @@ always @(posedge clk) begin
 
         lg_prev_frame3 <=  lg_prev_frame2 & ((lg_width3 < lg_width2 + 10) & (lg_width3 > lg_width2 - 10));
         lg_prev_frame2 <=  lg_prev_frame1 & ((lg_width2 < lg_width1 + 10) & (lg_width2 > lg_width1 - 10));
-        lg_prev_frame1 <=  lightgreen_found & ((lg_width1 < lg_width + 10) & (r_width1 > lg_width - 10));
+        lg_prev_frame1 <=  lightgreen_found & ((lg_width1 < lg_width + 10) & (lg_width1 > lg_width - 10));
+
+        building_prev_frame3 <=  building_prev_frame2 & ((building_width3 < building_width2 + 10) & (building_width3 > building_width2 - 10));
+        building_prev_frame2 <=  building_prev_frame1 & ((building_width2 < building_width1 + 10) & (building_width2 > building_width1 - 10));
+        building_prev_frame1 <=  building_found & ((building_width1 < building_width + 10) & (building_width1 > building_width - 10));
+
+
         // if (r_in_frame)begin
         //     if (r_x_max - r_x_min < r_width + 10 & r_x_max-r_x_min > r_width - 10)begin
         //         r_width <= r_x_max - r_x_min;
@@ -267,12 +289,18 @@ always @(posedge clk) begin
         lg_width2 <= lg_width1;
         lg_width1 <= lg_width;
 
+        building_width <= build_right - build_left;
+        building_width3 <= building_width2;
+        building_width2 <= building_width1;
+        building_width1 <= building_width;
+
         r_in_frame <= r_prev_frame1 & r_prev_frame2 & r_prev_frame3;
         g_in_frame <= g_prev_frame1 & g_prev_frame2 & g_prev_frame3;
         y_in_frame <= y_prev_frame1 & y_prev_frame2 & y_prev_frame3;
         p_in_frame <= p_prev_frame1 & p_prev_frame2 & p_prev_frame3;
         db_in_frame <= db_prev_frame1 & db_prev_frame2 & db_prev_frame3;
-        lg_in_frame <= lg_prev_frame1 & lg_prev_frame2 & lg_prev_frame3;    
+        lg_in_frame <= lg_prev_frame1 & lg_prev_frame2 & lg_prev_frame3;  
+        building_in_frame <= building_prev_frame1 & building_prev_frame2 & building_prev_frame3;  
 
     end
 end
@@ -290,6 +318,16 @@ always @(posedge clk)begin
         no_lightgreen_ball_counter <= 0;
         outbuffer <= 0;
         
+
+        //activating requesting to measure building
+
+        if(building_in_frame & (frame_biggest_stripe_right - frame_biggest_stripe_left > 40) & (frame_biggest_stripe_right - frame_biggest_stripe_left) < 160)begin
+            outbuffer <= 14;
+        end
+        else begin
+          outbuffer <= 0;
+        end
+
         //activating red measure
         if (r_in_frame & (r_ball_registered == 0) & (r_width < 160) & (r_width > 50) & (r_width > g_width | g_x_max == 0 | g_width > 160) & (r_width > y_width | y_x_max == 0 | y_width > 160) & (r_width > p_width | p_x_max == 0 | p_width > 160) & (r_width > lg_width | lg_x_max == 0 | lg_width > 160) & (r_width > db_width | db_x_max == 0 | db_width > 160))begin
             lg_ball_watching <= 0;
@@ -298,6 +336,7 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             r_ball_watching <= 1;
+            building_watching <= 0;
             distance_measure_active <= 1;
         end
 
@@ -310,6 +349,7 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             r_ball_watching <= 0;
+            building_watching <= 0;
             distance_measure_active <= 1;
         end
 
@@ -321,6 +361,7 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             r_ball_watching <= 0;
+            building_watching <= 0;
             distance_measure_active <= 1;
         end
 
@@ -333,6 +374,7 @@ always @(posedge clk)begin
             p_ball_watching <= 1;
             db_ball_watching <= 0;
             r_ball_watching <= 0;
+            building_watching <= 0;
             distance_measure_active <= 1;
         end
 
@@ -344,6 +386,7 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 1;
             r_ball_watching <= 0;
+            building_watching <= 0;
             distance_measure_active <= 1;
         end
 
@@ -355,6 +398,17 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             r_ball_watching <= 0;
+            building_watching <= 0;
+            distance_measure_active <= 1;
+        end
+        else if(byte_data_received == 14)begin
+            lg_ball_watching <= 0;
+            g_ball_watching <= 0;
+            y_ball_watching <= 0;
+            p_ball_watching <= 0;
+            db_ball_watching <= 0;
+            r_ball_watching <= 0;
+            building_watching <= 1;
             distance_measure_active <= 1;
         end
 
@@ -365,23 +419,48 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             r_ball_watching <= 0;
+            building_watching <= 0;
             distance_measure_active <= 0;
         end
     end
     
     else if(distance_measure_active == 1)begin
+        //measuring building
 
-        //measuring red
-        if(r_ball_watching == 1)begin 
+        if (building_watching == 1)begin
             g_ball_watching <= 0;
             y_ball_watching <= 0;
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             lg_ball_watching <= 0;
-            if((r_ball_registered == 1) | no_red_ball_counter > 3)begin //if we have already found a red ball
+            r_ball_watching <= 0;
+            if(byte_data_received != 14 | no_building_counter > 3)begin
+                building_watching <= 0;
+                distance_measure_active <= 0;
+            end
+            else if (frame_min_stripe == 0 & frame_max_stripe == 0)begin
+                no_building_counter <= no_building_counter + 1;
+            end
+            else begin
+                no_building_counter <= 0;
+                outbuffer <= build_ball_distance;
+            end
+        end
+        //measuring red
+        else if(r_ball_watching == 1)begin 
+            g_ball_watching <= 0;
+            y_ball_watching <= 0;
+            p_ball_watching <= 0;
+            db_ball_watching <= 0;
+            lg_ball_watching <= 0;
+            building_watching <= 0;
+            if(byte_data_received == 1 | no_red_ball_counter > 3)begin //if we have already found a red ball
                 outbuffer <= 0;
                 r_ball_watching <= 0;
                 distance_measure_active <= 0;
+                if(byte_data_received == 1) begin
+                     r_ball_registered <= 1;
+                end
             end
             else if (r_left == 0 & r_right == 0 & r_top == 0 & r_bottom == 0)begin
                 no_red_ball_counter <= no_red_ball_counter + 1;
@@ -400,10 +479,14 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             lg_ball_watching <= 0;
-            if((g_ball_registered == 1) | no_green_ball_counter > 3)begin //if we have already found a green ball
+            building_watching <= 0;
+            if((byte_data_received == 2) | no_green_ball_counter > 3)begin //if we have already found a green ball
                 outbuffer <= 0;
                 g_ball_watching <= 0;
                 distance_measure_active <= 0;
+                if(byte_data_received == 2) begin
+                     g_ball_registered <= 1;
+                end
             end
             else if (g_left == 0 & g_right == 0 & g_top == 0 & g_bottom == 0)begin
                 no_green_ball_counter <= no_green_ball_counter + 1;
@@ -421,10 +504,14 @@ always @(posedge clk)begin
             p_ball_watching <= 0;
             db_ball_watching <= 0;
             lg_ball_watching <= 0;
-            if((y_ball_registered == 1) | no_yellow_ball_counter > 3)begin 
+            building_watching <= 0;
+            if((byte_data_received == 3) | no_yellow_ball_counter > 3)begin 
                 outbuffer <= 0;
                 y_ball_watching <= 0;
                 distance_measure_active <= 0;
+                if(byte_data_received == 3) begin
+                     y_ball_registered <= 1;
+                end
             end
             else if (y_left == 0 & y_right == 0 & y_top == 0 & y_bottom == 0)begin
                 no_yellow_ball_counter <= no_yellow_ball_counter + 1;
@@ -442,10 +529,14 @@ always @(posedge clk)begin
             y_ball_watching <= 0;
             db_ball_watching <= 0;
             lg_ball_watching <= 0;
-            if((p_ball_registered == 1) | no_pink_ball_counter > 3)begin 
+            building_watching <= 0;
+            if((byte_data_received == 4) | no_pink_ball_counter > 3)begin 
                 outbuffer <= 0;
                 p_ball_watching <= 0;
                 distance_measure_active <= 0;
+                if(byte_data_received == 4) begin
+                     p_ball_registered <= 1;
+                end
             end
             else if (p_left == 0 & p_right == 0 & p_top == 0 & p_bottom == 0)begin
                 no_pink_ball_counter <= no_pink_ball_counter + 1;
@@ -464,10 +555,14 @@ always @(posedge clk)begin
             y_ball_watching <= 0;
             p_ball_watching <= 0;
             lg_ball_watching <= 0;
-            if((db_ball_registered == 1) | no_darkblue_ball_counter > 3)begin 
+            building_watching <= 0;
+            if((byte_data_received == 5) | no_darkblue_ball_counter > 3)begin 
                 outbuffer <= 0;
                 db_ball_watching <= 0;
                 distance_measure_active <= 0;
+                if(byte_data_received == 5) begin
+                     db_ball_registered <= 1;
+                end
             end
             else if (db_left == 0 & db_right == 0 & db_top == 0 & db_bottom == 0)begin
                 no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
@@ -485,10 +580,14 @@ always @(posedge clk)begin
             y_ball_watching <= 0;
             p_ball_watching <= 0;
             db_ball_watching <= 0;
-            if((lg_ball_registered == 1) | no_lightgreen_ball_counter > 3)begin 
+            building_watching <= 0;
+            if((byte_data_received == 6) | no_lightgreen_ball_counter > 3)begin 
                 outbuffer <= 0;
                 lg_ball_watching <= 0;
                 distance_measure_active <= 0;
+                if(byte_data_received == 6) begin
+                     lg_ball_registered <= 1;
+                end
             end
             else if (lg_left == 0 & lg_right == 0 & lg_top == 0 & lg_bottom == 0)begin
                 no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
@@ -621,11 +720,11 @@ assign grey = green[7:1] + red[7:2] + blue[7:2]; //Grey = green/2 + red/4 + blue
 assign detected_area  =  //(black_detect) ? {8'h54, 8'h07, 8'h49} : 
                          (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4) ? {8'h54, 8'h07, 8'h49} : 
                          (red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4) ? {8'hff, 8'h0, 8'h0} : 
-                          (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4) ? {8'h0, 8'hA1, 8'h10} :
-                           (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4) ? {8'hFF, 8'hDA, 8'h00} :
-                          (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4) ? {8'h00, 8'h63, 8'hA1} :
+                        (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4) ? {8'hAB, 8'hFF, 8'h00} :
+                        //(green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4) ? {8'h0, 8'hA1, 8'h10} :
+                         (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4) ? {8'hFF, 8'hDA, 8'h00} :
+                        (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4) ? {8'h00, 8'h63, 8'hA1} :
                           (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4) ? {8'hFF, 8'h00, 8'hEF} :
-                          (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4) ? {8'hAB, 8'hFF, 8'h00} :
                          {grey, grey, grey};
                          
 // Show bounding box
@@ -646,13 +745,13 @@ assign black_bb_active = (((x == b_left & b_left != IMAGE_W-11'h1) | (x == b_rig
 assign white_bb_active = (((x == w_left & w_left != IMAGE_W-11'h1) | (x == w_right & w_right != 0)) & (w_bottom >= y & y >= w_top)) | (((y == w_top) | (y == w_bottom)) & (w_left <= x & x <= w_right));
 assign build_bb_active = (x == build_left) | (x == build_right);
 
-//--> ADD FOR THE OTHER BOUNDING BOXES
+//--> ADD FOlg_in_frame <= lg_prev_frame1 & lg_prev_frame2 & lg_prev_frame3;  R THE OTHER BOUNDING BOXES
 assign new_image =	red_bb_active ? {8'hdf,8'h16,8'h0} : 
-                    green_bb_active ? {8'h0D, 8'h94, 8'h22} :
+                    //green_bb_active ? {8'h0D, 8'h94, 8'h22} :
 					yellow_bb_active ? {8'hE9, 8'hB6, 8'h00} :
-					//darkblue_bb_active ? {8'h00, 8'hC0, 8'hBD} :
+					darkblue_bb_active ? {8'h00, 8'hC0, 8'hBD} :
 					pink_bb_active ? {8'hF7, 8'h00, 8'hFF} :
-					//lightgreen_bb_active ? {8'h22, 8'hFF, 8'h05} :
+					lightgreen_bb_active ? {8'h22, 8'hFF, 8'h05} :
                     build_bb_active ? {8'hff, 8'h0, 8'h00} : 
                     //white_bb_active ? {8'h00, 8'h52, 8'hdf} :
                     detected_area;
@@ -683,8 +782,10 @@ reg[10:0] max_biggest_stripe_right, max_biggest_stripe_left;
 
 reg[3:0] current_number_of_buildings, max_number_of_buildings, frame_number_of_buildings;
 
-reg stripe_size_increasing; // 1 if increasing, 0 if decreasing
+reg[5:0] potential_number_of_stripes;
+reg[10:0] potential_min_stripe, potential_max_stripe, potential_biggest_stripe_right, potential_biggest_stripe_left;
 
+reg stripe_size_increasing; // 1 if increasing, 0 if decreasing
 initial begin
     white_or_black_search = 2;
     max_number_of_stripes = 0;
@@ -710,10 +811,195 @@ initial begin
     frame_number_of_buildings = 0;
     current_number_of_buildings = 0;
     max_number_of_buildings = 0;
+
+    potential_number_of_stripes = 0;
+    potential_min_stripe = 0; 
+    potential_max_stripe = 0;
+    potential_biggest_stripe_right = 0;
+    potential_biggest_stripe_left = 0;
 end
+
+// always @(posedge clk)begin
+//     if((x==10)&(y==10)&in_valid)begin
+//         prev_frame_number_of_stripes <= max_number_of_stripes;
+//         if(max_number_of_stripes > 2)begin
+//             building_found <= 1;
+//         end
+//         else begin
+//             building_found <= 0;
+//         end
+//         white_or_black_search <= 2;
+//         current_number_of_stripes <= 0;
+//         frame_min_stripe <= max_min_stripe;
+//         frame_max_stripe <= max_max_stripe;
+//         current_min_stripe <= 0;
+//         current_stripe <= 0;
+//         current_stripe_width <= 0;
+//         stripe_size_increasing <= 1;
+//         max_number_of_stripes <= 0;
+//         max_min_stripe <= 0;
+//         max_max_stripe <= 0;
+//         frame_biggest_stripe_right <= max_biggest_stripe_right;
+//         frame_biggest_stripe_left <= max_biggest_stripe_left;
+       
+//         current_biggest_stripe_right <= 0;
+//         current_biggest_stripe_left <= 0;
+//         max_biggest_stripe_right <= 0;
+//         max_biggest_stripe_left <= 0;
+
+//         frame_number_of_buildings <= max_number_of_buildings;
+//         current_number_of_buildings <= 0;
+//         max_number_of_buildings <= 0;
+//         potential_biggest_stripe_left <= 0;
+//         potential_biggest_stripe_right <= 0;
+//         potential_max_stripe <= 0;
+//         potential_min_stripe <= 0;
+//         potential_number_of_stripes <= 0;
+
+
+//     end
+    
+//     else if((y==230) & (x>=10) & (x<=IMAGE_W-10) & in_valid & (y > 160) & (y % 5 == 0) & (y < 475))begin
+//         if (x == IMAGE_W-10)begin
+//             if (current_number_of_stripes > max_number_of_stripes)begin
+//                 max_number_of_stripes <= current_number_of_stripes;
+//                 max_min_stripe <= current_min_stripe;
+//                 max_max_stripe <= current_max_stripe;
+//                 max_biggest_stripe_right <= current_biggest_stripe_right;
+//                 max_biggest_stripe_left <= current_biggest_stripe_left;
+//                 max_number_of_buildings <= current_number_of_buildings;
+                
+//             end
+//             current_number_of_stripes <= 0;
+//             current_min_stripe <= 0;
+//             current_max_stripe <= 0;
+//             current_biggest_stripe_right <= 0;
+//             current_biggest_stripe_left <= 0;
+//             white_or_black_search <= 2;
+//             stripe_size_increasing <= 1;
+//             current_number_of_buildings <= 0;
+//             potential_number_of_stripes <= 0;
+//             potential_min_stripe <= 0;
+//             potential_max_stripe <= 0;
+//             potential_biggest_stripe_right <= 0;
+//             potential_biggest_stripe_left <= 0;
+        
+//         end
+//         else begin
+
+//             if((white_or_black_search == 2) & white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4)begin
+                
+//                 current_stripe <= x;
+//                 white_or_black_search <= 1;
+//                 non_white_counter <= 0;
+//                 potential_number_of_stripes <= potential_number_of_stripes + 1;
+//                 potential_max_stripe <= x;
+//                 if(potential_number_of_stripes == 0)begin
+//                     potential_min_stripe <= x;
+//                     potential_biggest_stripe_left <= x;
+//                     potential_biggest_stripe_right <= x;
+//                 end
+//                 else if(x - current_stripe > potential_biggest_stripe_right - potential_biggest_stripe_left) begin
+//                     potential_biggest_stripe_left <= current_stripe;
+//                     potential_biggest_stripe_right <= x;
+//                 end
+
+
+
+//                 if(potential_number_of_stripes > 0)begin
+//                     current_stripe_width <= x - current_stripe;
+//                     if ((x - current_stripe < current_stripe_width) & stripe_size_increasing == 1)begin
+//                         stripe_size_increasing <= 0;
+//                     end
+                    
+//                     if (current_number_of_stripes == 3 & current_number_of_buildings == 0)begin
+//                         current_number_of_buildings <= 1;
+//                     end
+//                     else if ((x-current_stripe > current_stripe_width) & stripe_size_increasing == 0 & potential_number_of_stripes > 2)begin
+//                         current_number_of_buildings <= current_number_of_buildings + 1;
+//                         stripe_size_increasing <= 1;
+//                         if((potential_biggest_stripe_right-potential_biggest_stripe_left > current_biggest_stripe_right - current_biggest_stripe_left) & potential_number_of_stripes > 3)begin
+//                             current_biggest_stripe_left <= potential_biggest_stripe_left;
+//                             current_biggest_stripe_right <= potential_biggest_stripe_right;
+//                             current_max_stripe <= potential_max_stripe;
+//                             current_min_stripe <= potential_min_stripe;
+//                             current_number_of_stripes <= potential_number_of_stripes;
+//                         end
+//                         potential_biggest_stripe_left <= 0;
+//                         potential_biggest_stripe_right <= 0;
+//                         potential_max_stripe <= 0;
+//                         potential_min_stripe <= 0;
+//                         potential_number_of_stripes <= 0;
+//                     end
+//                 end
+                
+
+                
+//             end
+    
+
+
+
+//             else if((white_or_black_search == 1) & !white_detect & !prev_w1 & !prev_w2 & !prev_w3  & !prev_w4)begin
+
+//                 current_stripe <= x;
+//                 white_or_black_search <= 2;
+//                 non_white_counter <= 0;
+//                 potential_number_of_stripes <= potential_number_of_stripes + 1;
+//                 potential_max_stripe <= x;
+//                 if(potential_number_of_stripes == 0)begin
+//                     potential_min_stripe <= x;
+//                     potential_biggest_stripe_left <= x;
+//                     potential_biggest_stripe_right <= x;
+//                 end
+//                 else if(x - current_stripe > potential_biggest_stripe_right - potential_biggest_stripe_left) begin
+//                     potential_biggest_stripe_left <= current_stripe;
+//                     potential_biggest_stripe_right <= x;
+//                 end
+
+
+
+//                 if(potential_number_of_stripes > 0)begin
+//                     if ((x - current_stripe < current_stripe_width) & stripe_size_increasing == 1)begin
+//                         stripe_size_increasing <= 0;
+//                     end
+//                     current_stripe_width <= x - current_stripe;
+//                     if (current_number_of_stripes == 3 & current_number_of_buildings == 0)begin
+//                         current_number_of_buildings <= 1;
+//                     end
+//                     else if ((x-current_stripe > current_stripe_width) & stripe_size_increasing == 0 & potential_number_of_stripes > 2)begin
+//                         current_number_of_buildings <= current_number_of_buildings + 1;
+//                         stripe_size_increasing <= 1;
+//                         if((potential_biggest_stripe_right-potential_biggest_stripe_left > current_biggest_stripe_right - current_biggest_stripe_left) & potential_number_of_stripes > 3)begin
+//                             current_biggest_stripe_left <= potential_biggest_stripe_left;
+//                             current_biggest_stripe_right <= potential_biggest_stripe_right;
+//                             current_max_stripe <= potential_max_stripe;
+//                             current_min_stripe <= potential_min_stripe;
+//                             current_number_of_stripes <= potential_number_of_stripes;
+//                         end
+//                         potential_biggest_stripe_left <= 0;
+//                         potential_biggest_stripe_right <= 0;
+//                         potential_max_stripe <= 0;
+//                         potential_min_stripe <= 0;
+//                         potential_number_of_stripes <= 0;
+//                     end
+//                 end 
+//             end
+//         end
+//     end
+// end
+
+
+
 always @(posedge clk)begin
     if((x==10)&(y==10)&in_valid)begin
         prev_frame_number_of_stripes <= max_number_of_stripes;
+        if(max_number_of_stripes > 2)begin
+            building_found <= 1;
+        end
+        else begin
+            building_found <= 0;
+        end
         white_or_black_search <= 2;
         current_number_of_stripes <= 0;
         frame_min_stripe <= max_min_stripe;
@@ -1226,7 +1512,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
 		3'b010: begin
-            msg_buf_in = {16'hAAAA, outbuffer};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+            msg_buf_in = {16'hAAAA, frame_number_of_buildings};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b011: begin
@@ -1234,7 +1520,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
 		3'b100: begin
-			msg_buf_in = {16'hBBBB,5'h0,build_right};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hBCBC,byte_data_received};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b101: begin
@@ -1246,7 +1532,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
         3'b111: begin
-			msg_buf_in = {11'h2,y_in_frame,3'h0,lg_in_frame,3'h0,p_in_frame,3'h0,db_in_frame,3'h0,g_in_frame,3'h0, r_in_frame};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hABAB,3'h0,distance_measure_active,3'h0,building_prev_frame2,3'h0,building_prev_frame1,3'h0, building_in_frame};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
     endcase

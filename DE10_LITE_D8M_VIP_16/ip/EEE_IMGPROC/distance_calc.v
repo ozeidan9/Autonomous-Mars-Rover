@@ -142,7 +142,6 @@ always @(posedge clk)begin
         y_ball_distance <= 9; //too far left
     end
 end
-
 //PINK
 always @(posedge clk)begin
     if(p_ball_width > 160)begin
