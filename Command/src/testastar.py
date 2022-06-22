@@ -134,24 +134,21 @@ def straight(path):
     m_prev = -1
 
 
-    # for j in range(1,len(path)):
-    #     x.append(path[j][0])
-    #     y.append(path[0][1])
-
-
+    m_count = 0
     for i in range(1,len(path)):
-        # slope, intercept = np.polyfit(x,y,1)
-        # m = (path[i][0] - path[i-1][0]) / (path[i][1] - path[i-1][1])
-        # print(m)
-        # if m == m_prev:
-        #     print("yo")
-        #     # count+=1
-        #     # if count==1:
-        #     new_path.append([path[i][0], path[i][1]])
+        if (path[i][1] - path[i-1][1])!=0:
+            m = (path[i][0] - path[i-1][0]) / (path[i][1] - path[i-1][1])
+            print(m)
 
-        #     count = 0
+        if m == m_prev:
+            m_count+=1
 
-        # m_prev = m
+        if m!=m_prev and m_count!=0:
+            new_path.append((path[i-1][0], path[i-1][1]))
+            new_path.append((path[i][0], path[i][1]))
+            m_count = 0
+
+        m_prev = m
 
         if (path[i][0]==path[i-1][0]) or (path[i][1]==path[i-1][1]):
             count+=1
@@ -159,8 +156,6 @@ def straight(path):
                 new_path.append((path[i-2][0], path[i-2][1]))
                 count = 0
 
-    # print(new_path[len(new_path)-1])
-    # print(path[len(path)-1])
     if new_path[len(new_path)-1]!=path[len(path)-1]:
         new_path.append(path[len(path)-1])
 
@@ -171,12 +166,12 @@ def straight(path):
 
 def main():
 
-    maze = [[0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+    maze = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
+            [0, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+            [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+            [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+            [0, 1, 1, 0, 0, 0, 0, 1, 0, 0],
             [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
             [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
