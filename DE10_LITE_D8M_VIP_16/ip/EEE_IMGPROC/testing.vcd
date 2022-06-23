@@ -1,0 +1,233 @@
+$date
+	Mon Jun 20 12:10:54 2022
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module rgb_to_hsv_tb $end
+$var wire 8 ! v [7:0] $end
+$var wire 8 " s [7:0] $end
+$var wire 9 # h [8:0] $end
+$var reg 8 $ b [7:0] $end
+$var reg 1 % clk $end
+$var reg 8 & g [7:0] $end
+$var reg 8 ' r [7:0] $end
+$var reg 1 ( reset $end
+$scope module dut $end
+$var wire 1 % clk $end
+$var wire 8 ) rgb_b [7:0] $end
+$var wire 8 * rgb_g [7:0] $end
+$var wire 8 + rgb_r [7:0] $end
+$var wire 1 ( rst $end
+$var wire 1 , r_g $end
+$var wire 1 - r_b $end
+$var wire 1 . g_b $end
+$var reg 8 / division [7:0] $end
+$var reg 9 0 hsv_h [8:0] $end
+$var reg 8 1 hsv_s [7:0] $end
+$var reg 8 2 hsv_s_m [7:0] $end
+$var reg 8 3 hsv_v [7:0] $end
+$var reg 8 4 max [7:0] $end
+$var reg 8 5 max_min [7:0] $end
+$var reg 8 6 max_n [7:0] $end
+$var reg 8 7 min [7:0] $end
+$var reg 3 8 rgb_se [2:0] $end
+$var reg 3 9 rgb_se_n [2:0] $end
+$var reg 8 : top [7:0] $end
+$var reg 14 ; top_60 [13:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+bx ;
+bx :
+bx 9
+bx 8
+bx 7
+bx 6
+bx 5
+bx 4
+bx 3
+bx 2
+bx 1
+bx 0
+bx /
+0.
+0-
+0,
+b10110 +
+b110000 *
+b1000001 )
+x(
+b10110 '
+b110000 &
+0%
+b1000001 $
+bx #
+bx "
+bx !
+$end
+#10
+b0 8
+b11010 :
+b10110 7
+b1000001 4
+b0 #
+b0 0
+1%
+#20
+0%
+#30
+b10101001 2
+b100100 /
+b1000001 6
+b101011 5
+b0 9
+b11000011000 ;
+1%
+#40
+0%
+#60
+b11001100 #
+b11001100 0
+b10101001 "
+b10101001 1
+b1000001 !
+b1000001 3
+1%
+#70
+0%
+#80
+1%
+#90
+0%
+#100
+1%
+#110
+1,
+b11101110 $
+b11101110 )
+b10001100 &
+b10001100 *
+b11101011 '
+b11101011 +
+0%
+#120
+b100 8
+b1011111 :
+b10001100 7
+b11101110 4
+1(
+1%
+#130
+0%
+#140
+b1101001 2
+b111010 /
+b11101110 6
+b1100010 5
+b100 9
+b1011001000100 ;
+1%
+#150
+0%
+#170
+b11101110 !
+b11101110 3
+b1101001 "
+b1101001 1
+b100101010 #
+b100101010 0
+1%
+#180
+0%
+#190
+1%
+#200
+0%
+#210
+1%
+#220
+0%
+#230
+1%
+#240
+0%
+#250
+1-
+b1011001 $
+b1011001 )
+b1110 &
+b1110 *
+b11101110 '
+b11101110 +
+#260
+b110 8
+b1001011 :
+b1110 7
+1%
+#270
+0%
+#280
+b11110000 2
+b10100 /
+b11100000 5
+b110 9
+b1000110010100 ;
+1%
+#290
+0%
+#300
+b11110000 "
+b11110000 1
+b101010100 #
+b101010100 0
+1%
+#310
+0%
+#320
+1%
+#330
+0,
+0-
+b10111110 $
+b10111110 )
+b1000110 &
+b1000110 *
+b100011 '
+b100011 +
+#340
+0%
+#350
+b0 8
+b100011 :
+b100011 7
+b10111110 4
+1%
+#360
+0%
+#370
+b11010000 2
+b1101 /
+b10111110 6
+b10011011 5
+b0 9
+b100000110100 ;
+1%
+#380
+0%
+#390
+b10111110 !
+b10111110 3
+b11010000 "
+b11010000 1
+b11100011 #
+b11100011 0
+1%
+#400
+0%
+#410

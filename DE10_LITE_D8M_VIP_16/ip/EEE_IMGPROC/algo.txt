@@ -1,0 +1,56 @@
+1) Scan through the image 
+2) Starting from the bottom right, we get the previous pixels DETECT. We store these in a 2D array with the X value. 
+3) When we get to the next row we we scan through the array and access the previous elements from the above 
+
+wire three_ina_row;
+assign three_ina_row = (green_detect & prev_g1 & prev_g2 & prev_g3); //Green pixels for the 3 in a row...
+
+
+reg threebythree[2:0][639:0];  
+reg [1:0] width;
+always @(posedge clk)begin
+	if(in_valid) begin
+		threebythree[width][x] <= three_ina_row;
+		if(y%3==0)begin
+			width <= 0;
+		end
+		else begin
+			width <= width + 2'b01;
+		end
+	end
+end
+
+ reg average_g;
+ reg [1:0] count;
+
+always @(*)begin
+	//processing boundary conditions
+    if(in_valid) begin
+        if(y==0)begin
+            average_g = 0;
+            // average_g = 1;
+            count = 0;
+        end
+        else if (y==1)begin
+            average_g = 0;
+            // average_g = 1;
+            count = 0;
+        end
+        else if((x==0) | (x==1))begin
+            average_g = 0;
+            // average_g = 1;
+            count = 0;
+        end
+        else begin
+            count = threebythree[0][x] + threebythree[1][x] + threebythree[2][x];
+            if(count > 1) begin
+                average_g = 1;
+                count = 0;
+            end
+            else begin
+                average_g = 0;
+                count = 0;
+            end
+        end
+    end
+end
