@@ -1,5 +1,6 @@
 
 import numpy as np
+import math
 
 
 class Node():
@@ -103,25 +104,25 @@ def astar(maze, start, end):
 
 
 
-# def smooth(path, weight_data = 0.5, weight_smooth = 0.2, tolerance = 0.00001):
+def smooth(path, weight_data = 0.5, weight_smooth = 0.2, tolerance = 0.00001):
     
-#     # Make a deep copy of path into newpath
-#     newpath = [[0 for col in range(len(path[0]))] for row in range(len(path))]
-#     for i in range(len(path)):
-#         for j in range(len(path[0])):
-#             newpath[i][j] = path[i][j]
+    # Make a deep copy of path into newpath
+    newpath = [[0 for col in range(len(path[0]))] for row in range(len(path))]
+    for i in range(len(path)):
+        for j in range(len(path[0])):
+            newpath[i][j] = path[i][j]
 
-#     change = 1
-#     while change > tolerance:
-#         change = 0
-#         for i in range(1,len(path)-1):
-#             for j in range(len(path[0])):
-#                 ori = newpath[i][j]
-#                 newpath[i][j] = newpath[i][j] + weight_data*(path[i][j]-newpath[i][j])
-#                 newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i+1][j]+newpath[i-1][j]-2*newpath[i][j])
-#                 change += abs(ori - newpath[i][j])
+    change = 1
+    while change > tolerance:
+        change = 0
+        for i in range(1,len(path)-1):
+            for j in range(len(path[0])):
+                ori = newpath[i][j]
+                newpath[i][j] = newpath[i][j] + weight_data*(path[i][j]-newpath[i][j])
+                newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i+1][j]+newpath[i-1][j]-2*newpath[i][j])
+                change += abs(ori - newpath[i][j])
     
-#     return newpath 
+    return newpath 
 
 
 def straight(path):
@@ -136,25 +137,32 @@ def straight(path):
 
     m_count = 0
     for i in range(1,len(path)):
-        if (path[i][1] - path[i-1][1])!=0:
-            m = (path[i][0] - path[i-1][0]) / (path[i][1] - path[i-1][1])
-            print(m)
-
-        if m == m_prev:
+        if (path[i][0] - path[i-1][0])!=0:
+            m = (path[i][1] - path[i-1][1]) / (path[i][0] - path[i-1][0]) #dy/dx
+            # print(m)
+        condition = abs(m - m_prev)<=1  # bool condition
+        if condition:
             m_count+=1
 
-        if m!=m_prev and m_count!=0:
-            new_path.append((path[i-1][0], path[i-1][1]))
+        if not condition and m_count!=0:
+            # new_path.append((path[i-1][0], path[i-1][1]))
             new_path.append((path[i][0], path[i][1]))
+            new_path.append((path[i-m_count][0], path[i-m_count][1]))
             m_count = 0
 
         m_prev = m
 
-        if (path[i][0]==path[i-1][0]) or (path[i][1]==path[i-1][1]):
-            count+=1
-            if (count==2):
-                new_path.append((path[i-2][0], path[i-2][1]))
-                count = 0
+        # if (path[i][0]==path[i-1][0]) or (path[i][1]==path[i-1][1]):
+        #     count+=1
+        #     # if (count==2):
+        #     #     new_path.append((path[i-2][0], path[i-2][1]))
+        #     #     count = 0
+
+        # if (path[i][0]!=path[i-1][0]) and (path[i][1]!=path[i-1][1]) and count!=0:
+        #     new_path.append((path[i-1][0], path[i-1][1]))
+        #     new_path.append((path[i-count-1][0], path[i-count-1][1]))
+        #     count = 0
+
 
     if new_path[len(new_path)-1]!=path[len(path)-1]:
         new_path.append(path[len(path)-1])
@@ -163,31 +171,117 @@ def straight(path):
 
 
 
+# def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
+    
+#     x = alien[0]
+#     y = alien[1]
+
+    
+#     for i in range(x-5, x+5):
+#         for k in range(y-5, y+5):
+
+#             if 0<=i<240 and 0<=y<360:
+#                 map[i,k] = 1
+    
+#     return map
+
+
+def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
+    
+    x = alien[0]
+    y = alien[1]
+
+    
+    for i in range(x-10, x+10):
+        for k in range(y-10, y+10):
+
+            if 0<=i<240 and 0<=y<360:
+                map[i,k] = 1
+                
+                print( "(" + str(i) + ","+str(k)+")" )
+
+    
+    return map
+
+
+def make_circle(map, cx, cy):
+    for x in range(cx - 10, cx + 10):
+        for y in range(cy - 10, cy + 10):
+            if math.sqrt((cx - x) ** 2 + (cy - y) ** 2) <= 10 and 0<=x<240 and 0<=y<360:
+                map[x][y] = 1
+
+
+
 
 def main():
 
-    maze = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-            [0, 1, 0, 1, 1, 0, 0, 0, 0, 0],
-            [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-            [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 0, 0, 0, 1, 0, 0],
-            [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # maze = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+    #         [0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
+    #         [0, 1, 0, 1, 1, 0, 0, 0, 0, 0],
+    #         [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
+    #         [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 1, 1, 0, 0, 0, 0, 1, 0, 0],
+    #         [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
+    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 
-    start = (0, 3)
-    end = (5, 0)
+    # maze = np.zeros((240, 360))
+    
+    maze = np.zeros((360, 240))
+
+    start = (30, 100)
+    end = (100, 65)
+
+    # dead_zone(maze, [50, 100])
+    # dead_zone(maze, [90, 65]) 
+
+    make_circle(maze, 50, 100)
+    make_circle(maze, 90, 65)
+
+
+    # dead_zone(maze, [200, 10]) 
+    # dead_zone(maze, [15, 15])
+
+    # print(maze)
 
     path = astar(maze, start, end)
+    print("A star: ")
     print(path)
 
-    # smooth_path = smooth(path)
-    # print(smooth_path)
+    print("x is: ")
+    for i in range(0, len(path)):
+        print(path[i][0])
+
+    print("y is: ")
+    for i in range(0, len(path)):
+        print(path[i][1])
+
+
+    # print(maze)
+    smooth_path = smooth(path)
+    print("Smoothening: ")
+    print(smooth_path)
+
+    print("smooth x is: ")
+    for i in range(0, len(smooth_path)):
+        print(smooth_path[i][0])
+
+    print("smooth y is: ")
+    for i in range(0, len(smooth_path)):
+        print(smooth_path[i][1])
 
     critical_points = straight(path)
+    print("Critical point algo: ")
     print(critical_points)
+
+    print("critical x is: ")
+    for i in range(0, len(critical_points)):
+        print(critical_points[i][0])
+
+    print("critical y is: ")
+    for i in range(0, len(critical_points)):
+        print(critical_points[i][1])
 
 if __name__ == '__main__':
     main()
