@@ -1,11 +1,44 @@
-
-
 #include "SPI.h"
 
 #include <Robojax_L298N_DC_motor.h>
 #include "WiFi.h"
 
 // these pins may be different on different boards
+int motor1_val;
+int motor2_val;
+int motor_offset;
+
+
+
+float desired = 0; //this will need to be a dynamic input connected to various things so it allows multiple directions instead of just one forward
+unsigned long pathstart;//this should only be called during the update to record the time it takes for this new direction change, so this entire program needs to be called new each time the rover changes direction
+
+
+//strt
+float pcoeff = 3;
+float icoeff = 0.025;
+float dcoeff = 3;
+float multiplier = 1;
+
+//
+//float pcoeff = 3.4;
+//float icoeff = 0.02;
+//float dcoeff = 3;
+//float multiplier = 1;
+//end
+
+
+float ierror = 0;
+float derror = 0;
+
+
+
+float camerax; //this will also need to be a dynamic input
+float error;
+unsigned long pathnow;
+
+float correction;
+
 
 #define PIN_SS        5
 #define PIN_MISO      19
@@ -69,7 +102,8 @@
 
 
 WiFiClient client;
-
+int distance_t = 0;
+int angle_t = 0;
 const int CCW = 2; // do not change
 const int CW  = 1; // do not change
 #define motor1 1 // do not change
@@ -79,7 +113,7 @@ Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA,  IN3, IN4, ENB, CHB);
 // for two motors with debug information
 //Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA, IN3, IN4, ENB, CHB, true);
 char DriveMap[32]; //storage for drive's message
-char Command[32]; //storage for the actual command
+//char Command[32]; //storage for the actual command
 char Commandchar;
 const char* ssid = "DESKTOP-6F3P5EH 1900";//Wifi Name
 const char* password = "L-5189D0";//Wifi password
@@ -100,6 +134,8 @@ uint8_t spi_reg;
 uint16_t spi_returnval;
 int spi_command;
 int l;
+int Command;
+char angle_char;
 //////
 void WiFiConnected(WiFiEvent_t event, WiFiEventInfo_t info) {
   Serial.println("Connected to Web Backend successfully!");
@@ -136,11 +172,143 @@ void initWiFi() {
   }
 }
 
+int angle;
+int total_x = 0;
+int total_y = 0;
 
-void Drivle(int i) {
-  Serial.println("In drivle fn, i is: ");
+
+int total_x1 = 0;
+int total_y1 = 0;
+
+
+int x = 0;
+int y = 0;
+
+int a = 0;
+int b = 0;
+
+int distance_x = 0;
+int distance_y = 0;
+
+volatile byte movementflag = 0;
+volatile int xydat[2];
+
+
+//Multitasking
+TaskHandle_t Optical_task;
+
+int convTwosComp(int b) {
+  //Convert from 2's complement
+  if (b & 0x80) {
+    b = -1 * ((b ^ 0xff) + 1);
+  }
+  return b;
+}
+
+struct MD
+{
+  byte motion;
+  char dx, dy;
+  byte squal;
+  word shutter;
+  byte max_pix;
+};
+
+
+
+int tdistance = 0;
+
+
+
+void control_turn(int target_angle){
+  while(total_x > target_angle + 1 | total_x < target_angle - 1){
+        while (total_x < target_angle-1){
+          robot.rotate(motor1, 80, CW);//run motor1 at 60% speed in CW direction
+          robot.rotate(motor2, 80, CW);//run motor1 at 60% speed in CW direction
+        }
+        robot.brake(1);
+        robot.brake(2);
+        delay(300);
+        while (total_x > target_angle + 1){
+          robot.rotate(motor1, 80, CCW);//run motor1 at 60% speed in CW direction
+          robot.rotate(motor2, 80, CCW);//run motor1 at 60% speed in CW direction
+        }
+        robot.brake(1);
+        robot.brake(2);
+        delay(300);
+      }
+}
+
+
+
+void control_drive(int target_distance){
+      Serial.println("started control drive loop");
+      while(total_y > target_distance + 1 | total_y < target_distance - 1){
+        Serial.println("not within range");
+        while (total_y < target_distance-1){
+          Serial.print("total y is: ");
+          Serial.println(total_y);
+          robot.rotate(motor1, 85, CW);//run motor1 at 60% speed in CW direction
+          robot.rotate(motor2, 77, CCW);//run motor1 at 60% speed in CW direction
+        }
+        robot.brake(1);
+        robot.brake(2);
+        delay(300);
+        while (total_y > target_distance + 1){
+          Serial.println("too close");
+          robot.rotate(motor1, 85, CCW);//run motor1 at 60% speed in CW direction
+          robot.rotate(motor2, 77, CW);//run motor1 at 60% speed in CW direction
+        }
+        robot.brake(1);
+        robot.brake(2);
+        delay(300);
+      }
+      Serial.println("ended control drive loop");
+}
+
+
+
+
+void turn(int angle){
+//  Serial.println("angle is: ", angle;
+  Serial.println("entered turn");
+  
+  Serial.println();
+
+  Serial.print("angle to turn is: ");
+  Serial.print(angle);
+  Serial.println();
+  
+  if (angle < 0) {  
+    // rotate left for angle
+    int spin = ((590/90)*angle*-1);
+    
+    robot.rotate(motor1, 85, CCW);//run motor1 at 60% speed in CW direction
+    robot.rotate(motor2, 75, CCW);//run motor1 at 60% speed in CW direction
+    Serial.println("left spin");
+    delay(spin);
+    robot.brake(1);
+    robot.brake(2);
+    delay(50);
+  }
+  else {
+    // rotate right for angle
+    int spin = ((590/90)*angle);
+    robot.rotate(motor1, 80, CW);//run motor1 at 60% speed in CW direction
+    robot.rotate(motor2, 80, CW);//run motor1 at 60% speed in CW direction
+    Serial.println("right spin");
+    delay(spin);
+    robot.brake(1);
+    robot.brake(2);
+    delay(50);
+  }
+  Serial.println("finished turn");
+}
+
+
+void Drive(int i) {
+  Serial.println("In Drive fn, i is: ");
   Serial.println(i);
-
 
 
   switch (i) {
@@ -195,8 +363,10 @@ void Drivle(int i) {
         Serial.println("rotated 5");
 
         delay(10);
-        //Serial.println("We are a go");
+ 
+        
         i = Serial.parseInt();
+        
       }
       break;
     case 54:
@@ -222,14 +392,17 @@ void Drivle(int i) {
       }
       break;
     case 56:
-      while (i == 56) {
+      while (i = 56) {
         //continuous case back
         robot.rotate(motor1, 85, CCW);//run motor1 at 60% speed in CW direction .  //was 80
         robot.rotate(motor2, 77, CW);//run motor1 at 60% speed in CW direction
         Serial.println("rotated 8");
 
         delay(10);
+  
+        
         i = Serial.parseInt();
+        
       }
       break;
     case 57:
@@ -293,38 +466,6 @@ void Drivle(int i) {
   }
 }
 
-int total_x = 0;
-int total_y = 0;
-
-
-int total_x1 = 0;
-int total_y1 = 0;
-
-
-int x = 0;
-int y = 0;
-
-int a = 0;
-int b = 0;
-
-int distance_x = 0;
-int distance_y = 0;
-
-volatile byte movementflag = 0;
-volatile int xydat[2];
-
-
-int convTwosComp(int b) {
-  //Convert from 2's complement
-  if (b & 0x80) {
-    b = -1 * ((b ^ 0xff) + 1);
-  }
-  return b;
-}
-
-
-int tdistance = 0;
-
 
 void mousecam_reset()
 {
@@ -349,6 +490,105 @@ int mousecam_init()
   return 1;
 }
 
+
+byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
+
+
+void Opticaltaskcode(void *param){
+
+  
+
+    
+  SPI.begin();
+  SPI.setClockDivider(SPI_CLOCK_DIV32);
+  SPI.setDataMode(SPI_MODE3);
+  SPI.setBitOrder(MSBFIRST);
+
+ if (mousecam_init() == -1)
+  {
+    Serial.println("Mouse cam failed to init");
+    while (1);
+  }
+
+  SPI.begin(); // init SPI bus
+
+  for(;;){
+
+//    Serial.print("Opticaltaskcode running in core: ");
+//    Serial.println(xPortGetCoreID());
+
+  
+    #if 0
+    /*
+        if(movementflag){
+
+        tdistance = tdistance + convTwosComp(xydat[0]);
+        Serial.println("Distance = " + String(tdistance));
+        movementflag=0;
+        delay(3);
+        }
+
+    */
+    // if enabled this section grabs frames and outputs them as ascii art
+
+    if (mousecam_frame_capture(frame) == 0)
+    {
+      int i, j, k;
+      for (i = 0, k = 0; i < ADNS3080_PIXELS_Y; i++)
+      {
+        for (j = 0; j < ADNS3080_PIXELS_X; j++, k++)
+        {
+          Serial.print(asciiart(frame[k]));
+          Serial.print(' ');
+        }
+        Serial.println();
+      }
+    }
+    Serial.println();
+
+  #else
+
+    // if enabled this section produces a bar graph of the surface quality that can be used to focus the camera
+    // also drawn is the average pixel value 0-63 and the shutter speed and the motion dx,dy.
+
+    int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
+    MD md;
+    mousecam_read_motion(&md);
+//    for (int i = 0; i < md.squal / 4; i++)
+//      Serial.print('*');
+//    Serial.print(' ');
+//    Serial.print((val * 100) / 351);
+//    Serial.print(' ');
+//    Serial.print(md.shutter); Serial.print(" (");
+//    Serial.print((int)md.dx); Serial.print(',');
+//    Serial.print((int)md.dy); Serial.println(')');
+
+    // Serial.println(md.max_pix);
+
+
+    distance_x = convTwosComp(md.dx);
+    distance_y = convTwosComp(md.dy);
+
+    total_x1 = total_x1 + distance_x;
+    total_y1 = total_y1 + distance_y;
+
+    total_x = total_x1 * 0.0840;   //callibrated;
+    total_y = total_y1 * 0.0193;  //callibrated;
+
+
+//    Serial.print('\n');
+
+//
+//    Serial.println("Distance_x = " + String(total_x));
+//
+//    Serial.println("Distance_y = " + String(total_y));
+//    Serial.print('\n');
+
+  #endif
+
+  }
+}
+
 void mousecam_write_reg(int reg, int val)
 {
   digitalWrite(PIN_MOUSECAM_CS, LOW);
@@ -369,14 +609,6 @@ int mousecam_read_reg(int reg)
   return ret;
 }
 
-struct MD
-{
-  byte motion;
-  char dx, dy;
-  byte squal;
-  word shutter;
-  byte max_pix;
-};
 
 
 void mousecam_read_motion(struct MD *p)
@@ -441,50 +673,42 @@ int mousecam_frame_capture(byte *pdata)
   return ret;
 }
 
+int extract_angle(char Commandcharac){
+  String temp = String(Commandcharac);
+  String  angle_op;
+  for(int j=1; j++; j<=4){
+      int i=j-1;
+      angle_op[i] += temp[j];
+    }
+  int Comm = angle_op.toInt();
+  return Comm;
+}
+
+
 void setup()
 {
-  //Vision SPI setup
-  l = 1;
-  Serial.begin(115200);
-  pinMode(15, OUTPUT);
-  MySPI.begin(14, 4, 22, 15);
-  spi_returnval = 0;
+  Serial.begin(9600);
 
-  //Drive SPI setup
+ //Drive SPI setup
   pinMode(PIN_SS, OUTPUT);
   pinMode(PIN_MISO, INPUT);
   pinMode(PIN_MOSI, OUTPUT);
   pinMode(PIN_SCK, OUTPUT);
 
-  SPI.begin();
-  SPI.setClockDivider(SPI_CLOCK_DIV32);
-  SPI.setDataMode(SPI_MODE3);
-  SPI.setBitOrder(MSBFIRST);
 
-  Serial.begin(9600);
-
-
-  if (mousecam_init() == -1)
-  {
-    Serial.println("Mouse cam failed to init");
-    while (1);
-  }
-
-  //Serial.begin(9600);
   robot.begin();
-  //L298N DC Motor by Robojax.com
-  // Serial.setTimeout(10);
-  SPI.begin(); // init SPI bus
 
-  WiFi.disconnect(true);
-  delay(1000);
+  xTaskCreatePinnedToCore(
+    Opticaltaskcode,
+    "Optical_task",
+    10000, //stack size in words
+    NULL,  // input paramter to task
+    0, //priority of task
+    &Optical_task,
+    0); //Core 0
 
-  //  //Initialising events so that they run when the corresponding events occur
-  //  //WiFi.onEvent(WiFiConnected, SYSTEM_EVENT_STA_CONNECTED);
-  //  // WiFi.onEvent(WiFiGotIP, SYSTEM_EVENT_STA_GOT_IP);
-  //  // WiFi.onEvent(WiFiDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
-  //  //Running the initialisation of Wifi
-  initWiFi();
+  distance_t = 50;
+  delay(4000);
 }
 
 char asciiart(int k)
@@ -493,191 +717,152 @@ char asciiart(int k)
   return foo[k >> 4];
 }
 
-byte frame[ADNS3080_PIXELS_X * ADNS3080_PIXELS_Y];
 
 void loop()
 {
 
-  if (!alreadyconnected) {  //Attempts to connect to Server using provided Host and Port
-    if (!client.connect(host, port)) {
-      Serial.println("Connection to host failed");
-      delay(100);
-      return;
-    }
-    Serial.println("Connected to server!");
-    client.print("Hello from Control!");
-    alreadyconnected = true;
-  }
+//    Serial.print("Void loop in core: ");
+//    Serial.println(xPortGetCoreID());
 
-
-#if 0
-  /*
-      if(movementflag){
-
-      tdistance = tdistance + convTwosComp(xydat[0]);
-      Serial.println("Distance = " + String(tdistance));
-      movementflag=0;
-      delay(3);
-      }
-
-  */
-  // if enabled this section grabs frames and outputs them as ascii art
-
-  if (mousecam_frame_capture(frame) == 0)
-  {
-    int i, j, k;
-    for (i = 0, k = 0; i < ADNS3080_PIXELS_Y; i++)
-    {
-      for (j = 0; j < ADNS3080_PIXELS_X; j++, k++)
-      {
-        Serial.print(asciiart(frame[k]));
-        Serial.print(' ');
-      }
-      Serial.println();
-    }
-  }
-  Serial.println();
-  delay(250);
-
-#else
-
-  // if enabled this section produces a bar graph of the surface quality that can be used to focus the camera
-  // also drawn is the average pixel value 0-63 and the shutter speed and the motion dx,dy.
-
-  int val = mousecam_read_reg(ADNS3080_PIXEL_SUM);
-  MD md;
-  mousecam_read_motion(&md);
-  for (int i = 0; i < md.squal / 4; i++)
-    Serial.print('*');
-  Serial.print(' ');
-  Serial.print((val * 100) / 351);
-  Serial.print(' ');
-  Serial.print(md.shutter); Serial.print(" (");
-  Serial.print((int)md.dx); Serial.print(',');
-  Serial.print((int)md.dy); Serial.println(')');
-
-  // Serial.println(md.max_pix);
-  delay(100);
-
-
-  distance_x = convTwosComp(md.dx);
-  distance_y = convTwosComp(md.dy);
-
-  total_x1 = total_x1 + distance_x;
-  total_y1 = total_y1 + distance_y;
-
-  total_x = total_x1 ;   //157;
-  total_y = total_y1 * 0.0224;  //callibrated;
-
-
-  Serial.print('\n');
-
-//  int x;
-//  x= total_x;
-////  Serial.println(total_x);
-//  int y;
-////  Serial.println(total_x);
-//  y = total_y;
-//  
-  client.write("POS");
-  delay(1000);
-  client.write(total_x);
-  delay(1000);
-  client.write(total_y);
-
-
-  Serial.println("Distance_x = " + String(total_x));
-
-  Serial.println("Distance_y = " + String(total_y));
-  Serial.print('\n');
-
-  delay(250);
-
-#endif
-
-
-
-  //Listening to vision:
-  MySPI.beginTransaction(settings);
-  digitalWrite(15, LOW);
-  spi_val = MySPI.transfer16(l);
-  spi_returnval = 0;
-  digitalWrite(15, HIGH);
-  MySPI.endTransaction();
-  Serial.print("start of data, having sent: ");
-  Serial.println(l);
-  Serial.println(spi_val);
-  Serial.println("end of data");
-
-  //Checks if drive and command are rea
-  if (spi_val == 0){
-        SPIready = false;
-  }
-
-  if (spi_val == 11 ||spi_val == 12 ||spi_val == 9 || spi_val == 10) { 
-    spi_command = spi_val;
-    SPIready = true;
-  }
-  else{
-    Serial.println(spi_val);
-    SPIready = true;
-    Serial.println("Sending to server!");
-    client.write(spi_val); 
-    Serial.println("LESSSGOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!");
-
-    spi_command = 0;
-
-  }
-  l=(l-1)*-1;
-
-
-  Serial.println("checking for data from the server");
-  if (client.available())
-  {
-    Serial.println("received data from server: ");
-
-    while (client.available()) {
-      Commandchar = client.read(); //client.read() reads one character at a time
-      Serial.println(Commandchar);
-
-      if (Commandchar) {
-        Serial.println("The Command has been recorded");
-        Commandready = true;
-        break;
-      }
     
-    }
-  }
+   Serial.println("Enter Command");
+   if(Serial.available()){
+      Serial.println("got reply!");
+      String Commandstr = Serial.readString();
+      
+      int Comm = Commandstr.toInt();//convert char to int to pass into function -> 10001111: 15 -> 143(dec)
+      distance_t = Comm;
+      Serial.print("distance_t is:");
+      Serial.println(distance_t);
+      unsigned long pathstart = millis(); 
 
+      //int value = Comm & 127;
+      //bool negative_number = Comm >> 7;
+      //Serial.print("negative_number:");
+      //Serial.println(negative_number);
 
+      //Serial.print("value:");
+      //Serial.println(value);
+      //if(negative_number){
+           //control_drive(value);
+           //control_drive(value);
+      
+      }
 
-  if (Commandready && !SPIready) {
-   Serial.println("Sending command to drive: ");
-    int Command = Commandchar;
-    Drivle(Command);
-    Serial.println("sent from command to drive");
-    
-    Commandready = false;
-
-  }
-
-  if (SPIready) {
-   Serial.println("SPIready = true");
-    int Command = spi_command + 48;
-    Drivle(Command);
-
-    Serial.println("sent from vision to drive");
-
-    SPIready = false;
-
+      
+      if(total_y > distance_t + 1 | total_y < distance_t - 1){
+        camerax = total_x; //this will also need to be a dynamic input
+        error = desired - camerax;
+        pathnow = millis();
+//        ierror = error*(pathnow - pathstart) + ierror;
+        if(error == 0){
+          ierror = 0;
+        }else{
+          ierror = ierror+error;
+        }
+        pathstart = millis();
+        derror = error - derror;
+        correction = multiplier*(error*pcoeff + ierror*icoeff + derror*dcoeff);
   
-  }
 
-  delay(500);
+        Serial.println("not within range");
+        if (total_y < distance_t-1){
+          Serial.println("too far");
+          Serial.print("ideal y is: ");
+          Serial.println(distance_t);
+          
+          Serial.print("total y is: ");
+          Serial.println(total_y);
+          motor1_val = 43;
+          motor2_val = 38;
+          motor_offset = 3*angle_t - 3*total_x;
+          Serial.print("offset is: ");
+          Serial.println(motor_offset);
+          robot.rotate(motor1, 43-correction, CW);//run motor1 at 60% speed in CW direction
+          robot.rotate(motor2, 38+correction, CCW);//run motor1 at 60% speed in CW direction
+        }
+    
+        if (total_y > distance_t + 1){
+          Serial.println("too close");
+          Serial.print("ideal y is: ");
+          Serial.println(distance_t);
+          
+          Serial.print("total y is: ");
+          Serial.println(total_y);
+          motor1_val = 43;
+          motor2_val = 38;
+          motor_offset = 3*angle_t - 3*total_x;
+          Serial.print("offset is: ");
+          Serial.println(motor_offset);
+          motor_offset = 3*angle_t - 3*total_x;
+          
+          robot.rotate(motor1, 42-correction, CCW);//run motor1 at 60% speed in CW direction
+          robot.rotate(motor2, 37+correction, CW);//run motor1 at 60% speed in CW direction
+        }
+      }else{
+        Serial.println("within range");
+        Serial.print("ideal y is: ");
+        Serial.println(distance_y);
+          
+        Serial.print("total y is: ");
+        Serial.println(total_y);
+        robot.brake(1);
+        robot.brake(2);
+      //0-360 is all positive
+      //-360 to 0 : 361 is -1, 362 is -2
+
+
+      
+      }  
 
 
 
+//      if(total_x > angle_t + 1 | total_x < angle_t - 1){
+//        Serial.println("not within range");
+//        if (total_x < angle_t-1){
+//          Serial.println("too far");
+//          Serial.print("ideal x is: ");
+//          Serial.println(angle_t);
+//          
+//          Serial.print("total x is: ");
+//          Serial.println(total_x);
+//          robot.rotate(motor1, 30, CCW);//run motor1 at 60% speed in CW direction
+//          robot.rotate(motor2, 30, CCW);//run motor1 at 60% speed in CW direction
+//        }
+//    
+//        if (total_x > angle_t + 1){
+//          Serial.println("too close");
+//          Serial.print("ideal x is: ");
+//          Serial.println(angle_t);
+//          
+//          Serial.print("total x is: ");
+//          Serial.println(total_x);
+//          robot.rotate(motor1, 30, CW);//run motor1 at 60% speed in CW direction
+//          robot.rotate(motor2, 30, CW);//run motor1 at 60% speed in CW direction
+//        }
+//      }else{
+//        Serial.println("within range");
+//        Serial.print("ideal x is: ");
+//        Serial.println(angle_t);
+//          
+//        Serial.print("total x is: ");
+//        Serial.println(total_x);
+//        robot.brake(1);
+//        robot.brake(2);
+//      //0-360 is all positive
+//      //-360 to 0 : 361 is -1, 362 is -2
+//
+//
+//      
+//      }  
 
 
+
+      
+   
+  
+
+      
+      
 
 }
