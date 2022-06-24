@@ -7,7 +7,11 @@
 int motor1_val;
 int motor2_val;
 int motor_offset;
-
+int angle_reached;
+int distance_reached;
+int client_msg;
+int opcode;
+int magnitude;
 bool angle_or_distance; // angle is AMO, distance is DMO
 
 float desired = 0; //this will need to be a dynamic input connected to various things so it allows multiple directions instead of just one forward
@@ -38,6 +42,9 @@ float error;
 unsigned long pathnow;
 
 float correction;
+bool distance_state = false;
+bool angle_state = false;
+
 
 
 #define PIN_SS        5
@@ -523,7 +530,7 @@ char asciiart(int k)
 
 void loop()
 {
-
+  
   if (!alreadyconnected) {  //Attempts to connect to Server using provided Host and Port
     if (!client.connect(host, port)) {
       Serial.println("Connection to host failed");
@@ -546,11 +553,18 @@ void loop()
   if (client.available())
   {
     Serial.println("received data from server: ");
-
+    int bytes_received = 0;
     while (client.available()) {
       Commandchar = client.read(); //client.read() reads one character at a time
       Serial.println(Commandchar);
-
+      if(bytes_received == 0){
+        client_msg = Commandchar.toInt() << 8;
+        bytes_received = 1;
+      }
+      if(bytes_received == 1){
+        client_msg += Commandchar.toInt();
+        opcode = client_msg >> 14;
+      }
       if (Commandchar) {
         Serial.println("The Command has been recorded");
         Commandready = true;
@@ -559,7 +573,9 @@ void loop()
     
     }
   }
-    
+  if(!distance_state & !angle_state){
+    client.write("UPM");
+  }
    Serial.println("Enter Command");
    if(Serial.available()){
       Serial.println("got reply!");
@@ -584,8 +600,31 @@ void loop()
       
       }
 
-      
-      if(total_y > distance_t + 1 | total_y < distance_t - 1){
+
+    if(Commandchar=='AMO'){
+        while (client.available()) {
+            angle_t = client.read(); //client.read() reads one character at a time
+            Serial.println(angle_t);
+        }
+        angle_state = true;
+        angle_reached = 0;
+        distance_reached = 0;
+    }
+
+
+    if(Commandchar=='DMO'){
+        while (client.available()) {
+            distance_t = client.read(); //client.read() reads one character at a time
+            Serial.println(distance_t);
+        }
+
+        distance_state = true;
+        angle_reached = 0;
+        distance_reached = 0;
+
+      }
+      if(total_y > distance_t + 1 | total_y < distance_t - 1 && distance_state){
+        distance_reached = 0;
         camerax = total_x; //this will also need to be a dynamic input
         error = desired - camerax;
         pathnow = millis();
@@ -635,6 +674,7 @@ void loop()
           robot.rotate(motor2, 37+correction, CW);//run motor1 at 60% speed in CW direction
         }
       }else{
+        distance_reached = distance_reached + 1;
         Serial.println("within range");
         Serial.print("ideal y is: ");
         Serial.println(distance_y);
@@ -646,13 +686,18 @@ void loop()
       //0-360 is all positive
       //-360 to 0 : 361 is -1, 362 is -2
 
-
-      
+        if(distance_reached >= 3){
+          distance_reached = 0;
+          distance_state = false;
+          client.write("UPM")
+        }
+        
       }  
 
 
 
-     if(total_x > angle_t + 1 | total_x < angle_t - 1){
+     if(total_x > angle_t + 1 | total_x < angle_t - 1 && angle_state){
+       angle_reached = 0;
        Serial.println("not within range");
        if (total_x < angle_t-1){
          Serial.println("too far");
@@ -676,6 +721,7 @@ void loop()
          robot.rotate(motor2, 30, CW);//run motor1 at 60% speed in CW direction
        }
      }else{
+       angle_reached = angle_reached + 1;
        Serial.println("within range");
        Serial.print("ideal x is: ");
        Serial.println(angle_t);
@@ -686,7 +732,12 @@ void loop()
        robot.brake(2);
      //0-360 is all positive
      //-360 to 0 : 361 is -1, 362 is -2
-
+      if(angle_reached >= 3){
+        angle_reached = 0;
+        angle_state = false;
+        client.write("UPM")
+      }
+       
 
      
      }  

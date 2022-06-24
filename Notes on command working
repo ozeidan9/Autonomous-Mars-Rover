@@ -8,18 +8,31 @@ If radar detecteds end(RAD))
 If alien detected send(IDA, colour, distance)
 if 13 send IDA of building anyway (inaccuracy dosnt matter too much close enough)
 
-If recive AMO###
+If recive 1###
 ### is angle range 0<angle<360
 turn to angle  
 
-IF recive DMO###
+IF recive 2###
 ### is a distance rangeing from 0<distance<432
 travel dist in cm
 
-If receive ARA
+If receive 3
 radar on
 
-if receive DRA
+if receive 4
+radar off
+
+if recive INI ### angle
+initcialise angle (x and y go to backend of webpage.)
+
+Jameschoice = baseline_reverand_and_the_makers
+jamesREQ = true:
+if jamesREQ == true:
+    play(Jameschoice)
+
+def play(choice):
+    open spotify.exe
+
 
 //Control -> Server:
 
