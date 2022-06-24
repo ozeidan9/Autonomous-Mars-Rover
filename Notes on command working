@@ -1,0 +1,41 @@
+For movment update cycles the rover needs to know when it 
+has finished its move and request the next command. send (UPM)
+
+It sends position every cycle send(POS, total x total y)
+
+If radar detecteds end(RAD))
+
+If alien detected send(IDA, colour, distance)
+if 13 send IDA of building anyway (inaccuracy dosnt matter too much close enough)
+
+If recive AMO###
+### is angle range 0<angle<360
+turn to angle  
+
+IF recive DMO###
+### is a distance rangeing from 0<distance<432
+travel dist in cm
+
+If receive ARA
+radar on
+
+if receive DRA
+
+//Control -> Server:
+
+
+msg1: POS
+msg2: x
+msg3: y
+
+
+msg1: IDA
+msg2: colour
+msg3: distance
+
+msg1: BAT
+msg2: level
+
+
+msg1: RAD
+msg2: level

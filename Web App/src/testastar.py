@@ -1,4 +1,5 @@
 
+from cmath import sqrt
 import numpy as np
 import math
 
@@ -16,6 +17,24 @@ class Node():
 
     def __eq__(self, other):
         return self.position == other.position
+
+def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
+    
+    x = alien[0]
+    y = alien[1]
+
+    
+    for i in range(x-10, x+10):
+        for k in range(y-10, y+10):
+
+            if 0<=i<240 and 0<=y<360:
+                map[i,k] = 1
+                
+                print( "(" + str(i) + ","+str(k)+")" )
+
+    
+    return map
+
 
 
 def astar(maze, start, end):
@@ -101,31 +120,7 @@ def astar(maze, start, end):
             open_list.append(child)
 
 
-
-
-
-def smooth(path, weight_data = 0.5, weight_smooth = 0.2, tolerance = 0.00001):
-    
-    # Make a deep copy of path into newpath
-    newpath = [[0 for col in range(len(path[0]))] for row in range(len(path))]
-    for i in range(len(path)):
-        for j in range(len(path[0])):
-            newpath[i][j] = path[i][j]
-
-    change = 1
-    while change > tolerance:
-        change = 0
-        for i in range(1,len(path)-1):
-            for j in range(len(path[0])):
-                ori = newpath[i][j]
-                newpath[i][j] = newpath[i][j] + weight_data*(path[i][j]-newpath[i][j])
-                newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i+1][j]+newpath[i-1][j]-2*newpath[i][j])
-                change += abs(ori - newpath[i][j])
-    
-    return newpath 
-
-
-def straight(path):
+def straight_path(path):
     new_path = []
     x = []
     y = []
@@ -134,17 +129,20 @@ def straight(path):
     m = 0
     m_prev = -1
 
+    print("gradient")
 
     m_count = 0
     for i in range(1,len(path)):
         if (path[i][0] - path[i-1][0])!=0:
             m = (path[i][1] - path[i-1][1]) / (path[i][0] - path[i-1][0]) #dy/dx
             # print(m)
-        condition = abs(m - m_prev)<=1  # bool condition
+
+        # print(m)
+        condition = abs(m - m_prev)<=0.8  # bool condition
         if condition:
             m_count+=1
-
-        if not condition and m_count!=0:
+        # print(abs(m - m_prev))
+        if condition==False and m_count!=0:
             # new_path.append((path[i-1][0], path[i-1][1]))
             new_path.append((path[i][0], path[i][1]))
             new_path.append((path[i-m_count][0], path[i-m_count][1]))
@@ -152,16 +150,6 @@ def straight(path):
 
         m_prev = m
 
-        # if (path[i][0]==path[i-1][0]) or (path[i][1]==path[i-1][1]):
-        #     count+=1
-        #     # if (count==2):
-        #     #     new_path.append((path[i-2][0], path[i-2][1]))
-        #     #     count = 0
-
-        # if (path[i][0]!=path[i-1][0]) and (path[i][1]!=path[i-1][1]) and count!=0:
-        #     new_path.append((path[i-1][0], path[i-1][1]))
-        #     new_path.append((path[i-count-1][0], path[i-count-1][1]))
-        #     count = 0
 
 
     if new_path[len(new_path)-1]!=path[len(path)-1]:
@@ -171,39 +159,6 @@ def straight(path):
 
 
 
-# def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
-    
-#     x = alien[0]
-#     y = alien[1]
-
-    
-#     for i in range(x-5, x+5):
-#         for k in range(y-5, y+5):
-
-#             if 0<=i<240 and 0<=y<360:
-#                 map[i,k] = 1
-    
-#     return map
-
-
-def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
-    
-    x = alien[0]
-    y = alien[1]
-
-    
-    for i in range(x-10, x+10):
-        for k in range(y-10, y+10):
-
-            if 0<=i<240 and 0<=y<360:
-                map[i,k] = 1
-                
-                print( "(" + str(i) + ","+str(k)+")" )
-
-    
-    return map
-
-
 def make_circle(map, cx, cy):
     for x in range(cx - 10, cx + 10):
         for y in range(cy - 10, cy + 10):
@@ -211,6 +166,40 @@ def make_circle(map, cx, cy):
                 map[x][y] = 1
 
 
+def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
+    
+    for i in range(0, len(path_array)):
+        if (path_array[i+1][1]-path_array[i+1][1])>=0:
+            next_coordinate = path_array[i+1]     #find max row element (max x element) -> axis=0 is row
+            start_coordinate = path_array[0]            # initial [x,y] coordinate
+            adjacent = next_coordinate[1] - start_coordinate[1]
+            opposite = next_coordinate[0] - start_coordinate[0]
+            pos_angle = np.arctan(opposite/adjacent)
+            distance = sqrt((opposite)^2 + (opposite)^2)
+            path_output = []
+            path_output.append(pos_angle)
+            path_output.append(distance)
+
+        if (path_array[i+1][1]-path_array[i+1][1])<0:
+            next_coordinate = path_array[i+1]     #find max row element (max x element) -> axis=0 is row
+            start_coordinate = path_array[0]            # initial [x,y] coordinate
+            adjacent = next_coordinate[1] - start_coordinate[1]
+            opposite = next_coordinate[0] - start_coordinate[0]
+            pos_angle = np.arctan(opposite/adjacent)
+            pos_angle += 180
+            distance = sqrt((opposite)^2 + (opposite)^2)
+            path_output = []
+            path_output.append(pos_angle)
+            path_output.append(distance)
+
+    return path_output
+
+
+
+def automate_route(map, start, end):
+    a_star_path = astar(map, start, end)
+    straight_route = straight_path(map)
+    return extract_commands
 
 
 def main():
@@ -230,18 +219,15 @@ def main():
     
     maze = np.zeros((360, 240))
 
-    start = (30, 100)
-    end = (100, 65)
-
-    # dead_zone(maze, [50, 100])
-    # dead_zone(maze, [90, 65]) 
-
-    make_circle(maze, 50, 100)
-    make_circle(maze, 90, 65)
+    start = (0, 0)
+    end = (359, 259)
 
 
-    # dead_zone(maze, [200, 10]) 
-    # dead_zone(maze, [15, 15])
+    # make_circle(maze, 50, 100)
+    # make_circle(maze, 90, 65)
+
+
+  
 
     # print(maze)
 

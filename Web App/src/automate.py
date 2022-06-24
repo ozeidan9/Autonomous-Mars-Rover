@@ -42,68 +42,41 @@ class Rover(): #node class for A* pathfinding -> f = g + h
         self.y = 0
       
 
-# def drive( x, y ):      #takes in current position of rover, don't we also need angle? 
-    
-     
-#     while 0<y<360 and 0<x<240 and (manual == False):
-        
-#         print("brev")
+def astar(maze, start, end):
+    """Returns a list of tuples as a path from the given start to the given end in the given maze"""
 
-
-def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
-    
-    x = alien[0]
-    y = alien[1]
-
-    
-    for i in range(x-4, x+5):
-        for k in range(y-4, y+5):
-
-            if 0<=i<240 and 0<=y<360:
-                map[i,k] = 1
-    
-    return map
-
-
-def automate_route(map, start, end): # higher level function calls a star and other functions to route rover from point to point
-    a_star_output = a_star(map, start, end)
-    path_output = smoothbrudha(a_star_output)
-    return path_output
-    # sendtodrive(path_output)
-
-
-
-
-
-def a_star(map, start, end): # closed box dead zone of 10x10 cm  -> Returns a list of tuples as a path from the given start to the given end in the given map
     # Create start and end node
-    startNode = Node(None, start)
-    startNode.g = startNode.h = startNode.f = 0     # A* algorothm formula for start node
-    endNode = Node(None, end)
-    endNode.g = endNode.h = endNode.f = 0           # A* algorothm formula for end node
+    start_node = Node(None, start)
+    start_node.g = start_node.h = start_node.f = 0
+    end_node = Node(None, end)
+    end_node.g = end_node.h = end_node.f = 0
 
-    open = []   
-    completed = []
+    # Initialize both open and closed list
+    open_list = []
+    closed_list = []
 
+    # Add the start node
+    open_list.append(start_node)
 
-    #Loop until we find the end node
-    while len(open)>0:
+    # Loop until you find the end
+    while len(open_list) > 0:
 
-        currentNode = open[0]  # retrieve the current node
-        curr_index = 0
-        for index, item in enumerate(open):
-            if item.f < currentNode.f:
-                currentNode = item
-                curr_index = index
+        # Get the current node
+        current_node = open_list[0]
+        current_index = 0
+        for index, item in enumerate(open_list):
+            if item.f < current_node.f:
+                current_node = item
+                current_index = index
 
         # Pop current off open list, add to closed list
-        open.pop(curr_index)
-        completed.append(currentNode)
+        open_list.pop(current_index)
+        closed_list.append(current_node)
 
         # Found the goal
-        if currentNode == endNode:
+        if current_node == end_node:
             path = []
-            current = currentNode
+            current = current_node
             while current is not None:
                 path.append(current.position)
                 current = current.parent
@@ -114,18 +87,18 @@ def a_star(map, start, end): # closed box dead zone of 10x10 cm  -> Returns a li
         for new_position in [(0, -1), (0, 1), (-1, 0), (1, 0), (-1, -1), (-1, 1), (1, -1), (1, 1)]: # Adjacent squares
 
             # Get node position
-            node_position = (currentNode.position[0] + new_position[0], currentNode.position[1] + new_position[1])
+            node_position = (current_node.position[0] + new_position[0], current_node.position[1] + new_position[1])
 
             # Make sure within range
-            if node_position[0] > (len(map) - 1) or node_position[0] < 0 or node_position[1] > (len(map[len(map)-1]) -1) or node_position[1] < 0:
+            if node_position[0] > (len(maze) - 1) or node_position[0] < 0 or node_position[1] > (len(maze[len(maze)-1]) -1) or node_position[1] < 0:
                 continue
 
             # Make sure walkable terrain
-            if map[node_position[0]][node_position[1]] != 0:
+            if maze[node_position[0]][node_position[1]] != 0:
                 continue
 
             # Create new node
-            new_node = Node(currentNode, node_position)
+            new_node = Node(current_node, node_position)
 
             # Append
             children.append(new_node)
@@ -134,91 +107,103 @@ def a_star(map, start, end): # closed box dead zone of 10x10 cm  -> Returns a li
         for child in children:
 
             # Child is on the closed list
-            for closed_child in completed:
+            for closed_child in closed_list:
                 if child == closed_child:
                     continue
 
             # Create the f, g, and h values
-            child.g = currentNode.g + 1
-            child.h = ((child.position[0] - endNode.position[0]) ** 2) + ((child.position[1] - endNode.position[1]) ** 2)
+            child.g = current_node.g + 1
+            child.h = ((child.position[0] - end_node.position[0]) ** 2) + ((child.position[1] - end_node.position[1]) ** 2)
             child.f = child.g + child.h
 
             # Child is already in the open list
-            for open_node in open:
+            for open_node in open_list:
                 if child == open_node and child.g > open_node.g:
                     continue
 
             # Add the child to the open list
-            open.append(child)
+            open_list.append(child)
+
+
+def straight_path(path):
+    new_path = []
+    x = []
+    y = []
+    new_path.append((path[0][0], path[0][1]))
+    count = 0
+    m = 0
+    m_prev = -1
+
+    print("gradient")
+
+    m_count = 0
+    for i in range(1,len(path)):
+        if (path[i][0] - path[i-1][0])!=0:
+            m = (path[i][1] - path[i-1][1]) / (path[i][0] - path[i-1][0]) #dy/dx
+            # print(m)
+
+        # print(m)
+        condition = abs(m - m_prev)<=0.8  # bool condition
+        if condition:
+            m_count+=1
+        # print(abs(m - m_prev))
+        if condition==False and m_count!=0:
+            # new_path.append((path[i-1][0], path[i-1][1]))
+            new_path.append((path[i][0], path[i][1]))
+            new_path.append((path[i-m_count][0], path[i-m_count][1]))
+            m_count = 0
+
+        m_prev = m
 
 
 
+    if new_path[len(new_path)-1]!=path[len(path)-1]:
+        new_path.append(path[len(path)-1])
 
-def smoothbrudha(path_array): #outputs array of [angle1, distance1, angle2, distance2]
-    max_x_coordnate =np.argmax( np.max(path_array, axis=0) )     #find max row element (max x element) -> axis=0 is row
-    start_coordinate = path_array[0]            # initial [x,y] coordinate
-    dy1 = max_x_coordnate[1] - start_coordinate[1]
-    dx1 = max_x_coordnate[1] - start_coordinate[1]
-    angle1 = np.arctan(dy1/dx1)
-    distance1 = (dy1)^2 + (dx1)^2
-    path_output = []
-    path_output.append(angle1)
-    path_output.append(distance1)
+    return new_path
 
-    end_coordinate = path_array[len(path_array)-1] 
 
-    if max_x_coordnate==end_coordinate:
-        path_output.append(0)
-        path_output.append(0)
-        
-    else:
-        dy2 = max_x_coordnate[1] - end_coordinate[1]
-        dx2 = max_x_coordnate[1] - end_coordinate[1]
-        angle2 = np.arctan(dy1/dx1) + angle1                # basic trig fam
-        distance2 = (dy2)^2 + (dx2)^2
-        path_output = []
-        path_output.append(angle2)
-        path_output.append(distance2)
+
+def make_circle(map, cx, cy):
+    for x in range(cx - 10, cx + 10):
+        for y in range(cy - 10, cy + 10):
+            if math.sqrt((cx - x) ** 2 + (cy - y) ** 2) <= 10 and 0<=x<240 and 0<=y<360:
+                map[x][y] = 1
+
+
+def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
     
+    for i in range(0, len(path_array)):
+        if (path_array[i+1][1]-path_array[i+1][1])>=0:
+            next_coordinate = path_array[i+1]     #find max row element (max x element) -> axis=0 is row
+            start_coordinate = path_array[0]            # initial [x,y] coordinate
+            adjacent = next_coordinate[1] - start_coordinate[1]
+            opposite = next_coordinate[0] - start_coordinate[0]
+            pos_angle = np.arctan(opposite/adjacent)
+            distance = sqrt((opposite)^2 + (opposite)^2)
+            path_output = []
+            path_output.append(pos_angle)
+            path_output.append(distance)
+
+        if (path_array[i+1][1]-path_array[i+1][1])<0:
+            next_coordinate = path_array[i+1]     #find max row element (max x element) -> axis=0 is row
+            start_coordinate = path_array[0]            # initial [x,y] coordinate
+            adjacent = next_coordinate[1] - start_coordinate[1]
+            opposite = next_coordinate[0] - start_coordinate[0]
+            pos_angle = np.arctan(opposite/adjacent)
+            pos_angle += 180
+            distance = sqrt((opposite)^2 + (opposite)^2)
+            path_output = []
+            path_output.append(pos_angle)
+            path_output.append(distance)
+
     return path_output
 
-    # implement minimum x case
-    # implements if 3 corresponding x coordinates have same x value to make flat (straiught) line
-    
-    
-    # for pos in path_array:
-        
 
-def smooth(path, weight_data = 0.5, weight_smooth = 0.1, tolerance = 0.00001):
-    
-    # Make a deep copy of path into newpath
-    newpath = [[0 for col in range(len(path[0]))] for row in range(len(path))]
-    for i in range(len(path)):
-        for j in range(len(path[0])):
-            newpath[i][j] = path[i][j]
-
-    #### ENTER CODE BELOW THIS LINE ###
-    change = 1
-    while change > tolerance:
-        change = 0
-        for i in range(1,len(path)-1):
-            for j in range(len(path[0])):
-                ori = newpath[i][j]
-                newpath[i][j] = newpath[i][j] + weight_data*(path[i][j]-newpath[i][j])
-                newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i+1][j]+newpath[i-1][j]-2*newpath[i][j])
-                change += abs(ori - newpath[i][j])
-    
-    return newpath # Leave this line for the grader!
-
-
-    
-def send_angle(angle):
-    target_angle = rover.angle + angle
-    return target_angle
-
-def send_distance(distance):
-    target_distance = rover.distance + distance
-    return target_distance
+def automate_route(map, start, end):
+    a_star_path = astar(map, start, end)
+    straight_route = straight_path(map)
+    return extract_commands
 
 
 def sendtodrive(path_output):
@@ -269,6 +254,7 @@ def nextpoint(state, poi,map):
     return (line_path)
     #send to drive
     #sendtodrive
+    
 
 def command(point,state):
     line_path = automate_route(map ,poi[point], poi[point+1]) 

@@ -93,13 +93,7 @@ const char* host = "192.168.137.220"; //IP to connect to (can be private or publ
 bool drivemsgready = false; //bool which checks whether drive's message is ready for sending
 bool alreadyconnected = false; //bool which checks whether the ESP32 has already connected with the server
 bool Commandready = false; //bool which checks whether command is ready for sending command
-bool SPIready = false;
-int response;
-int lastread;
-bool willread ;
-uint16_t colour_code;
-bool sent_dist;
-uint16_t distrep;
+v
 
 int red_found;
 int green_found;
