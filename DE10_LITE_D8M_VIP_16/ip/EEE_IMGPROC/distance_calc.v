@@ -125,13 +125,13 @@ end
 
 //YELLOW
 always @(posedge clk)begin
-    if(y_ball_width > 160)begin
-        y_ball_distance <= 12; //too close
-    end
-    else if(y_ball_width < 50)begin
-        y_ball_distance <= 11; // too far away
-    end
-    else if((y_x_max > 320) & (y_x_min < 320) & ( y_ball_center < 330) & (y_ball_center > 310))begin
+    // if(y_ball_width > 160)begin
+    //     y_ball_distance <= 12; //too close
+    // end
+    // else if(y_ball_width < 50)begin
+    //     y_ball_distance <= 11; // too far away
+    // end
+    if((y_x_max > 320) & (y_x_min < 320) & ( y_ball_center < 330) & (y_ball_center > 310))begin
         y_ball_distance[10:0] <= 2550 / y_ball_width;
         y_ball_distance[15:11] <= 3;
     end
@@ -144,13 +144,13 @@ always @(posedge clk)begin
 end
 //PINK
 always @(posedge clk)begin
-    if(p_ball_width > 160)begin
-        p_ball_distance <= 12; //too close
-    end
-    else if(p_ball_width < 50)begin
-        p_ball_distance <= 11; // too far away
-    end
-    else if((p_x_max > 320) & (p_x_min < 320) & ( p_ball_center < 330) & (p_ball_center > 310))begin
+    // if(p_ball_width > 160)begin
+    //     p_ball_distance <= 12; //too close
+    // end
+    // else if(p_ball_width < 50)begin
+    //     p_ball_distance <= 11; // too far away
+    // end
+    if((p_x_max > 320) & (p_x_min < 320) & ( p_ball_center < 330) & (p_ball_center > 310))begin
         p_ball_distance[10:0] <= 2550 / p_ball_width;
         p_ball_distance[15:11] <= 4;
     end
@@ -164,13 +164,13 @@ end
 
 //DARK BLUE
 always @(posedge clk)begin
-    if(db_ball_width > 160)begin
-        db_ball_distance <= 12; //too close
-    end
-    else if(db_ball_width < 50)begin
-        db_ball_distance <= 11; // too far away
-    end
-    else if((db_x_max > 320) & (db_x_min < 320) & ( db_ball_center < 330) & (db_ball_center > 310))begin
+    // if(db_ball_width > 160)begin
+    //     db_ball_distance <= 12; //too close
+    // end
+    // else if(db_ball_width < 50)begin
+    //     db_ball_distance <= 11; // too far away
+    // end
+    if((db_x_max > 320) & (db_x_min < 320) & ( db_ball_center < 330) & (db_ball_center > 310))begin
         db_ball_distance[10:0] <= 2550 / db_ball_width;
         db_ball_distance[15:11] <= 5;
     end
@@ -184,13 +184,13 @@ end
 
 //LIGHT GREEN
 always @(posedge clk)begin
-    if(lg_ball_width > 160)begin
-        lg_ball_distance <= 12; //too close
-    end
-    else if(lg_ball_width < 50)begin
-        lg_ball_distance <= 11; // too far away
-    end
-    else if((lg_x_max > 320) & (lg_x_min < 320) & ( lg_ball_center < 330) & (lg_ball_center > 310))begin
+    // if(lg_ball_width > 160)begin
+    //     lg_ball_distance <= 12; //too close
+    // end
+    // else if(lg_ball_width < 50)begin
+    //     lg_ball_distance <= 11; // too far away
+    // end
+    if((lg_x_max > 320) & (lg_x_min < 320) & ( lg_ball_center < 330) & (lg_ball_center > 310))begin
         lg_ball_distance[10:0] <= 2550 / lg_ball_width;
         lg_ball_distance[15:11] <= 6;
     end
@@ -217,7 +217,8 @@ always @(posedge clk)begin
     build_ball_distance <= 9;
     end
     else begin
-        build_ball_distance <= 1300 / build_ball_width;
+        build_ball_distance[10:0] <= 1300 / build_ball_width;
+        build_ball_distance[15:11] <= 7;
     end
 end
 

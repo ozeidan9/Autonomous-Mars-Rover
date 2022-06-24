@@ -308,297 +308,304 @@ end
 /////COMMUNICATIONS STATEMACHINE --> OUTBUFFER MESSAGES
 
 always @(posedge clk)begin
+
     if (y== 478 & x==10)begin
-        if(distance_measure_active == 0)begin
-        no_red_ball_counter <= 0;
-        no_green_ball_counter <= 0;
-        no_yellow_ball_counter <= 0;
-        no_pink_ball_counter <= 0;
-        no_darkblue_ball_counter <= 0;
-        no_lightgreen_ball_counter <= 0;
-        outbuffer <= 0;
-        
-
-        //activating requesting to measure building
-
-        if(building_in_frame & (frame_biggest_stripe_right - frame_biggest_stripe_left > 40) & (frame_biggest_stripe_right - frame_biggest_stripe_left) < 160)begin
-            outbuffer <= 14;
+        if(r_top == 5 | y_top == 5 | g_top == 5 | p_top == 5 | lg_top == 5 | db_top == 5) begin //colliding into a ball...
+            outbuffer <= 13;
         end
         else begin
-          outbuffer <= 0;
-        end
 
-        //activating red measure
-        if (r_in_frame & (r_ball_registered == 0) & (r_width < 160) & (r_width > 50) & (r_width > g_width | g_x_max == 0 | g_width > 160) & (r_width > y_width | y_x_max == 0 | y_width > 160) & (r_width > p_width | p_x_max == 0 | p_width > 160) & (r_width > lg_width | lg_x_max == 0 | lg_width > 160) & (r_width > db_width | db_x_max == 0 | db_width > 160))begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            r_ball_watching <= 1;
-            building_watching <= 0;
-            distance_measure_active <= 1;
-        end
+            if(distance_measure_active == 0)begin
+            no_red_ball_counter <= 0;
+            no_green_ball_counter <= 0;
+            no_yellow_ball_counter <= 0;
+            no_pink_ball_counter <= 0;
+            no_darkblue_ball_counter <= 0;
+            no_lightgreen_ball_counter <= 0;
+            outbuffer <= 0;
+            
 
+            //activating requesting to measure building
 
-        //activating green measure
-        else if (g_in_frame & (g_ball_registered == 0) & (g_width < 160) & (g_width > 50) & (g_width > r_width | r_x_max == 0 | r_width > 160) & (g_width > y_width | y_x_max == 0 | y_width > 160) & (g_width > p_width | p_x_max == 0 | p_width > 160) & (g_width > lg_width | lg_x_max == 0 | lg_width > 160) & (g_width > db_width | db_x_max == 0 | db_width > 160))begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 1;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            r_ball_watching <= 0;
-            building_watching <= 0;
-            distance_measure_active <= 1;
-        end
+            if(building_in_frame & (frame_biggest_stripe_right - frame_biggest_stripe_left > 40) & (frame_biggest_stripe_right - frame_biggest_stripe_left) < 160)begin
+                outbuffer <= 14;
+            end
+            else begin
+                outbuffer <= 0;
+            end
 
-        //activating yellow measure
-        else if (y_in_frame & (y_ball_registered == 0) & (y_width < 160) & (y_width > 50) & (y_width > g_width | g_x_max == 0 | g_width > 160) & (y_width > r_width | r_x_max == 0 | r_width > 160) & (y_width > p_width | p_x_max == 0 | p_width > 160) & (y_width > lg_width | lg_x_max == 0 | lg_width > 160) & (y_width > db_width | db_x_max == 0 | db_width > 160))begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 1;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            r_ball_watching <= 0;
-            building_watching <= 0;
-            distance_measure_active <= 1;
-        end
+            //activating red measure
+            if (r_in_frame & (r_ball_registered == 0) & (r_width < 160) & (r_width > 50) & (r_width > g_width | g_x_max == 0 | g_width > 160) & (r_width > y_width | y_x_max == 0 | y_width > 160) & (r_width > p_width | p_x_max == 0 | p_width > 160) & (r_width > lg_width | lg_x_max == 0 | lg_width > 160) & (r_width > db_width | db_x_max == 0 | db_width > 160))begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                r_ball_watching <= 1;
+                building_watching <= 0;
+                distance_measure_active <= 1;
+            end
 
 
-        //activating pink measure
-        else if (p_in_frame & (p_ball_registered == 0) & (p_width < 160) & (p_width > 50) & (p_width > g_width | g_x_max == 0 | g_width > 160) & (p_width > y_width | y_x_max == 0 | y_width > 160) & (p_width > r_width | r_x_max == 0 | r_width > 160) & (p_width > lg_width | lg_x_max == 0 | lg_width > 160) & (p_width > db_width | db_x_max == 0 | db_width > 160))begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 1;
-            db_ball_watching <= 0;
-            r_ball_watching <= 0;
-            building_watching <= 0;
-            distance_measure_active <= 1;
-        end
+            //activating green measure
+            else if (g_in_frame & (g_ball_registered == 0) & (g_width < 160) & (g_width > 50) & (g_width > r_width | r_x_max == 0 | r_width > 160) & (g_width > y_width | y_x_max == 0 | y_width > 160) & (g_width > p_width | p_x_max == 0 | p_width > 160) & (g_width > lg_width | lg_x_max == 0 | lg_width > 160) & (g_width > db_width | db_x_max == 0 | db_width > 160))begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 1;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                r_ball_watching <= 0;
+                building_watching <= 0;
+                distance_measure_active <= 1;
+            end
 
-        //activating db measure
-        else if (db_in_frame & (db_ball_registered == 0) & (db_width < 160) & (db_width > 50) & (db_width > g_width | g_x_max == 0 | g_width > 160) & (db_width > y_width | y_x_max == 0 | y_width > 160) & (db_width > p_width | p_x_max == 0 | p_width > 160) & (db_width > lg_width | lg_x_max == 0 | lg_width > 160) & (db_width > r_width | r_x_max == 0 | r_width > 160))begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 1;
-            r_ball_watching <= 0;
-            building_watching <= 0;
-            distance_measure_active <= 1;
-        end
+            //activating yellow measure
+            else if (y_in_frame & (y_ball_registered == 0) & (y_width < 160) & (y_width > 50) & (y_width > g_width | g_x_max == 0 | g_width > 160) & (y_width > r_width | r_x_max == 0 | r_width > 160) & (y_width > p_width | p_x_max == 0 | p_width > 160) & (y_width > lg_width | lg_x_max == 0 | lg_width > 160) & (y_width > db_width | db_x_max == 0 | db_width > 160))begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 1;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                r_ball_watching <= 0;
+                building_watching <= 0;
+                distance_measure_active <= 1;
+            end
 
-        //activating lg measure
-        else if (lg_in_frame & (lg_ball_registered == 0) & (lg_width < 160) & (lg_width > 50) & (lg_width > g_width | g_x_max == 0 | g_width > 160) & (lg_width > y_width | y_x_max == 0 | y_width > 160) & (lg_width > p_width | p_x_max == 0 | p_width > 160) & (lg_width > r_width | r_x_max == 0 | r_width > 160) & (lg_width > db_width | db_x_max == 0 | db_width > 160))begin
-            lg_ball_watching <= 1;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            r_ball_watching <= 0;
-            building_watching <= 0;
-            distance_measure_active <= 1;
-        end
-        else if(byte_data_received == 14)begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            r_ball_watching <= 0;
-            building_watching <= 1;
-            distance_measure_active <= 1;
-        end
 
-        else begin
-            lg_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            r_ball_watching <= 0;
-            building_watching <= 0;
-            distance_measure_active <= 0;
-        end
-    end
-    
-    else if(distance_measure_active == 1)begin
-        //measuring building
+            //activating pink measure
+            else if (p_in_frame & (p_ball_registered == 0) & (p_width < 160) & (p_width > 50) & (p_width > g_width | g_x_max == 0 | g_width > 160) & (p_width > y_width | y_x_max == 0 | y_width > 160) & (p_width > r_width | r_x_max == 0 | r_width > 160) & (p_width > lg_width | lg_x_max == 0 | lg_width > 160) & (p_width > db_width | db_x_max == 0 | db_width > 160))begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 1;
+                db_ball_watching <= 0;
+                r_ball_watching <= 0;
+                building_watching <= 0;
+                distance_measure_active <= 1;
+            end
 
-        if (building_watching == 1)begin
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            lg_ball_watching <= 0;
-            r_ball_watching <= 0;
-            if(byte_data_received != 14 | no_building_counter > 3)begin
+            //activating db measure
+            else if (db_in_frame & (db_ball_registered == 0) & (db_width < 160) & (db_width > 50) & (db_width > g_width | g_x_max == 0 | g_width > 160) & (db_width > y_width | y_x_max == 0 | y_width > 160) & (db_width > p_width | p_x_max == 0 | p_width > 160) & (db_width > lg_width | lg_x_max == 0 | lg_width > 160) & (db_width > r_width | r_x_max == 0 | r_width > 160))begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 1;
+                r_ball_watching <= 0;
+                building_watching <= 0;
+                distance_measure_active <= 1;
+            end
+
+            //activating lg measure
+            else if (lg_in_frame & (lg_ball_registered == 0) & (lg_width < 160) & (lg_width > 50) & (lg_width > g_width | g_x_max == 0 | g_width > 160) & (lg_width > y_width | y_x_max == 0 | y_width > 160) & (lg_width > p_width | p_x_max == 0 | p_width > 160) & (lg_width > r_width | r_x_max == 0 | r_width > 160) & (lg_width > db_width | db_x_max == 0 | db_width > 160))begin
+                lg_ball_watching <= 1;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                r_ball_watching <= 0;
+                building_watching <= 0;
+                distance_measure_active <= 1;
+            end
+            else if(byte_data_received == 14)begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                r_ball_watching <= 0;
+                building_watching <= 1;
+                distance_measure_active <= 1;
+            end
+
+            else begin
+                lg_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                r_ball_watching <= 0;
                 building_watching <= 0;
                 distance_measure_active <= 0;
             end
-            else if (frame_min_stripe == 0 & frame_max_stripe == 0)begin
-                no_building_counter <= no_building_counter + 1;
-            end
-            else begin
-                no_building_counter <= 0;
-                outbuffer <= build_ball_distance;
-            end
-        end
-        //measuring red
-        else if(r_ball_watching == 1)begin 
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            lg_ball_watching <= 0;
-            building_watching <= 0;
-            if(byte_data_received == 1 | no_red_ball_counter > 3)begin //if we have already found a red ball
-                outbuffer <= 0;
-                r_ball_watching <= 0;
-                distance_measure_active <= 0;
-                if(byte_data_received == 1) begin
-                     r_ball_registered <= 1;
-                end
-            end
-            else if (r_left == 0 & r_right == 0 & r_top == 0 & r_bottom == 0)begin
-                no_red_ball_counter <= no_red_ball_counter + 1;
-            end
-            else begin //otherwise there is a ball and we send r_ball_distance
-                no_red_ball_counter <= 0;
-                outbuffer <= r_ball_distance;
-            end
-            
         end
         
-        //measuring green
-        else if(g_ball_watching == 1)begin 
-            r_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            lg_ball_watching <= 0;
-            building_watching <= 0;
-            if((byte_data_received == 2) | no_green_ball_counter > 3)begin //if we have already found a green ball
-                outbuffer <= 0;
+        else if(distance_measure_active == 1)begin
+            //measuring building
+
+            if (building_watching == 1)begin
                 g_ball_watching <= 0;
-                distance_measure_active <= 0;
-                if(byte_data_received == 2) begin
-                     g_ball_registered <= 1;
-                end
-            end
-            else if (g_left == 0 & g_right == 0 & g_top == 0 & g_bottom == 0)begin
-                no_green_ball_counter <= no_green_ball_counter + 1;
-            end
-            else begin //otherwise there is a ball and we send g_ball_distance
-                no_green_ball_counter <= 0;
-                outbuffer <= g_ball_distance;
-            end  
-        end
-
-        //measuring yellow
-        else if(y_ball_watching == 1)begin 
-            r_ball_watching <= 0;
-            g_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            lg_ball_watching <= 0;
-            building_watching <= 0;
-            if((byte_data_received == 3) | no_yellow_ball_counter > 3)begin 
-                outbuffer <= 0;
                 y_ball_watching <= 0;
-                distance_measure_active <= 0;
-                if(byte_data_received == 3) begin
-                     y_ball_registered <= 1;
-                end
-            end
-            else if (y_left == 0 & y_right == 0 & y_top == 0 & y_bottom == 0)begin
-                no_yellow_ball_counter <= no_yellow_ball_counter + 1;
-            end
-            else begin //otherwise there is a ball and we send r_ball_distance
-                no_yellow_ball_counter <= 0;
-                outbuffer <= y_ball_distance;
-            end  
-        end
-
-        //measuring pink
-        else if(p_ball_watching == 1)begin 
-            r_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            db_ball_watching <= 0;
-            lg_ball_watching <= 0;
-            building_watching <= 0;
-            if((byte_data_received == 4) | no_pink_ball_counter > 3)begin 
-                outbuffer <= 0;
                 p_ball_watching <= 0;
-                distance_measure_active <= 0;
-                if(byte_data_received == 4) begin
-                     p_ball_registered <= 1;
-                end
-            end
-            else if (p_left == 0 & p_right == 0 & p_top == 0 & p_bottom == 0)begin
-                no_pink_ball_counter <= no_pink_ball_counter + 1;
-            end
-            else begin //otherwise there is a ball and we send r_ball_distance
-                no_pink_ball_counter <= 0;
-                outbuffer <= p_ball_distance;
-            end  
-        end
-
-
-        //measuring dark blue
-        else if(db_ball_watching == 1)begin 
-            r_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            lg_ball_watching <= 0;
-            building_watching <= 0;
-            if((byte_data_received == 5) | no_darkblue_ball_counter > 3)begin 
-                outbuffer <= 0;
                 db_ball_watching <= 0;
-                distance_measure_active <= 0;
-                if(byte_data_received == 5) begin
-                     db_ball_registered <= 1;
-                end
-            end
-            else if (db_left == 0 & db_right == 0 & db_top == 0 & db_bottom == 0)begin
-                no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
-            end
-            else begin //otherwise there is a ball and we send r_ball_distance
-                no_darkblue_ball_counter <= 0;
-                outbuffer <= db_ball_distance;
-            end  
-        end
-
-         //measuring light green
-        else if(lg_ball_watching == 1)begin 
-            r_ball_watching <= 0;
-            g_ball_watching <= 0;
-            y_ball_watching <= 0;
-            p_ball_watching <= 0;
-            db_ball_watching <= 0;
-            building_watching <= 0;
-            if((byte_data_received == 6) | no_lightgreen_ball_counter > 3)begin 
-                outbuffer <= 0;
                 lg_ball_watching <= 0;
-                distance_measure_active <= 0;
-                if(byte_data_received == 6) begin
-                     lg_ball_registered <= 1;
+                r_ball_watching <= 0;
+                if(byte_data_received != 14 | no_building_counter > 3)begin
+                    building_watching <= 0;
+                    distance_measure_active <= 0;
+                end
+                else if (frame_min_stripe == 0 & frame_max_stripe == 0)begin
+                    no_building_counter <= no_building_counter + 1;
+                end
+                else begin
+                    no_building_counter <= 0;
+                    outbuffer <= build_ball_distance;
                 end
             end
-            else if (lg_left == 0 & lg_right == 0 & lg_top == 0 & lg_bottom == 0)begin
-                no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
+            //measuring red
+            else if(r_ball_watching == 1)begin 
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                lg_ball_watching <= 0;
+                building_watching <= 0;
+                if(byte_data_received == 1 | no_red_ball_counter > 3)begin //If we have already found a red ball
+                    outbuffer <= 0;
+                    r_ball_watching <= 0;
+                    distance_measure_active <= 0;
+                    if(byte_data_received == 1) begin
+                        r_ball_registered <= 1;
+                    end
+                end
+                else if (r_left == 0 & r_right == 0 & r_top == 0 & r_bottom == 0)begin //If not found a ball
+                    no_red_ball_counter <= no_red_ball_counter + 1;
+                end
+                else begin //otherwise there is a ball and we send r_ball_distance
+                    no_red_ball_counter <= 0;
+                    outbuffer <= r_ball_distance;
+                end
+                
             end
-            else begin //otherwise there is a ball and we send r_ball_distance
-                no_darkblue_ball_counter <= 0;
-                outbuffer <= db_ball_distance;
-            end  
-        end
-    end
+            
+            //measuring green
+            else if(g_ball_watching == 1)begin 
+                r_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                lg_ball_watching <= 0;
+                building_watching <= 0;
+                if((byte_data_received == 2) | no_green_ball_counter > 3)begin //if we have already found a green ball
+                    outbuffer <= 0;
+                    g_ball_watching <= 0;
+                    distance_measure_active <= 0;
+                    if(byte_data_received == 2) begin
+                        g_ball_registered <= 1;
+                    end
+                end
+                else if (g_left == 0 & g_right == 0 & g_top == 0 & g_bottom == 0)begin
+                    no_green_ball_counter <= no_green_ball_counter + 1;
+                end
+                else begin //otherwise there is a ball and we send g_ball_distance
+                    no_green_ball_counter <= 0;
+                    outbuffer <= g_ball_distance;
+                end  
+            end
 
+            //measuring yellow
+            else if(y_ball_watching == 1)begin 
+                r_ball_watching <= 0;
+                g_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                lg_ball_watching <= 0;
+                building_watching <= 0;
+                if((byte_data_received == 3) | no_yellow_ball_counter > 3)begin 
+                    outbuffer <= 0;
+                    y_ball_watching <= 0;
+                    distance_measure_active <= 0;
+                    if(byte_data_received == 3) begin
+                        y_ball_registered <= 1;
+                    end
+                end
+                else if (y_left == 0 & y_right == 0 & y_top == 0 & y_bottom == 0)begin
+                    no_yellow_ball_counter <= no_yellow_ball_counter + 1;
+                end
+                else begin //otherwise there is a ball and we send r_ball_distance
+                    no_yellow_ball_counter <= 0;
+                    outbuffer <= y_ball_distance;
+                end  
+            end
+
+            //measuring pink
+            else if(p_ball_watching == 1)begin 
+                r_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                db_ball_watching <= 0;
+                lg_ball_watching <= 0;
+                building_watching <= 0;
+                if((byte_data_received == 4) | no_pink_ball_counter > 3)begin 
+                    outbuffer <= 0;
+                    p_ball_watching <= 0;
+                    distance_measure_active <= 0;
+                    if(byte_data_received == 4) begin
+                        p_ball_registered <= 1;
+                    end
+                end
+                else if (p_left == 0 & p_right == 0 & p_top == 0 & p_bottom == 0)begin
+                    no_pink_ball_counter <= no_pink_ball_counter + 1;
+                end
+                else begin //otherwise there is a ball and we send r_ball_distance
+                    no_pink_ball_counter <= 0;
+                    outbuffer <= p_ball_distance;
+                end  
+            end
+
+
+            //measuring dark blue
+            else if(db_ball_watching == 1)begin 
+                r_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                lg_ball_watching <= 0;
+                building_watching <= 0;
+                if((byte_data_received == 5) | no_darkblue_ball_counter > 3)begin 
+                    outbuffer <= 0;
+                    db_ball_watching <= 0;
+                    distance_measure_active <= 0;
+                    if(byte_data_received == 5) begin
+                        db_ball_registered <= 1;
+                    end
+                end
+                else if (db_left == 0 & db_right == 0 & db_top == 0 & db_bottom == 0)begin
+                    no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
+                end
+                else begin //otherwise there is a ball and we send r_ball_distance
+                    no_darkblue_ball_counter <= 0;
+                    outbuffer <= db_ball_distance;
+                end  
+            end
+
+            //measuring light green
+            else if(lg_ball_watching == 1)begin 
+                r_ball_watching <= 0;
+                g_ball_watching <= 0;
+                y_ball_watching <= 0;
+                p_ball_watching <= 0;
+                db_ball_watching <= 0;
+                building_watching <= 0;
+                if((byte_data_received == 6) | no_lightgreen_ball_counter > 3)begin 
+                    outbuffer <= 0;
+                    lg_ball_watching <= 0;
+                    distance_measure_active <= 0;
+                    if(byte_data_received == 6) begin
+                        lg_ball_registered <= 1;
+                    end
+                end
+                else if (lg_left == 0 & lg_right == 0 & lg_top == 0 & lg_bottom == 0)begin
+                    no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
+                end
+                else begin //otherwise there is a ball and we send r_ball_distance
+                    no_darkblue_ball_counter <= 0;
+                    outbuffer <= db_ball_distance;
+                end  
+            end
+        end
+
+        end
     end
 end
 
@@ -1516,7 +1523,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
 		3'b011: begin
-			msg_buf_in = {16'hCCCC,10'h0,prev_frame_number_of_stripes};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hCCCC,outbuffer};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b100: begin
