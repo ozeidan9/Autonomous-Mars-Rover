@@ -18,7 +18,7 @@
 #define EEE_IMGPROC_ID 2
 #define EEE_IMGPROC_BBCOL 3
 
-#define EXPOSURE_INIT 0x980 // (975-990 in ARENA)
+#define EXPOSURE_INIT 0x1800 // (975-990 in ARENA)
 #define EXPOSURE_STEP 0x100
 #define GAIN_INIT 0x1000// // (1000 IN ARNEA)
 #define GAIN_STEP 0x040
@@ -249,7 +249,7 @@ int main()
 
        }
 	#endif
-
+       int count;
        //Read messages from the image processor and print them on the terminal
        while ((IORD(0x42000,EEE_IMGPROC_STATUS)>>8) & 0xff) { 	//Find out if there are words to read
            int word = IORD(0x42000,EEE_IMGPROC_MSG); 			//Get next word from message buffer
@@ -257,7 +257,25 @@ int main()
     		   printf("Error writing to UART");
            if (word == EEE_IMGPROC_MSG_START)				//Newline on message identifier
     		   printf("\n");
-    	   printf("%08x ",word);
+           if((word & 3435921408) == 3435921408){
+        	   printf("Outbuffer: %08x\n",word);
+//               printf("%08d ",word);
+//               printf("%04d\n",word>>8);
+        	   count = 0;
+           }
+           if(count==1){
+        	   printf("Byte_data_received: %08x\n",word);
+           }
+           if(count==2){
+        	   printf("Registered: %08x\n",word);
+           }
+           if(count==3){
+               printf("Watching: %08x\n",word);
+           }
+           if(count==4){
+               printf("Distance measured active: %08x\n",word);
+           }
+           count++;
        }
 
        //Update the bounding box colour
