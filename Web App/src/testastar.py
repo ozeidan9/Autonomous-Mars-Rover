@@ -129,7 +129,7 @@ def straight_path(path):
     m = 0
     m_prev = -1
 
-    print("gradient")
+   
 
     m_count = 0
     for i in range(1,len(path)):
@@ -145,7 +145,7 @@ def straight_path(path):
         if condition==False and m_count!=0:
             # new_path.append((path[i-1][0], path[i-1][1]))
             new_path.append((path[i][0], path[i][1]))
-            new_path.append((path[i-m_count][0], path[i-m_count][1]))
+            new_path.append((path[i-m_count-1][0], path[i-m_count-1][1]))
             m_count = 0
 
         m_prev = m
@@ -167,30 +167,57 @@ def make_circle(map, cx, cy):
 
 
 def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
-    
-    for i in range(0, len(path_array)):
-        if (path_array[i+1][1]-path_array[i+1][1])>=0:
-            next_coordinate = path_array[i+1]     #find max row element (max x element) -> axis=0 is row
-            start_coordinate = path_array[0]            # initial [x,y] coordinate
-            adjacent = next_coordinate[1] - start_coordinate[1]
-            opposite = next_coordinate[0] - start_coordinate[0]
-            pos_angle = np.arctan(opposite/adjacent)
-            distance = sqrt((opposite)^2 + (opposite)^2)
-            path_output = []
-            path_output.append(pos_angle)
-            path_output.append(distance)
+    path_output = []
+    for i in range(0, len(path_array)-1):
+        if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
+            # print("case 1")
 
-        if (path_array[i+1][1]-path_array[i+1][1])<0:
-            next_coordinate = path_array[i+1]     #find max row element (max x element) -> axis=0 is row
-            start_coordinate = path_array[0]            # initial [x,y] coordinate
-            adjacent = next_coordinate[1] - start_coordinate[1]
-            opposite = next_coordinate[0] - start_coordinate[0]
-            pos_angle = np.arctan(opposite/adjacent)
-            pos_angle += 180
-            distance = sqrt((opposite)^2 + (opposite)^2)
-            path_output = []
-            path_output.append(pos_angle)
-            path_output.append(distance)
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                pos_angle += 360
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+
+
+        if (path_array[i+1][1]-path_array[i][1])<0:
+            # print("case 2")
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                pos_angle += 180
+
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+        else:
+            if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
+                # print("case 3")
+
+                adjacent = path_array[i+1][0] - path_array[i][0]
+                opposite = path_array[i+1][1] - path_array[i][1]
+
+                # print("opposite is: "+ str(opposite))
+                # print("adjacent is: "+ str(adjacent))
+                if adjacent==0:
+                    pos_angle = 0
+                else:
+                    pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                    distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                    path_output.append(int(pos_angle))
+                    path_output.append(int(distance))
+
 
     return path_output
 
@@ -219,12 +246,12 @@ def main():
     
     maze = np.zeros((360, 240))
 
-    start = (0, 0)
-    end = (359, 259)
+    start = (30, 100)
+    end = (100, 65)
 
 
-    # make_circle(maze, 50, 100)
-    # make_circle(maze, 90, 65)
+    make_circle(maze, 50, 100)
+    make_circle(maze, 90, 65)
 
 
   
@@ -244,20 +271,8 @@ def main():
         print(path[i][1])
 
 
-    # print(maze)
-    smooth_path = smooth(path)
-    print("Smoothening: ")
-    print(smooth_path)
-
-    print("smooth x is: ")
-    for i in range(0, len(smooth_path)):
-        print(smooth_path[i][0])
-
-    print("smooth y is: ")
-    for i in range(0, len(smooth_path)):
-        print(smooth_path[i][1])
-
-    critical_points = straight(path)
+   
+    critical_points = straight_path(path)
     print("Critical point algo: ")
     print(critical_points)
 
@@ -268,6 +283,12 @@ def main():
     print("critical y is: ")
     for i in range(0, len(critical_points)):
         print(critical_points[i][1])
+
+    commands = extract_commands(critical_points)
+    print("commands are: ")
+    for i in range(0, len(commands)):
+        print(commands[i])
+
 
 if __name__ == '__main__':
     main()
