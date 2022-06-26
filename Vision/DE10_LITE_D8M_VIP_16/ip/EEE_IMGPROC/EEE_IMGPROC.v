@@ -257,6 +257,12 @@ always @(posedge clk) begin
         // end
         r_width <= r_x_max - r_x_min;
         r_height <= r_y_max - r_y_min;
+        g_width <= g_x_max - g_x_min;
+        y_width <= y_x_max - y_x_min;
+        p_width <= p_x_max - p_x_min;
+        db_width <= db_x_max - db_x_min;
+        lg_width <= lg_x_max - lg_x_min;
+
         // if (g_in_frame)begin
         //     if (g_x_max - g_x_min < g_width + 10 & g_x_max-g_x_min > g_width - 10)begin
         //         g_width <= g_x_max - g_x_min;
@@ -264,27 +270,22 @@ always @(posedge clk) begin
         // end
         // else begin
         //     g_width <= g_x_max - g_x_min;
-        // end
-        g_width <= g_x_max - g_x_min;        
+        // end        
         r_width3 <= r_width2;
         r_width2 <= r_width1;
         r_width1 <= r_width; 
         g_width3 <= g_width2;
         g_width2 <= g_width1;
-        g_width1 <= g_width; 
-        y_width <= y_x_max - y_x_min;
+        g_width1 <= g_width;
         y_width3 <= y_width2;
         y_width2 <= y_width1;
         y_width1 <= y_width; 
-        p_width <= p_x_max - p_x_min;
         p_width3 <= p_width2;
         p_width2 <= p_width1;
         p_width1 <= p_width; 
-        db_width <= db_x_max - db_x_min;
         db_width3 <= db_width2;
         db_width2 <= db_width1;
         db_width1 <= db_width; 
-        lg_width <= lg_x_max - lg_x_min;
         lg_width3 <= lg_width2;
         lg_width2 <= lg_width1;
         lg_width1 <= lg_width;
@@ -335,76 +336,76 @@ always @(posedge clk)begin
             end
 
             //activating red measure
-            if (r_in_frame & (r_ball_registered == 0) & (r_width < 160) & (r_width > 50) & (r_width > g_width | g_x_max == 0 | g_width > 160) & (r_width > y_width | y_x_max == 0 | y_width > 160) & (r_width > p_width | p_x_max == 0 | p_width > 160) & (r_width > lg_width | lg_x_max == 0 | lg_width > 160) & (r_width > db_width | db_x_max == 0 | db_width > 160))begin
+            if (r_in_frame & (r_ball_registered == 0) & (r_width < 160) & (r_width > 40) & (r_width > g_width | g_x_max == 0 | g_width > 160) & (r_width > y_width | y_x_max == 0 | y_width > 160) & (r_width > p_width | p_x_max == 0 | p_width > 160) & (r_width > lg_width | lg_x_max == 0 | lg_width > 160) & (r_width > db_width | db_x_max == 0 | db_width > 160))begin
                 lg_ball_watching <= 0;
                 g_ball_watching <= 0;
                 y_ball_watching <= 0;
                 p_ball_watching <= 0;
                 db_ball_watching <= 0;
-                r_ball_watching <= 1;
                 building_watching <= 0;
+                r_ball_watching <= 1;
                 distance_measure_active <= 1;
             end
 
 
             //activating green measure
-            else if (g_in_frame & (g_ball_registered == 0) & (g_width < 160) & (g_width > 50) & (g_width > r_width | r_x_max == 0 | r_width > 160) & (g_width > y_width | y_x_max == 0 | y_width > 160) & (g_width > p_width | p_x_max == 0 | p_width > 160) & (g_width > lg_width | lg_x_max == 0 | lg_width > 160) & (g_width > db_width | db_x_max == 0 | db_width > 160))begin
+            else if (g_in_frame & (g_ball_registered == 0) & (g_width < 160) & (g_width > 40) & (g_width > r_width | r_x_max == 0 | r_width > 160) & (g_width > y_width | y_x_max == 0 | y_width > 160) & (g_width > p_width | p_x_max == 0 | p_width > 160) & (g_width > lg_width | lg_x_max == 0 | lg_width > 160) & (g_width > db_width | db_x_max == 0 | db_width > 160))begin
                 lg_ball_watching <= 0;
-                g_ball_watching <= 1;
                 y_ball_watching <= 0;
                 p_ball_watching <= 0;
                 db_ball_watching <= 0;
                 r_ball_watching <= 0;
                 building_watching <= 0;
+                g_ball_watching <= 1;
                 distance_measure_active <= 1;
             end
 
             //activating yellow measure
-            else if (y_in_frame & (y_ball_registered == 0) & (y_width < 160) & (y_width > 50) & (y_width > g_width | g_x_max == 0 | g_width > 160) & (y_width > r_width | r_x_max == 0 | r_width > 160) & (y_width > p_width | p_x_max == 0 | p_width > 160) & (y_width > lg_width | lg_x_max == 0 | lg_width > 160) & (y_width > db_width | db_x_max == 0 | db_width > 160))begin
+            else if (y_in_frame & (y_ball_registered == 0) & (y_width < 160) & (y_width > 40) & (y_width > g_width | g_x_max == 0 | g_width > 160) & (y_width > r_width | r_x_max == 0 | r_width > 160) & (y_width > p_width | p_x_max == 0 | p_width > 160) & (y_width > lg_width | lg_x_max == 0 | lg_width > 160) & (y_width > db_width | db_x_max == 0 | db_width > 160))begin
                 lg_ball_watching <= 0;
                 g_ball_watching <= 0;
-                y_ball_watching <= 1;
                 p_ball_watching <= 0;
                 db_ball_watching <= 0;
                 r_ball_watching <= 0;
                 building_watching <= 0;
+                y_ball_watching <= 1;
                 distance_measure_active <= 1;
             end
 
 
             //activating pink measure
-            else if (p_in_frame & (p_ball_registered == 0) & (p_width < 160) & (p_width > 50) & (p_width > g_width | g_x_max == 0 | g_width > 160) & (p_width > y_width | y_x_max == 0 | y_width > 160) & (p_width > r_width | r_x_max == 0 | r_width > 160) & (p_width > lg_width | lg_x_max == 0 | lg_width > 160) & (p_width > db_width | db_x_max == 0 | db_width > 160))begin
+            else if (p_in_frame & (p_ball_registered == 0) & (p_width < 160) & (p_width > 40) & (p_width > g_width | g_x_max == 0 | g_width > 160) & (p_width > y_width | y_x_max == 0 | y_width > 160) & (p_width > r_width | r_x_max == 0 | r_width > 160) & (p_width > lg_width | lg_x_max == 0 | lg_width > 160) & (p_width > db_width | db_x_max == 0 | db_width > 160))begin
                 lg_ball_watching <= 0;
                 g_ball_watching <= 0;
                 y_ball_watching <= 0;
-                p_ball_watching <= 1;
                 db_ball_watching <= 0;
                 r_ball_watching <= 0;
                 building_watching <= 0;
+                p_ball_watching <= 1;
                 distance_measure_active <= 1;
             end
 
             //activating db measure
-            else if (db_in_frame & (db_ball_registered == 0) & (db_width < 160) & (db_width > 50) & (db_width > g_width | g_x_max == 0 | g_width > 160) & (db_width > y_width | y_x_max == 0 | y_width > 160) & (db_width > p_width | p_x_max == 0 | p_width > 160) & (db_width > lg_width | lg_x_max == 0 | lg_width > 160) & (db_width > r_width | r_x_max == 0 | r_width > 160))begin
+            else if (db_in_frame & (db_ball_registered == 0) & (db_width < 160) & (db_width > 40) & (db_width > g_width | g_x_max == 0 | g_width > 160) & (db_width > y_width | y_x_max == 0 | y_width > 160) & (db_width > p_width | p_x_max == 0 | p_width > 160) & (db_width > lg_width | lg_x_max == 0 | lg_width > 160) & (db_width > r_width | r_x_max == 0 | r_width > 160))begin
                 lg_ball_watching <= 0;
                 g_ball_watching <= 0;
                 y_ball_watching <= 0;
                 p_ball_watching <= 0;
-                db_ball_watching <= 1;
                 r_ball_watching <= 0;
                 building_watching <= 0;
+                db_ball_watching <= 1;
                 distance_measure_active <= 1;
             end
 
             //activating lg measure
-            else if (lg_in_frame & (lg_ball_registered == 0) & (lg_width < 160) & (lg_width > 50) & (lg_width > g_width | g_x_max == 0 | g_width > 160) & (lg_width > y_width | y_x_max == 0 | y_width > 160) & (lg_width > p_width | p_x_max == 0 | p_width > 160) & (lg_width > r_width | r_x_max == 0 | r_width > 160) & (lg_width > db_width | db_x_max == 0 | db_width > 160))begin
-                lg_ball_watching <= 1;
+            else if (lg_in_frame & (lg_ball_registered == 0) & (lg_width < 160) & (lg_width > 40) & (lg_width > g_width | g_x_max == 0 | g_width > 160) & (lg_width > y_width | y_x_max == 0 | y_width > 160) & (lg_width > p_width | p_x_max == 0 | p_width > 160) & (lg_width > r_width | r_x_max == 0 | r_width > 160) & (lg_width > db_width | db_x_max == 0 | db_width > 160))begin
                 g_ball_watching <= 0;
                 y_ball_watching <= 0;
                 p_ball_watching <= 0;
                 db_ball_watching <= 0;
                 r_ball_watching <= 0;
                 building_watching <= 0;
+                lg_ball_watching <= 1;
                 distance_measure_active <= 1;
             end
             else if(byte_data_received == 14)begin
@@ -417,7 +418,6 @@ always @(posedge clk)begin
                 building_watching <= 1;
                 distance_measure_active <= 1;
             end
-
             else begin
                 lg_ball_watching <= 0;
                 g_ball_watching <= 0;
@@ -432,7 +432,6 @@ always @(posedge clk)begin
         
         else if(distance_measure_active == 1)begin
             //measuring building
-
             if (building_watching == 1)begin
                 g_ball_watching <= 0;
                 y_ball_watching <= 0;
@@ -596,11 +595,11 @@ always @(posedge clk)begin
                     end
                 end
                 else if (lg_left == 0 & lg_right == 0 & lg_top == 0 & lg_bottom == 0)begin
-                    no_darkblue_ball_counter <= no_darkblue_ball_counter + 1;
+                    no_lightgreen_ball_counter <= no_lightgreen_ball_counter + 1;
                 end
                 else begin //otherwise there is a ball and we send r_ball_distance
-                    no_darkblue_ball_counter <= 0;
-                    outbuffer <= db_ball_distance;
+                    no_lightgreen_ball_counter <= 0;
+                    outbuffer <= lg_ball_distance;
                 end  
             end
         end
@@ -728,7 +727,7 @@ assign detected_area  =  //(black_detect) ? {8'h54, 8'h07, 8'h49} :
                          (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4) ? {8'h54, 8'h07, 8'h49} : 
                          (red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4) ? {8'hff, 8'h0, 8'h0} : 
                         (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4) ? {8'hAB, 8'hFF, 8'h00} :
-                        //(green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4) ? {8'h0, 8'hA1, 8'h10} :
+                        (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4) ? {8'h0, 8'hA1, 8'h10} :
                          (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4) ? {8'hFF, 8'hDA, 8'h00} :
                         (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4) ? {8'h00, 8'h63, 8'hA1} :
                           (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4) ? {8'hFF, 8'h00, 8'hEF} :
@@ -1367,8 +1366,7 @@ always@(posedge clk) begin
             r_bottom <= 0;
         end
         //green
-        // if(green_found & (g_x_max - g_x_min < g_y_max - g_y_min + 30) & (g_x_max - g_x_min > g_y_max - g_y_min - 30))begin
-        if(green_found)begin
+        if(green_found & (g_x_max - g_x_min < g_y_max - g_y_min + 30) & (g_x_max - g_x_min > g_y_max - g_y_min - 30))begin
             g_left <= g_x_min;
             g_right <= g_x_max;
             g_top <= g_y_min;
@@ -1381,7 +1379,7 @@ always@(posedge clk) begin
             g_bottom <= 0;
         end
         
-        //yellow
+        //yellow (havent done square because the colour detect do not properly reach a square)
         if(yellow_found)begin
             y_left <= y_x_min;
             y_right <= y_x_max;
@@ -1395,7 +1393,7 @@ always@(posedge clk) begin
             y_bottom <= 0;
         end
         //darkblue
-        if(darkblue_found)begin
+        if(darkblue_found & (db_x_max - db_x_min < db_y_max - db_y_min + 30) & (db_x_max - db_x_min > db_y_max - db_y_min - 30))begin
             db_left <= db_x_min;
             db_right <= db_x_max;
             db_top <= db_y_min;
@@ -1407,7 +1405,7 @@ always@(posedge clk) begin
             db_top <= 0;
             db_bottom <= 0;
         end
-        //pink
+        //pink (square bounds might not be needed...)
         if(pink_found)begin
             p_left <= p_x_min;
             p_right <= p_x_max;
@@ -1420,7 +1418,7 @@ always@(posedge clk) begin
             p_top <= 0;
             p_bottom <= 0;
         end
-        //lightgreen
+        //lightgreen (didnt do the square bounds cus is good)
         if(lightgreen_found)begin
             lg_left <= lg_x_min;
             lg_right <= lg_x_max;
@@ -1539,7 +1537,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
         3'b111: begin
-			msg_buf_in = {16'hABAB,3'h0,distance_measure_active,3'h0,building_prev_frame2,3'h0,building_prev_frame1,3'h0, building_in_frame};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hABAB,3'h0,distance_measure_active,1'h0, r_height};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
     endcase

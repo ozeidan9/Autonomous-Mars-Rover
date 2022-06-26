@@ -15,8 +15,8 @@ module colour_detect(
 
 //red, green, yellow, dark blue, pink, light green
 //ARENA OLD
-// assign red_detect = 	 	((8'd0 <= hue) & (hue <9'd40) | (9'd345 < hue) & (hue <= 9'd360))  & 
-// 							(8'd180 < sat) & (sat < 8'd255) & (8'd100 < val) & (val <= 8'd230);
+// assign red_detect = 	 	((8'd0 <= hue) & (hue < 9'd40) | (9'd340 < hue) & (hue <= 9'd360))  & 
+// 							((8'd190 < sat) & (sat <= 8'd255) & (8'd60 < val) & (val <= 8'd190));
 							
 // assign pink_detect = (hue > 9'd0) & (hue < 9'd36) & (sat > 8'd93) & (sat < 8'd175) & (val > 8'd190) & (val <= 8'd255);
 							
@@ -32,10 +32,10 @@ module colour_detect(
 //////////////////////
 //ARENA THRESHOLDS////
 
-assign red_detect = 	 	((8'd0 <= hue) & (hue < 9'd40) | (9'd340 < hue) & (hue <= 9'd360))  & 
-							((8'd190 < sat) & (sat <= 8'd255) & (8'd60 < val) & (val <= 8'd190));
+assign red_detect = ((8'd0 <= hue) & (hue < 9'd40) | (9'd340 < hue) & (hue <= 9'd360)) &
+((8'd165 < sat) & (sat <= 8'd255) & (8'd45 < val) & (val <= 8'd175)); //saturation is almost independant of location (95/100)
 							
-assign pink_detect = (hue > 9'd0) & (hue < 9'd36) & (sat > 8'd120) & (sat <= 8'd190) & (val > 8'd190) & (val <= 8'd255);
+assign pink_detect = (hue > 9'd0) && (hue < 9'd36) && (sat > 8'd105) && (sat <= 8'd150) && (val > 8'd185) && (val <= 8'd255);
 							
 
 assign green_detect =  		((((9'd104 < hue) & (hue < 9'd155) & (8'd40 < sat) & (sat < 8'd127)) | ((9'd120 < hue) & (hue < 9'd166) & (8'd62 < sat) & (sat < 8'd197))) & (val > 8'd30)&(val < 8'd130));
