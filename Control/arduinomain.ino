@@ -85,11 +85,11 @@ char Commandchar;
 //WIFI SHITT
 //const char* ssid = "DESKTOP-6F3P5EH 1900";//Wifi Name
 //const char* password = "L;5189d0";//Wifi password
-const char* ssid = "AndroidAP5c48";//Wifi Name
-const char* password = "janq9636";//Wifi password
+const char* ssid = "ArduinoTest";//Wifi Name
+const char* password = "pASSWORD";//Wifi password
 
 const uint16_t port = 15000; //port number to connect to
-const char* host = "192.168.137.220"; //IP to connect to (can be private or public)
+const char* host = "192.168.137.162"; //IP to connect to (can be private or public)
 bool drivemsgready = false; //bool which checks whether drive's message is ready for sending
 bool alreadyconnected = false; //bool which checks whether the ESP32 has already connected with the server
 bool Commandready = false; //bool which checks whether command is ready for sending command
@@ -701,7 +701,7 @@ void loop()
     pink_found = 1;
     }
     else if(colour_code == 5){
-    Serial.println("Darkblue has been detected");
+    Serial.println("Dark blue has been detected");
     darkblue_found = 1;
     }
     else if(colour_code == 6){
@@ -709,7 +709,7 @@ void loop()
     lightgreen_found = 1;
     }
     else if(colour_code == 7){
-    Serial.println("building has been detected");
+    Serial.println("Building has been detected");
 
     }
     response =colour_code;

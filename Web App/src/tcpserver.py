@@ -9,6 +9,8 @@ import time
 import automate
 import numpy as np
 
+##multii thread this
+
 map = np.zeros((240,360))
 # autogen = True
 z=0
@@ -21,13 +23,13 @@ sav_dist=0
 # restart = False
 
 #omar make sure you add these to the angle and distance you get
-Commandlist = [45,20]
+Commandlist = [45,16384+20]
 Commands = []
 # Create a TCP/IP socket
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.43.50', 15000)
+server_address = ('192.168.43.50', 16000)
 # print('starting up on port ' + server_address[0] + server_address[1])
 server.bind(server_address)
 # Listen for incoming connections
@@ -35,7 +37,7 @@ server.listen(1)
 
 rover = Rover  
 
-
+Command_list=[]
 clients = []
 nicknames = []
 point=0
@@ -56,7 +58,7 @@ def broadcast(message):
     try:
         for client in clients:
             #message = message.encode('ascii')
-            points_bytes = message.to_bytes(2, byteorder = 'big', signed=True)
+            points_bytes = message.to_bytes(2, byteorder = 'big', signed=False)
             client.send(message)
     except:
         #need to fix it, summit bout a while loop and flags. 
@@ -76,18 +78,22 @@ def handle(client):
             
             message = message.decode("ascii")
             print(message)
-            time.sleep(0.25)
+            
             message=str(message)
             opcode = message[0:3]
             
 
             if opcode == "UPM":
+                print("UPM received")
+                time.sleep(0.25)
                 msg=Commandlist[0]
                 broadcast(msg)
                 Commandlist.pop(0)
+                time.sleep(0.25)
 
             
             if opcode == "POS":
+                time.sleep(0.25)
                 print("in pos")
                 
                 message1 = client.recv(1024)

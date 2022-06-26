@@ -13,7 +13,7 @@ int client_msg;
 int opcode;
 int magnitude;
 bool angle_or_distance; // angle is AMO, distance is DMO
-
+int bytes_received;
 float desired = 0; //this will need to be a dynamic input connected to various things so it allows multiple directions instead of just one forward
 unsigned long pathstart;//this should only be called during the update to record the time it takes for this new direction change, so this entire program needs to be called new each time the rover changes direction
 
@@ -122,10 +122,11 @@ Robojax_L298N_DC_motor robot(IN1, IN2, ENA, CHA,  IN3, IN4, ENB, CHB);
 char DriveMap[32]; //storage for drive's message
 //char Command[32]; //storage for the actual command
 char Commandchar;
-const char* ssid = "DESKTOP-6F3P5EH 1900";//Wifi Name
-const char* password = "L-5189D0";//Wifi password
-const uint16_t port = 15000; //port number to connect to
-const char * host = "192.168.137.12"; //IP to connect to (can be private or public)
+const char* ssid = "ArduinoTest";//Wifi Name
+const char* password = "pASSWORD";//Wifi password
+const uint16_t port = 16000; //port number to connect to
+//const char * host = "192.168.137.12"; //IP to connect to (can be private or public)
+IPAddress remoteHost(192,168,137,162);
 bool drivemsgready = false; //bool which checks whether drive's message is ready for sending
 bool alreadyconnected = false; //bool which checks whether the ESP32 has already connected with the server
 bool Commandready = false; //bool which checks whether command is ready for sending command
@@ -531,17 +532,7 @@ char asciiart(int k)
 void loop()
 {
   
-  if (!alreadyconnected) {  //Attempts to connect to Server using provided Host and Port
-    if (!client.connect(host, port)) {
-      Serial.println("Connection to host failed");
-      delay(100);
-      return;
-    }
-    Serial.println("Connected to server!");
-    client.print("Hello from Control!");
-    alreadyconnected = true;
-  }
-
+  
     client.write("POS");
     delay(250); //tell james to update his
     client.write(x);
@@ -553,17 +544,19 @@ void loop()
   if (client.available())
   {
     Serial.println("received data from server: ");
-    int bytes_received = 0;
+    bytes_received = 0;
     while (client.available()) {
       Commandchar = client.read(); //client.read() reads one character at a time
       Serial.println(Commandchar);
       if(bytes_received == 0){
-        client_msg = Commandchar.toInt() << 8;
+        client_msg = Commandchar << 8;
         bytes_received = 1;
       }
       if(bytes_received == 1){
-        client_msg += Commandchar.toInt();
+        client_msg += Commandchar;
         opcode = client_msg >> 14;
+        magnitude = client_msg & 16383;
+        bytes_received = 0;
       }
       if (Commandchar) {
         Serial.println("The Command has been recorded");
@@ -601,9 +594,10 @@ void loop()
       }
 
 
-    if(Commandchar=='AMO'){
+    if(opcode==0){
         while (client.available()) {
-            angle_t = client.read(); //client.read() reads one character at a time
+            // angle_t = client.read(); //client.read() reads one character at a time
+            angle_t = magnitude;
             Serial.println(angle_t);
         }
         angle_state = true;
@@ -612,9 +606,9 @@ void loop()
     }
 
 
-    if(Commandchar=='DMO'){
+    if(opcode==1){
         while (client.available()) {
-            distance_t = client.read(); //client.read() reads one character at a time
+            distance_t = magnitude; //client.read() reads one character at a time
             Serial.println(distance_t);
         }
 
@@ -689,7 +683,7 @@ void loop()
         if(distance_reached >= 3){
           distance_reached = 0;
           distance_state = false;
-          client.write("UPM")
+          client.write("UPM");
         }
         
       }  
@@ -735,7 +729,7 @@ void loop()
       if(angle_reached >= 3){
         angle_reached = 0;
         angle_state = false;
-        client.write("UPM")
+        client.write("UPM");
       }
        
 
