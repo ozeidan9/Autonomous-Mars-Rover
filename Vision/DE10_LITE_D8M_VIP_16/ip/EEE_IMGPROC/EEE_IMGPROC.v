@@ -82,7 +82,7 @@ reg db_in_frame, db_prev_frame1, db_prev_frame2, db_prev_frame3;
 reg lg_in_frame, lg_prev_frame1, lg_prev_frame2, lg_prev_frame3;
 reg building_in_frame, building_prev_frame1, building_prev_frame2, building_prev_frame3;
 
-reg[10:0] r_width, y_width, g_width, p_width, db_width, lg_width, r_height;
+reg[10:0] r_width, y_width, g_width, p_width, db_width, lg_width, r_height, y_height, g_height, p_height, db_height, lg_height;
 reg[10:0] r_width1, y_width1, g_width1, p_width1, db_width1, lg_width1;
 reg[10:0] r_width2, y_width2, g_width2, p_width2, db_width2, lg_width2;
 reg[10:0] r_width3, y_width3, g_width3, p_width3, db_width3, lg_width3;
@@ -194,10 +194,16 @@ initial begin
     building_width3 = 0;
     
     r_height = 0;
+	 g_height = 0;
+	 y_height = 0;
+	 p_height = 0;
+	 db_height = 0;
+	 lg_height = 0;
 end 
 
 
 always @(posedge clk) begin
+		building_in_frame <= 0;
     // if(byte_data_received == 1)begin
     //     r_ball_registered <= 1;
     // end
@@ -217,30 +223,30 @@ always @(posedge clk) begin
     // else if(byte_data_received == 6)begin
     //     lg_ball_registered <= 1;
     // end
-    if (y > 476)begin
+    if (y == 477 & x == 10)begin
         r_prev_frame3 <=  r_prev_frame2 & (r_width3 < r_width2 + 10) & (r_width3 > r_width2 - 10) & (r_height > 25);
         r_prev_frame2 <=  r_prev_frame1 & (r_width2 < r_width1 + 10) & (r_width2 > r_width1 - 10) & (r_height > 25);
         r_prev_frame1 <= red_found & (r_width1 < r_width + 10) & (r_width1 > r_width - 10) & (r_width > 40) & (r_height > 25);
     
-        g_prev_frame3 <=  g_prev_frame2  & ((g_width3 < g_width2 + 10) & (g_width3 > g_width2 - 10)) ;
-        g_prev_frame2 <=  g_prev_frame1 & ((g_width2 < g_width1 + 10) & (g_width2 > g_width1 - 10));
-        g_prev_frame1 <=  green_found & ((g_width1 < g_width + 10) & (g_width1 > g_width - 10));
+        g_prev_frame3 <=  g_prev_frame2  & ((g_width3 < g_width2 + 10) & (g_width3 > g_width2 - 10))  & (g_height > 20);
+        g_prev_frame2 <=  g_prev_frame1 & ((g_width2 < g_width1 + 10) & (g_width2 > g_width1 - 10))  & (g_height > 20);
+        g_prev_frame1 <=  green_found & (g_width1 < g_width + 10) & (g_width1 > g_width - 10) & (g_height > 20);
     
-        y_prev_frame3 <=  y_prev_frame2 & ((y_width3 < y_width2 + 10) & (y_width3 > y_width2 - 10));
-        y_prev_frame2 <=  y_prev_frame1 & ((y_width2 < y_width1 + 10) & (y_width2 > y_width1 - 10));
-        y_prev_frame1 <=  yellow_found & ((y_width1 < y_width + 10) & (y_width1 > y_width - 10));
+        y_prev_frame3 <=  y_prev_frame2 & ((y_width3 < y_width2 + 10) & (y_width3 > y_width2 - 10)) & (y_height > 20);
+        y_prev_frame2 <=  y_prev_frame1 & ((y_width2 < y_width1 + 10) & (y_width2 > y_width1 - 10)) & (y_height > 20);
+        y_prev_frame1 <=  yellow_found & (y_width1 < y_width + 10) & (y_width1 > y_width - 10) & (y_height > 20);
 
-        p_prev_frame3 <=  p_prev_frame2 & ((p_width3 < p_width2 + 10) & (p_width3 > p_width2 - 10));
-        p_prev_frame2 <=  p_prev_frame1 & ((p_width2 < p_width1 + 10) & (p_width2 > p_width1 - 10));
-        p_prev_frame1 <=  pink_found & ((p_width1 < p_width + 10) & (p_width1 > p_width - 10));
+        p_prev_frame3 <=  p_prev_frame2 & ((p_width3 < p_width2 + 10) & (p_width3 > p_width2 - 10)) & (p_height > 20);
+        p_prev_frame2 <=  p_prev_frame1 & ((p_width2 < p_width1 + 10) & (p_width2 > p_width1 - 10)) & (p_height > 20);
+        p_prev_frame1 <=  pink_found & (p_width1 < p_width + 10) & (p_width1 > p_width - 10) & (p_height > 20);
 
-        db_prev_frame3 <=  db_prev_frame2 & ((db_width3 < db_width2 + 10) & (db_width3 > db_width2 - 10));
-        db_prev_frame2 <=  db_prev_frame1 & ((db_width2 < db_width1 + 10) & (db_width2 > db_width1 - 10));
-        db_prev_frame1 <=  darkblue_found & ((db_width1 < db_width + 10) & (db_width1 > db_width - 10));
+        db_prev_frame3 <=  db_prev_frame2 & ((db_width3 < db_width2 + 10) & (db_width3 > db_width2 - 10)) & (db_height > 20);
+        db_prev_frame2 <=  db_prev_frame1 & ((db_width2 < db_width1 + 10) & (db_width2 > db_width1 - 10)) & (db_height > 20);
+        db_prev_frame1 <=  darkblue_found & (db_width1 < db_width + 10) & (db_width1 > db_width - 10) & (db_height > 20);
 
-        lg_prev_frame3 <=  lg_prev_frame2 & ((lg_width3 < lg_width2 + 10) & (lg_width3 > lg_width2 - 10));
-        lg_prev_frame2 <=  lg_prev_frame1 & ((lg_width2 < lg_width1 + 10) & (lg_width2 > lg_width1 - 10));
-        lg_prev_frame1 <=  lightgreen_found & ((lg_width1 < lg_width + 10) & (lg_width1 > lg_width - 10));
+        lg_prev_frame3 <=  lg_prev_frame2 & ((lg_width3 < lg_width2 + 10) & (lg_width3 > lg_width2 - 10))& (lg_height > 20);
+        lg_prev_frame2 <=  lg_prev_frame1 & ((lg_width2 < lg_width1 + 10) & (lg_width2 > lg_width1 - 10))& (lg_height > 20);
+        lg_prev_frame1 <=  lightgreen_found & (lg_width1 < lg_width + 10) & (lg_width1 > lg_width - 10) & (lg_height > 20);
 
         building_prev_frame3 <=  building_prev_frame2 & ((building_width3 < building_width2 + 10) & (building_width3 > building_width2 - 10));
         building_prev_frame2 <=  building_prev_frame1 & ((building_width2 < building_width1 + 10) & (building_width2 > building_width1 - 10));
@@ -258,10 +264,15 @@ always @(posedge clk) begin
         r_width <= r_x_max - r_x_min;
         r_height <= r_y_max - r_y_min;
         g_width <= g_x_max - g_x_min;
+		  g_height <= g_y_max - g_y_min;
         y_width <= y_x_max - y_x_min;
+		  y_height <= y_y_max - y_y_min;
         p_width <= p_x_max - p_x_min;
+		  p_height <= p_y_max - p_y_min;
         db_width <= db_x_max - db_x_min;
+		  db_height <= db_y_max - db_y_min;
         lg_width <= lg_x_max - lg_x_min;
+		  lg_height <= lg_y_max - lg_y_min;
 
         // if (g_in_frame)begin
         //     if (g_x_max - g_x_min < g_width + 10 & g_x_max-g_x_min > g_width - 10)begin
@@ -301,7 +312,7 @@ always @(posedge clk) begin
         p_in_frame <= p_prev_frame1 & p_prev_frame2 & p_prev_frame3;
         db_in_frame <= db_prev_frame1 & db_prev_frame2 & db_prev_frame3;
         lg_in_frame <= lg_prev_frame1 & lg_prev_frame2 & lg_prev_frame3;  
-        building_in_frame <= building_prev_frame1 & building_prev_frame2 & building_prev_frame3;  
+        //building_in_frame <= building_prev_frame1 & building_prev_frame2 & building_prev_frame3;  
 
     end
 end
@@ -755,10 +766,10 @@ assign build_bb_active = (x == build_left) | (x == build_right);
 assign new_image =	red_bb_active ? {8'hdf,8'h16,8'h0} : 
                     //green_bb_active ? {8'h0D, 8'h94, 8'h22} :
 					yellow_bb_active ? {8'hE9, 8'hB6, 8'h00} :
-					darkblue_bb_active ? {8'h00, 8'hC0, 8'hBD} :
+					//darkblue_bb_active ? {8'h00, 8'hC0, 8'hBD} :
 					pink_bb_active ? {8'hF7, 8'h00, 8'hFF} :
 					lightgreen_bb_active ? {8'h22, 8'hFF, 8'h05} :
-                    build_bb_active ? {8'hff, 8'h0, 8'h00} : 
+                  //  build_bb_active ? {8'hff, 8'h0, 8'h00} : 
                     //white_bb_active ? {8'h00, 8'h52, 8'hdf} :
                     detected_area;
 
@@ -1155,23 +1166,25 @@ always@(posedge clk) begin
         packet_video <= (blue[3:0] == 3'h0);
     end
     else if (in_valid) begin
-        if (red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4)begin
-            red_found <= 1;
-        end
-        if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4)begin
-            green_found <= 1;
-        end
-        if (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4)begin
-            yellow_found <= 1;
-        end
-        if (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4)begin
-            pink_found <= 1;
-        end
-        if (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4)begin
-            darkblue_found <= 1;
-        end
-        if (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4)begin
-            lightgreen_found <= 1;
+        if(y>300) begin
+            if (red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4)begin
+                red_found <= 1;
+            end
+            if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4)begin
+                green_found <= 1;
+            end
+            if (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4)begin
+                yellow_found <= 1;
+            end
+            if (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4)begin
+                pink_found <= 1;
+            end
+            if (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4)begin
+                darkblue_found <= 1;
+            end
+            if (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4)begin
+                lightgreen_found <= 1;
+            end
         end
         if (x == IMAGE_W-1) begin
             x <= 11'h0;
@@ -1205,49 +1218,49 @@ reg [10:0] w_x_min, w_y_min, w_x_max, w_y_max;
 //build
 reg [10:0] build_x_min, build_y_min, build_x_max, build_y_max;
 always@(posedge clk) begin
-    if(red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4 & in_valid & y > 160) begin //Update bounds when the pixel is RED
+    if(red_detect & prev_r1 & prev_r2 & prev_r3 & prev_r4 & in_valid & y > 300) begin //Update bounds when the pixel is RED
         if (x < r_x_min) r_x_min <= x;
         if (x > r_x_max) r_x_max <= x;
         if (y < r_y_min) r_y_min <= y;
         r_y_max <= y;
     end
-    if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4 & in_valid & y > 160) begin   //Update bounds when the pixel is GREEN
+    if (green_detect & prev_g1 & prev_g2 & prev_g3 & prev_g4 & in_valid & y > 300) begin   //Update bounds when the pixel is GREEN
         if (x < g_x_min) g_x_min <= x;
         if (x > g_x_max) g_x_max <= x;
         if (y < g_y_min) g_y_min <= y;
         g_y_max <= y;
     end
-    if (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4 & in_valid & y > 160) begin    //Update bounds when the pixel is YELLOW
+    if (yellow_detect & prev_y1 & prev_y2 & prev_y3 & prev_y4 & in_valid & y > 300) begin    //Update bounds when the pixel is YELLOW
         if (x < y_x_min) y_x_min <= x;
         if (x > y_x_max) y_x_max <= x;
         if (y < y_y_min) y_y_min <= y;
         y_y_max <= y;
     end
-    if (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4 & in_valid & y > 160) begin    //Update bounds when the pixel is DARKBLUE
+    if (darkblue_detect & prev_db1 & prev_db2 & prev_db3 & prev_db4 & in_valid & y > 300) begin    //Update bounds when the pixel is DARKBLUE
         if (x < db_x_min) db_x_min <= x;
         if (x > db_x_max) db_x_max <= x; 
         if (y < db_y_min) db_y_min <= y;
         db_y_max <= y;
     end
-    if (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4 & in_valid & y > 160) begin    //Update bounds when the pixel is PINK
+    if (pink_detect & prev_p1 & prev_p2 & prev_p3 & prev_p4 & in_valid & y > 300) begin    //Update bounds when the pixel is PINK
         if (x < p_x_min) p_x_min <= x;
         if (x > p_x_max) p_x_max <= x;
         if (y < p_y_min) p_y_min <= y;
         p_y_max <= y;
     end
-    if (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4 & in_valid & y > 160) begin    //Update bounds when the pixel is LIGHT GREEN
+    if (lightgreen_detect & prev_lg1 & prev_lg2 & prev_lg3 & prev_lg4 & in_valid & y > 300) begin    //Update bounds when the pixel is LIGHT GREEN
         if (x < lg_x_min) lg_x_min <= x;
         if (x > lg_x_max) lg_x_max <= x;
         if (y < lg_y_min) lg_y_min <= y;
         lg_y_max <= y;
     end
-    if (black_detect & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & prev_b1 & prev_b2 & prev_b3 & prev_b4 & in_valid & y > 160) begin    //Update bounds when the pixel is BLACK
+    if (black_detect & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & prev_b1 & prev_b2 & prev_b3 & prev_b4 & in_valid & y > 300) begin    //Update bounds when the pixel is BLACK
         if (x < b_x_min) b_x_min <= x;
         if (x > b_x_max) b_x_max <= x;
         if (y < b_y_min) b_y_min <= y;
         b_y_max <= y;
     end
-    if (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4 & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & in_valid & y > 160) begin    //Update bounds when the pixel is WHITE
+    if (white_detect & prev_w1 & prev_w2 & prev_w3 & prev_w4 & (x>7) & (x<640-7) & (y>7) & (y < 480-7) & in_valid & y > 300) begin    //Update bounds when the pixel is WHITE
         if (x < w_x_min) begin
             w_x_min <= x;
             if(building_detect) begin
@@ -1393,7 +1406,7 @@ always@(posedge clk) begin
             y_bottom <= 0;
         end
         //darkblue
-        if(darkblue_found & (db_x_max - db_x_min < db_y_max - db_y_min + 30) & (db_x_max - db_x_min > db_y_max - db_y_min - 30))begin
+        if(darkblue_found)begin
             db_left <= db_x_min;
             db_right <= db_x_max;
             db_top <= db_y_min;
@@ -1513,11 +1526,11 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b0;
 		end
 		3'b001: begin
-			msg_buf_in = {28'hDDDD000, frame_number_of_buildings};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hCCCC, outbuffer};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b010: begin
-            msg_buf_in = {16'hAAAA, frame_number_of_buildings};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+            msg_buf_in = {16'hAAAA, outbuffer};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
 		3'b011: begin
@@ -1537,7 +1550,7 @@ always@(*) begin    //Write words to FIFO as state machine advances
 			msg_buf_wr = 1'b1;
 		end
         3'b111: begin
-			msg_buf_in = {16'hABAB,3'h0,distance_measure_active,1'h0, r_height};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
+			msg_buf_in = {16'hABAB,3'h0,distance_measure_active,3'h0, no_darkblue_ball_counter, darkblue_found, yellow_found, lightgreen_found, pink_found, green_found, red_found};	//Green Colour ID, 0-bit + g_x_max, 0-bit + g_x_min
 			msg_buf_wr = 1'b1;
 		end
     endcase
