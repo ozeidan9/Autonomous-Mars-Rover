@@ -1,11 +1,26 @@
-
-from cmath import sqrt
+from enum import auto
+from operator import indexOf
 import numpy as np
+import tcpserver
 import math
 
+# map = np.zeros((240,360)) 
+point=[]
 
-class Node():
-    """A node class for A* Pathfinding"""
+poi = [ [] ]  # Points of interest
+# Add corners of arena to poi
+poi.append([26,26])#0
+poi.append([180,26])#1
+poi.append([334,26])#2
+poi.append([334,214])#3
+poi.append([180,214])#4
+poi.append([26,214])#5
+poi.append([120,120])#6
+poi.append([240,120])#7
+investigated=False
+knownloacation=False
+
+class Node(): #node class for A* pathfinding -> f = g + h
 
     def __init__(self, parent=None, position=None):
         self.parent = parent
@@ -18,24 +33,17 @@ class Node():
     def __eq__(self, other):
         return self.position == other.position
 
-def dead_zone(map, alien): #9x9 square deadzoen centred at alien or building
-    
-    x = alien[0]
-    y = alien[1]
 
-    
-    for i in range(x-10, x+10):
-        for k in range(y-10, y+10):
+# class Rover(): #node class for A* pathfinding -> f = g + h
 
-            if 0<=i<240 and 0<=y<360:
-                map[i,k] = 1
-                
-                print( "(" + str(i) + ","+str(k)+")" )
+#     def __init__(self=None):
 
-    
-    return map
+#         self.distance = 0
+#         self.angle = 0
 
-
+#         self.x = 0
+#         self.y = 0
+      
 
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
@@ -170,12 +178,11 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
     path_output = []
     for i in range(0, len(path_array)-1):
         if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            print("case 1")
-            
+            # print("case 1")
+
             adjacent = path_array[i+1][0] - path_array[i][0]
             opposite = path_array[i+1][1] - path_array[i][1]
-            print(adjacent)
-            print(opposite)
+
             if adjacent==0:
                 pos_angle = 0
             else:
@@ -183,12 +190,12 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
                 pos_angle += 360
                 distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
                 path_output.append(int(pos_angle))
-                path_output.append(int(distance))
+                path_output.append(int(16384+distance))
 
 
 
-        elif (path_array[i+1][1]-path_array[i][1])<0:
-            print("case 2")
+        if (path_array[i+1][1]-path_array[i][1])<0:
+            # print("case 2")
             adjacent = path_array[i+1][0] - path_array[i][0]
             opposite = path_array[i+1][1] - path_array[i][1]
 
@@ -202,95 +209,94 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
                 path_output.append(int(pos_angle))
                 path_output.append(int(distance))
 
-        elif (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            print("case 3")
-            
+        else:
+            if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
+                # print("case 3")
 
-            adjacent = path_array[i+1][0] - path_array[i][0]
-            opposite = path_array[i+1][1] - path_array[i][1]
-            print(adjacent)
-            print(opposite)
-            # print("opposite is: "+ str(opposite))
-            # print("adjacent is: "+ str(adjacent))
-            if adjacent==0:
-                pos_angle = 0
-            else:
-                pos_angle = math.degrees(np.arctan(opposite/adjacent))
-                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
-                path_output.append(int(pos_angle))
-                path_output.append(int(distance))
+                adjacent = path_array[i+1][0] - path_array[i][0]
+                opposite = path_array[i+1][1] - path_array[i][1]
+
+                # print("opposite is: "+ str(opposite))
+                # print("adjacent is: "+ str(adjacent))
+                if adjacent==0:
+                    pos_angle = 0
+                else:
+                    pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                    distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                    path_output.append(int(pos_angle))
+                    path_output.append(int(distance))
 
 
     return path_output
 
 
+################
+#################
+##################
+##################################
+##############################################
+##################################
+##############################
+##############
+##
+def automate_route(map, loc ,end):
+    a_star_path = astar(map, (loc[0], loc[1]), end)
+    straight_route = straight_path(a_star_path)
+    print("Straight route")
+    print(straight_route)
+    return extract_commands(straight_route)
 
-def automate_route(map, start, end):
-    a_star_path = astar(map, start, end)
-    straight_route = straight_path(map)
-    return extract_commands
+#adv def CurvatiousBundaliciousBattyBunds():
+def update_start(map, x,y):
+    if x == 20:
+        if y==20:
+            command=automate_route(map, (x,y) ,(26,26))
+            #driveto(26,26,90)
+            point=0
+        if y==220:
+            command=automate_route(map, (x,y) ,(26,214))
+            #driveto(26,214,180)
+            point=5
+    if x == 340:
+        if y==20:
+            command=automate_route(map, (x,y) ,(334,26))
+            #driveto(334,26,-90)
+            point= 2
+        if y==220:
+            command=automate_route(map, (x,y) ,(334,214))
+            #driveto(324,214,0)
+            point= 3
+    return (point,command)
 
+def exe(sav_loc,point):
+    if investigated == True:
+        commands = automate_route(map ,sav_loc, poi[point+1])
+        investigated=False
+    elif investigated == False:
+        commands.clear() 
+        if (point == 1 or point == 4):
+            commands.append(205) # left 155
+            commands.append(155) #right 155
+            point=point+1
+            investigated=True
+        
 
-def main():
+        if (point == 6 or point == 7):
+            commands.append(180) # left 180
+            commands.append(180) # left 180
+            point=point+1
+            investigated=True
+            
+        else:
+            commands.append(32768) #radar on
+            commands.append(295) # left 65
+            commands.append(65) #right 65
+            commands.append(49152) #radar off
+            point=point+1
+            investigated=True
+    else:
+        commands = automate_route(map ,sav_loc, poi[point+1])
 
-    # maze = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-    #         [0, 1, 1, 0, 1, 1, 0, 0, 0, 0],
-    #         [0, 1, 0, 1, 1, 0, 0, 0, 0, 0],
-    #         [1, 0, 1, 1, 1, 0, 0, 0, 0, 0],
-    #         [1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 1, 1, 0, 0, 0, 0, 1, 0, 0],
-    #         [0, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 1, 1, 0, 1, 0, 0, 0, 0, 0],
-    #         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    return commands
 
-    # maze = np.zeros((240, 360))
     
-    maze = np.zeros((360, 240))
-
-    start = (340, 20)
-    end = (334, 26)
-
-
-    # make_circle(maze, 50, 100)
-    # make_circle(maze, 90, 65)
-
-
-  
-
-    # print(maze)
-
-    path = astar(maze, start, end)
-    print("A star: ")
-    print(path)
-
-    print("x is: ")
-    for i in range(0, len(path)):
-        print(path[i][0])
-
-    print("y is: ")
-    for i in range(0, len(path)):
-        print(path[i][1])
-
-
-   
-    critical_points = straight_path(path)
-    print("Critical point algo: ")
-    print(critical_points)
-
-    print("critical x is: ")
-    for i in range(0, len(critical_points)):
-        print(critical_points[i][0])
-
-    print("critical y is: ")
-    for i in range(0, len(critical_points)):
-        print(critical_points[i][1])
-
-    commands = extract_commands(critical_points)
-    print("commands are: ")
-    for i in range(0, len(commands)):
-        print(commands[i])
-
-
-if __name__ == '__main__':
-    main()
