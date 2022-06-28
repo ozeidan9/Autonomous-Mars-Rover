@@ -166,6 +166,31 @@ def make_circle(map, cx, cy):
                 map[x][y] = 1
 
 
+def make_border(map):
+
+    # left border
+    for y in range(0, 360):
+        for x in range(0, 11):
+            map[y][x] = 1
+
+    # right border
+    for y in range(0, 360):
+        for x in range(229, 240):
+            map[y][x] = 1
+
+    # bottom border
+    for y in range(0, 10):
+        for x in range(0, 240):
+            map[y][x] = 1
+
+    # top border
+    for y in range(349, 360):
+        for x in range(0, 240):
+            map[y][x] = 1
+
+
+
+
 def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
     path_output = []
     for i in range(0, len(path_array)-1):

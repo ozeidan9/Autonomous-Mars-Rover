@@ -174,15 +174,41 @@ def make_circle(map, cx, cy):
                 map[x][y] = 1
 
 
+def make_border(map):
+
+    # left border
+    for y in range(0, 360):
+        for x in range(0, 11):
+            map[y][x] = 1
+
+    # right border
+    for y in range(0, 360):
+        for x in range(229, 240):
+            map[y][x] = 1
+
+    # bottom border
+    for y in range(0, 10):
+        for x in range(0, 240):
+            map[y][x] = 1
+
+    # top border
+    for y in range(349, 360):
+        for x in range(0, 240):
+            map[y][x] = 1
+
+
+
+
 def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
     path_output = []
     for i in range(0, len(path_array)-1):
         if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            # print("case 1")
-
+            print("case 1")
+            
             adjacent = path_array[i+1][0] - path_array[i][0]
             opposite = path_array[i+1][1] - path_array[i][1]
-
+            print(adjacent)
+            print(opposite)
             if adjacent==0:
                 pos_angle = 0
             else:
@@ -190,12 +216,12 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
                 pos_angle += 360
                 distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
                 path_output.append(int(pos_angle))
-                path_output.append(int(16384+distance))
+                path_output.append(int(distance))
 
 
 
-        if (path_array[i+1][1]-path_array[i][1])<0:
-            # print("case 2")
+        elif (path_array[i+1][1]-path_array[i][1])<0:
+            print("case 2")
             adjacent = path_array[i+1][0] - path_array[i][0]
             opposite = path_array[i+1][1] - path_array[i][1]
 
@@ -209,22 +235,23 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
                 path_output.append(int(pos_angle))
                 path_output.append(int(distance))
 
-        else:
-            if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-                # print("case 3")
+        elif (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
+            print("case 3")
+            
 
-                adjacent = path_array[i+1][0] - path_array[i][0]
-                opposite = path_array[i+1][1] - path_array[i][1]
-
-                # print("opposite is: "+ str(opposite))
-                # print("adjacent is: "+ str(adjacent))
-                if adjacent==0:
-                    pos_angle = 0
-                else:
-                    pos_angle = math.degrees(np.arctan(opposite/adjacent))
-                    distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
-                    path_output.append(int(pos_angle))
-                    path_output.append(int(distance))
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+            print(adjacent)
+            print(opposite)
+            # print("opposite is: "+ str(opposite))
+            # print("adjacent is: "+ str(adjacent))
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
 
 
     return path_output
