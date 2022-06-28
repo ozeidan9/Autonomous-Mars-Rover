@@ -1,0 +1,28 @@
+
+
+@font-face {
+    font-family: 'inter'; /*a name to be used later*/
+    src: url('comp-resources/basicsanssfbold.ttf'); /*URL to font*/
+  }
+
+
+
+
+h3 {
+    
+    font-family: "inter";
+    color:rgb(255, 255, 255);
+    top: 12px;
+    left: 130px;
+    font-size: 36px;
+    position: relative;
+
+}
+
+meter {
+    width: 400px;
+    height: 80px;
+    transform: translate(32%, -15%);
+}
+
+
