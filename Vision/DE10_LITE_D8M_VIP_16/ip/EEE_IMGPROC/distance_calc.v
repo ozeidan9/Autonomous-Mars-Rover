@@ -180,14 +180,15 @@ end
 
 
 always @(posedge clk)begin
-    if(build_ball_center > 400)begin
+    if((build_ball_center > 350) | (build_right > 620))begin
     build_ball_distance <= 10;
     end
-    else if (build_ball_center < 300)begin
+    else if ((build_ball_center < 300) | (build_left < 20) )begin
     build_ball_distance <= 9;
     end
     else begin
-        build_ball_distance[10:0] <= 1300 / build_ball_width;
+        build_ball_distance[10:7] <= number_of_stripes;
+        build_ball_distance[6:0] <= 1500 / build_ball_width;
         build_ball_distance[15:11] <= 7;
     end
 end
