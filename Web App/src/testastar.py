@@ -3,6 +3,12 @@ from cmath import sqrt
 import numpy as np
 import math
 
+#paste here:
+
+
+# start: 24,24
+# end: 180,26
+
 
 class Node():
     """A node class for A* Pathfinding"""
@@ -137,7 +143,7 @@ def straight_path(path):
             m = (path[i][1] - path[i-1][1]) / (path[i][0] - path[i-1][0]) #dy/dx
             # print(m)
 
-        # print(m)
+        print(m)
         condition = abs(m - m_prev)<=0.8  # bool condition
         if condition:
             m_count+=1
@@ -145,11 +151,15 @@ def straight_path(path):
         if condition==False and m_count!=0:
             # new_path.append((path[i-1][0], path[i-1][1]))
             new_path.append((path[i][0], path[i][1]))
-            new_path.append((path[i-m_count-1][0], path[i-m_count-1][1]))
+
+            point_check = new_path.index((path[i-m_count-2][0], path[i-m_count-2][1]))
+            if not (point_check>=0):
+                new_path.append((path[i-m_count-2][0], path[i-m_count-2][1]))
+
+            # print(m_count)
             m_count = 0
 
         m_prev = m
-
 
 
     if new_path[len(new_path)-1]!=path[len(path)-1]:
@@ -166,8 +176,8 @@ def make_circle(map, cx, cy):
                 map[x][y] = 1
 
 
-def make_border(map):
 
+def make_border(map):
     # left border
     for y in range(0, 360):
         for x in range(0, 11):
@@ -177,7 +187,6 @@ def make_border(map):
     for y in range(0, 360):
         for x in range(229, 240):
             map[y][x] = 1
-
     # bottom border
     for y in range(0, 10):
         for x in range(0, 240):
@@ -195,7 +204,7 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
     path_output = []
     for i in range(0, len(path_array)-1):
         if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            print("case 1")
+            # print("case 1")
             
             adjacent = path_array[i+1][0] - path_array[i][0]
             opposite = path_array[i+1][1] - path_array[i][1]
@@ -213,7 +222,7 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
 
 
         elif (path_array[i+1][1]-path_array[i][1])<0:
-            print("case 2")
+            # print("case 2")
             adjacent = path_array[i+1][0] - path_array[i][0]
             opposite = path_array[i+1][1] - path_array[i][1]
 
@@ -228,7 +237,7 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
                 path_output.append(int(distance))
 
         elif (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            print("case 3")
+            # print("case 3")
             
 
             adjacent = path_array[i+1][0] - path_array[i][0]
@@ -246,7 +255,47 @@ def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, 
                 path_output.append(int(distance))
 
 
+        else: # dx and dy both >=0
+            # print("case 4")
+            
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+            print(adjacent)
+            print(opposite)
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+
+
     return path_output
+
+
+def make_border(map_temp):
+    # left border
+    for y in range(0, 360):
+        for x in range(0, 11):
+            map_temp[y][x] = 1
+
+    # right border
+    for y in range(0, 360):
+        for x in range(229, 240):
+            map_temp[y][x] = 1
+    # bottom border
+    for y in range(0, 10):
+        for x in range(0, 240):
+            map_temp[y][x] = 1
+
+    # top border
+    for y in range(349, 360):
+        for x in range(0, 240):
+            map_temp[y][x] = 1
+
+
 
 
 
@@ -273,8 +322,8 @@ def main():
     
     maze = np.zeros((360, 240))
 
-    start = (340, 20)
-    end = (334, 26)
+    start = (24,24)
+    end = (180,26)
 
 
     # make_circle(maze, 50, 100)
@@ -282,6 +331,7 @@ def main():
 
 
   
+    make_border(maze)
 
     # print(maze)
 
