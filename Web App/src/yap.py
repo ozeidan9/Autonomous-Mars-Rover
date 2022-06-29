@@ -63,7 +63,7 @@ def draw(Longitina, Latina, Alien,x,y,Rangle):
     ax = plt.gca()
     ax.add_patch(p) 
     time.sleep(5)
-    plt.savefig('./Mapped_Unknown.jpg')
+    plt.savefig('./components/comp-resources/Mapped_Unknown.jpg')
 
 
 def update(long, lat, colour, Longitina, Latina, Alien,x,y,Rangle):
