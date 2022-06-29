@@ -1,16 +1,15 @@
-from enum import auto
-from operator import indexOf
+
+from cmath import sqrt
 import numpy as np
 import math
 
-# map = np.zeros((240,360)) 
-point=[]
-# map = np.zeros((360,240))
-poi = [[26,26],[180,26],[334,26],[334,214],[180,214],[26,214],[120,120],[240,120]]  # Points of interest
-# Add corners of arena to poi
-knownloacation=False
 
-class Node(): #node class for A* pathfinding -> f = g + h
+# start: 24,24
+# end: 180,26
+
+
+class Node():
+    """A node class for A* Pathfinding"""
 
     def __init__(self, parent=None, position=None):
         self.parent = parent
@@ -22,10 +21,10 @@ class Node(): #node class for A* pathfinding -> f = g + h
 
     def __eq__(self, other):
         return self.position == other.position
-      
 
 def astar(maze, start, end):
     """Returns a list of tuples as a path from the given start to the given end in the given maze"""
+
     # Create start and end node
     start_node = Node(None, start)
     start_node.g = start_node.h = start_node.f = 0
@@ -38,7 +37,6 @@ def astar(maze, start, end):
 
     # Add the start node
     open_list.append(start_node)
-    print("8")
 
     # Loop until you find the end
     while len(open_list) > 0:
@@ -107,7 +105,6 @@ def astar(maze, start, end):
             open_list.append(child)
 
 
-
 def straight_path(path):
     new_path = []
     x = []
@@ -151,17 +148,112 @@ def straight_path(path):
 
 
 
-# def make_circle(map, cx, cy):
-#     for x in range(cx - 10, cx + 10):
-#         for y in range(cy - 10, cy + 10):
-#             if math.sqrt((cx - x) ** 2 + (cy - y) ** 2) <= 10 and 0<=x<240 and 0<=y<360:
-#                 map[x][y] = 1
 
-def make_circle(map_temp, cx, cy , radius):
-    for x in range(cx - radius, cx + radius):
-        for y in range(cy - radius, cy + radius):
-            if math.sqrt((cx - x) ** 2 + (cy - y) ** 2) <= radius and 0<=x<240 and 0<=y<360:
-                map_temp[x][y] = 1
+
+def make_circle(map, cx, cy):
+    for x in range(cx - 10, cx + 10):
+        for y in range(cy - 10, cy + 10):
+            if math.sqrt((cx - x) ** 2 + (cy - y) ** 2) <= 10 and 0<=x<240 and 0<=y<360:
+                map[x][y] = 1
+
+
+
+def make_border(map):
+    # left border
+    for y in range(0, 360):
+        for x in range(0, 11):
+            map[y][x] = 1
+
+    # right border
+    for y in range(0, 360):
+        for x in range(229, 240):
+            map[y][x] = 1
+    # bottom border
+    for y in range(0, 10):
+        for x in range(0, 240):
+            map[y][x] = 1
+
+    # top border
+    for y in range(349, 360):
+        for x in range(0, 240):
+            map[y][x] = 1
+
+
+
+
+def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
+    path_output = []
+    for i in range(0, len(path_array)-1):
+        if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
+            print("case 1")
+            
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+            print(adjacent)
+            print(opposite)
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                pos_angle += 360
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+
+
+        elif (path_array[i+1][1]-path_array[i][1])<0:
+            print("case 2")
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                pos_angle += 180
+
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+        elif (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
+            print("case 3")
+            
+
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+            print(adjacent)
+            print(opposite)
+            # print("opposite is: "+ str(opposite))
+            # print("adjacent is: "+ str(adjacent))
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+
+        else: # dx and dy both >=0
+            print("case 4")
+            
+            adjacent = path_array[i+1][0] - path_array[i][0]
+            opposite = path_array[i+1][1] - path_array[i][1]
+            print(adjacent)
+            print(opposite)
+            if adjacent==0:
+                pos_angle = 0
+            else:
+                pos_angle = math.degrees(np.arctan(opposite/adjacent))
+                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
+                path_output.append(int(pos_angle))
+                path_output.append(int(distance))
+
+
+
+    return path_output
 
 
 def make_border(map_temp):
@@ -186,233 +278,60 @@ def make_border(map_temp):
 
 
 
-
-def extract_commands(path_array): #outputs array of [angle1, distance1, angle2, distance2]
-    path_output = []
-    for i in range(0, len(path_array)-1):
-        if (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            # print("case 1")
-            
-            adjacent = path_array[i+1][0] - path_array[i][0]
-            opposite = path_array[i+1][1] - path_array[i][1]
-            print(adjacent)
-            print(opposite)
-            if adjacent==0:
-                pos_angle = 0
-            else:
-                pos_angle = math.degrees(np.arctan(opposite/adjacent))
-                pos_angle += 360
-                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
-                path_output.append(int(pos_angle))
-                while distance > 60:
-                    path_output.append(60+16384)
-                    distance -= 60
-                path_output.append(int(distance)+16384)
+# def automate_route(map, start, end):
+#     a_star_path = astar(map, start, end)
+#     straight_route = straight_path(a_star_path)
+#     return extract_commands()
 
 
-
-        elif (path_array[i+1][1]-path_array[i][1])<0:
-            # print("case 2")
-            adjacent = path_array[i+1][0] - path_array[i][0]
-            opposite = path_array[i+1][1] - path_array[i][1]
-
-            if adjacent==0:
-                pos_angle = 0
-            else:
-                pos_angle = math.degrees(np.arctan(opposite/adjacent))
-                pos_angle += 180
-
-                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
-                path_output.append(int(pos_angle))
-                # path_output.append(int(distance)+16384)
-                while distance > 60:
-                    path_output.append(60+16384)
-                    distance -= 60
-                path_output.append(int(distance)+16384)
-
-        elif (path_array[i+1][1]-path_array[i][1])>=0 and (path_array[i+1][0]-path_array[i][0])<0:
-            # print("case 3")
-            
-
-            adjacent = path_array[i+1][0] - path_array[i][0]
-            opposite = path_array[i+1][1] - path_array[i][1]
-            print(adjacent)
-            print(opposite)
-            # print("opposite is: "+ str(opposite))
-            # print("adjacent is: "+ str(adjacent))
-            if adjacent==0:
-                pos_angle = 0
-            else:
-                pos_angle = math.degrees(np.arctan(opposite/adjacent))
-                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
-                path_output.append(int(pos_angle))
-                while distance > 60:
-                    path_output.append(60+16384)
-                    distance -= 60
-                path_output.append(int(distance)+16384)
-
-        else: # dx and dy both >=0
-            # print("case 4")
-            
-            adjacent = path_array[i+1][0] - path_array[i][0]
-            opposite = path_array[i+1][1] - path_array[i][1]
-            print(adjacent)
-            print(opposite)
-            if adjacent==0:
-                pos_angle = 0
-            else:
-                pos_angle = math.degrees(np.arctan(opposite/adjacent))
-                distance = pow(pow(adjacent, 2) + pow(opposite, 2), 0.5)
-                path_output.append(int(pos_angle))
-                while distance > 60:
-                    path_output.append(60+16384)
-                    distance -= 60
-                path_output.append(int(distance)+16384)
-
-
-    return path_output
-
-
-
-################
-
-
-def automate_route(map_temp, location ,end):
-    print("start is: ")
-    print(location)
-    print("end is: ")
-    print(end)
-    a_star_path = astar(map_temp, (location[0], location[1]), end)
-    #print("past astar")
-    straight_route = straight_path(a_star_path)
-    #print("Straight route")
-    print(straight_route)
-    comms =  extract_commands(straight_route)
-    print(comms)
-    return comms
-
-#adv def CurvatiousBundaliciousBattyBunds():
-def update_start(map_temp, x,y):
-    if x == 20:
-        if y==20:
-            command=automate_route(map_temp, (x,y) ,(26,26))
-            #angle=90
-            #driveto(26,26,90)  
-            point=0
-        if y==220:
-            command=automate_route(map_temp, (x,y) ,(26,214))
-            #angle=180
-            #driveto(26,214,180)
-            point=5
-    if x == 340:
-        if y==20:
-            command=automate_route(map_temp, (x,y) ,(334,26))
-            #angle=0
-            #driveto(334,26,-90)
-            point= 2
-        if y==220:
-            command=automate_route(map_temp, (x,y) ,(334,214))
-            #angle = 270
-            #driveto(324,214,0)
-            point= 3
-    return (point,command)
-
-def exe(sav_loc, point, reachedpoint, investigated,map):
-    dalist=[]
-    commands=[]
-    print("investigated")
-    print(investigated)
-    print("reachedpoint: ")
-    print(reachedpoint)
-    print("current poi: ")
-    print(poi[point])
-    print("point")
-    print(point)
-    ####change for aceptence range###########
-    if investigated == True:
-        print("Moving to point#########################################################################################")
-        commands = automate_route(map ,(sav_loc[0],sav_loc[1]), (poi[point+1][0],poi[point+1][1]))
-        investigated=False
-        reachedpoint=False
-    elif investigated == False and reachedpoint==True:
-        print("investigateing----------------------------------------------------------------------------------------------------------")
-        #################### need to change investigation protocals###############
-        if point == 1: # mid edge
-            commands.append(295) # left 155
-            commands.append(90) #right 155
-            point=point+1
-            investigated=True
-            reachedpoint = False
-        elif point==0:
-            #commands.append(32768) #radar on
-            commands.append(25) # left 65
-            commands.append(90) #right 65
-            #commands.append(49152) #radar off
-            point=point+1
-            investigated=True
-            reachedpoint = False
-            
-        elif point==2:
-            commands.append(32768) #radar on
-            commands.append(295) # left 65
-            commands.append(0) #right 65
-            commands.append(49152) #radar off
-            point=point+1
-            investigated=True
-            reachedpoint = False
-
-        elif point==3:
-            commands.append(32768) #radar on
-            commands.append(205) # left 65
-            commands.append(270) #right 65
-            commands.append(49152) #radar off
-            point=point+1
-            investigated=True
-            reachedpoint = False
-
-
-        elif point == 4:  # mid edge 
-            commands.append(115) # left 155
-            commands.append(270) #right 155
-            point=point+1
-            investigated=True
-            reachedpoint = False
-
-        
-        elif point==5:
-            commands.append(32768) #radar on
-            commands.append(115) # left 180
-            commands.append(180) # left 180
-            commands.append(49152) #radar off
-            point=point+1
-            investigated=True
-            reachedpoint = False
-
-        elif point == 6:    #mid 360
-            commands.append(180) # left 180
-            commands.append(280) # left 180
-            commands.append(90)
-            point=point+1
-            investigated=True
-            reachedpoint = False
-
-        elif point == 7 :
-            commands.append(180) # left 180
-            commands.append(280) # left 180
-            commands.append(90)
-            point=point+1
-            investigated=True
-            reachedpoint = False
-
-
-    elif reachedpoint==False:
-        print("reachedpoint=false")
-        commands = automate_route(map ,(sav_loc[0],sav_loc[1]), (poi[point][0],poi[point][1]))
-
-    dalist.append(point)
-    dalist.append(commands)
-    dalist.append(reachedpoint)
-    print(dalist)
-    return dalist
-
+def main():
     
+    maze = np.zeros((360, 240))
+
+    start = (24, 24)
+    end = (180,26)
+
+
+    make_circle(maze, 50, 100)
+    make_circle(maze, 90, 65)
+
+
+  
+    make_border(maze)
+
+    # print(maze)
+
+    path = astar(maze, start, end)
+    print("A star: ")
+    print(path)
+
+    # print("x is: ")
+    # for i in range(0, len(path)):
+    #     print(path[i][0])
+
+    # print("y is: ")
+    # for i in range(0, len(path)):
+    #     print(path[i][1])
+
+
+   
+    critical_points = straight_path(path)
+    print("Critical point algo: ")
+    print(critical_points)
+
+    # print("critical x is: ")
+    # for i in range(0, len(critical_points)):
+    #     print(critical_points[i][0])
+
+    # print("critical y is: ")
+    # for i in range(0, len(critical_points)):
+    #     print(critical_points[i][1])
+
+    commands = extract_commands(critical_points)
+    print("commands are: ")
+    for i in range(0, len(commands)):
+        print(commands[i])
+
+
+if __name__ == '__main__':
+    main()

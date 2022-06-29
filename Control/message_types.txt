@@ -1,0 +1,75 @@
+POS=0
+2 byte x
+2 byte y
+total 5 bytes
+
+UPM=1
+dosnt need byte
+
+IDA=2
+2 byte colour code
+2 byte dist 
+total 3 bytes needed.
+
+RAD=3
+
+opcode, upper1, lower1, upper2, lower2,
+
+Batt=4
+
+
+
+
+
+
+
+
+---------------------------------------------
+
+Control code:
+
+Things to SEND to server:
+
+POS: SEND BEFORE UPM AND IDA
+
+UPM:
+
+IDA: 
+
+RAD:
+
+BAT: 
+
+
+Things to RECEIVE from server2 bytes:
+
+
+0: ANGLE
+
+1: DISTANCE
+
+2: RAD ON
+
+3: RAD OFF
+
+
+
+MOBILE APP:
+
+
+byte1              byte 0              meaning
+5                      1                   20,20      //00000101 00000001 //1281
+5                      2                   20,220     //00000101 00000010  //1282
+5                      3                   340,20     //00000101 00000011  //1283
+5                      4                   3          //00000101 00000100  //128420,220
+
+6                      1                    go forward  //00000110 00000001 //1537
+6                      2                    go back     //00000110 00000010 //1538
+6                      3                    go left     //00000110 00000011 //1539
+6                      4                    go right    //00000110 00000100 //1540
+
+7                      1                    manual      //00000111 00000001 //1793
+7                      2                    automatic  //00000111 00000010 //1794    
+
+8                      1                    radar on    //00001000 00000001 //2049
+8                      2                    radar off   //00001000 00000010 //2050

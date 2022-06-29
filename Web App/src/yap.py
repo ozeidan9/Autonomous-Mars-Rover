@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import math
 from matplotlib.patches import Polygon
 import time
+import automate
 
 # import random
 # Longitina =[]
@@ -11,28 +12,35 @@ import time
 # Alien =[]
 n=1
 
-def calc_loc(Rangle,dist,sav_loc):
+def calc_loc(Rangle,sav_dist,dist,sav_loc):#
+    loc=[]
+    dist1=dist-sav_dist
     angle=(math.pi*(Rangle))/180
-    dx=dist*math.sin(angle)
-    #print(dx)
-    dy=dist*math.cos(angle)
-    #print(dy)
+    dx=dist1*math.sin(angle)
+    dy=dist1*math.cos(angle)
     x=sav_loc[0]+dx
-    #print(long)
     y=sav_loc[1]+dy
-    return([x,y])
+    loc.append(x)
+    loc.append(y)
+    return(loc)
 
-def draw(Longitina, Latina, Alien,x,y,Rangle,n):
+def draw(Longitina, Latina, Alien,x,y,Rangle):
     #displays POI's
     fig, ax = plt.subplots(figsize = (8,7))
-    ax.scatter(Longitina, Latina, zorder=1, c=Alien, s=10)
+    ax.scatter(Longitina, Latina, zorder=1, c=Alien, s=20)
     # ax.set_title('Mapped Unknown')
     ax.set_xlim(0,360)
     ax.set_ylim(0,240)
+
+    tot=(math.pi*(Rangle))/180
+    dx1=8*math.sin(tot)
+    dy1=8*math.cos(tot)
+    x=x+dx1
+    y=y+dy1
    
    #draw rover position/angle
-    tangle=30
-    tsize=2.5
+    tangle=20
+    tsize=20
 
     tota=(math.pi*(Rangle + tangle))/180
     dx=-tsize*math.sin(tota)
@@ -44,35 +52,41 @@ def draw(Longitina, Latina, Alien,x,y,Rangle,n):
     dy=-tsize*math.cos(totb)
     wing2x=x+dx
     wing2y=y+dy
+    # print(x)
+    # print(y)
+    # print(wing1x)
+    # print(wing1y)
+    # print(wing2x)
+    # print(wing2y)
     pts = np.array([[x,y], [wing1x,wing1y],[wing2x,wing2y]])
     p = Polygon(pts, closed=False)
     ax = plt.gca()
     ax.add_patch(p) 
     time.sleep(5)
-    plt.savefig('./command/src/components/comp-resources/Mapped_Unknown.jpg')
+    plt.savefig('./Mapped_Unknown.jpg')
 
 
-def update(long, lat, colour, Longitina, Latina, Alien,x,y,Rangle,n):
+def update(long, lat, colour, Longitina, Latina, Alien,x,y,Rangle):
     Longitina.append(long)
     Latina.append(lat)
     Alien.append(colour)
-    draw(Longitina, Latina, Alien,x,y,Rangle,n)
+    draw(Longitina, Latina, Alien,x,y,Rangle)
     
 
-def alien(x,y,Rangle,colour,aangle,dist,Longitina,Latina,Alien,n):
-    tot=(math.pi*(aangle + Rangle))/180
+def alien(x,y,Rangle,colour,dist,Longitina,Latina,Alien):
+    tot=(math.pi*(Rangle))/180
     dx=dist*math.sin(tot)
-    #print(dx)
     dy=dist*math.cos(tot)
-    #print(dy)
     long=x+dx
-    #print(long)
-    lat=y+dy
-    #print(lat) 
+    lat=y+dy 
     if colour != '#ffffff':
-        update(long, lat, colour,Longitina,Latina,Alien,x,y,Rangle,n)
+        #print("im shouldnt be")
+        stripes=dist>>7
+        rad = (2*stripes)+10  #deadzone = 10?
+        #automate.make_circle(map,long,lat, rad)
+        update(long, lat, colour,Longitina,Latina,Alien,x,y,Rangle)
     else:
-        draw(Longitina, Latina, Alien,x,y,Rangle,n)
+        draw(Longitina, Latina, Alien,x,y,Rangle)
 
 # print('rover-x:')
 # x = 0
