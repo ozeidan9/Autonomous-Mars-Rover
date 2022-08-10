@@ -1,7 +1,6 @@
 <h1>Autonomous Mars Rover</h1>
 
-2nd Year EEE/EIE Group Project - 23rd June 2022
-=======================================
+<h4> 2nd Year EEE/EIE Group Project - 23rd June 2022</h4>
 
 
 This project aims to design and build an autonomous rover system for exploring an alien colony on
