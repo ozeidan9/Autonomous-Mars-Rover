@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "rover-controller",
+    "slug": "rover-controller",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "rover-controller"
+}
