@@ -1,7 +1,6 @@
 <h1>Autonomous Mars Rover</h1>
 
-2nd Year EEE/EIE Group Project Report
-23rd June 2022
+2nd Year EEE/EIE Group Project - 23rd June 2022
 =======================================
 
 
